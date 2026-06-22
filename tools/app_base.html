@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>이인혁 인지 기반 커리큘럼 설계</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Three.js (3D 시각화 용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0f172a', panel: '#1e293b', card: '#334155',
+                        brand: '#10b981', accent: '#0ea5e9', warn: '#f59e0b', danger: '#ef4444'
+                    },
+                    fontFamily: { sans: ['Pretendard', '-apple-system', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        body { background-color: #0f172a; color: #f8fafc; overflow-x: hidden; touch-action: manipulation; }
+
+        @keyframes pulse-border {
+            0% { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { border-color: rgba(16, 185, 129, 1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { border-color: rgba(16, 185, 129, 0.4); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .mode-select-active { border: 2px solid #10b981 !important; animation: pulse-border 1.5s infinite; }
+        .slot-target { animation: pulse-border 1.5s infinite; cursor: pointer; }
+
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        * { -webkit-tap-highlight-color: transparent; }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <header class="bg-panel border-b border-slate-700 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-[1400px] mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-brand to-accent rounded-xl flex items-center justify-center font-black text-slate-900 shadow-lg">IH</div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-tight">이인혁 영어 시스템</h1>
+                    <p class="text-xs text-brand font-medium">인지 과정 &amp; 4대 영역 밸런스 설계 · <span id="bookCountLabel">0</span>종</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button id="btn-2d" onclick="toggleView('2d')" class="px-3 py-2 sm:px-4 rounded-md text-xs sm:text-sm font-bold bg-brand text-slate-900 transition-all flex items-center gap-2">
+                    <i data-lucide="layout-template" class="w-4 h-4"></i> <span class="hidden sm:inline">설계 모드</span>
+                </button>
+                <button id="btn-rec" onclick="toggleView('rec')" class="px-3 py-2 sm:px-4 rounded-md text-xs sm:text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all flex items-center gap-2 border border-slate-700">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> <span class="hidden sm:inline">교재 추천</span>
+                </button>
+                <button id="btn-3d" onclick="toggleView('3d')" class="px-3 py-2 sm:px-4 rounded-md text-xs sm:text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all flex items-center gap-2 border border-slate-700">
+                    <i data-lucide="box" class="w-4 h-4"></i> <span class="hidden sm:inline">3D 맵핑</span>
+                </button>
+                <button id="btn-rank" onclick="toggleView('rank')" class="px-3 py-2 sm:px-4 rounded-md text-xs sm:text-sm font-bold bg-slate-800 text-slate-400 hover:text-white transition-all flex items-center gap-2 border border-slate-700">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i> <span class="hidden sm:inline">랭킹</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 relative overflow-hidden">
+        <!-- 2D View (조립기) -->
+        <div id="view-2d" class="h-full max-w-[1400px] mx-auto px-2 sm:px-4 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 fade-in">
+
+            <!-- [Left] DB & Filters -->
+            <div class="lg:col-span-5 bg-panel border border-slate-700 rounded-2xl flex flex-col h-[45vh] lg:h-[calc(100vh-6rem)] shadow-xl relative">
+
+                <div class="flex overflow-x-auto border-b border-slate-700 hide-scrollbar bg-slate-800/50 rounded-t-2xl flex-shrink-0">
+                    <button onclick="setTab('skill')" id="tab-skill" class="flex-1 py-3 px-2 text-sm font-bold text-brand border-b-2 border-brand whitespace-nowrap">4대영역</button>
+                    <button onclick="setTab('level')" id="tab-level" class="flex-1 py-3 px-2 text-sm font-bold text-slate-400 hover:text-white whitespace-nowrap">난이도</button>
+                    <button onclick="setTab('target')" id="tab-target" class="flex-1 py-3 px-2 text-sm font-bold text-slate-400 hover:text-white whitespace-nowrap">상황/약점</button>
+                    <button onclick="setTab('grade')" id="tab-grade" class="flex-1 py-3 px-2 text-sm font-bold text-slate-400 hover:text-white whitespace-nowrap">학년/나이</button>
+                </div>
+
+                <div class="p-4 flex-shrink-0 z-10 border-b border-slate-700">
+                    <div id="filterContainer" class="flex flex-wrap gap-2 mb-3">
+                        <!-- JS Render -->
+                    </div>
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4"></i>
+                        <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="교재명 검색..." class="w-full bg-slate-900 border border-slate-600 rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand">
+                    </div>
+                </div>
+
+                <!-- 교재 목록 -->
+                <div class="flex-1 overflow-y-auto p-3 space-y-2 pb-6 relative hide-scrollbar">
+                    <div id="ai-rec-banner" class="hidden mb-3 bg-gradient-to-r from-brand/20 to-slate-800 border border-brand/50 rounded-xl p-3 flex gap-3 items-center shadow-lg fade-in cursor-pointer">
+                        <!-- JS 렌더링 -->
+                    </div>
+                    <div id="dbCount" class="text-[11px] text-slate-500 font-bold px-1 mb-1"></div>
+                    <div id="bookList" class="space-y-2">
+                        <!-- JS Render -->
+                    </div>
+                </div>
+
+                <!-- 모바일 선택 취소 오버레이 -->
+                <div id="cancel-banner" class="hidden absolute bottom-0 left-0 w-full bg-brand text-slate-900 px-4 py-3 text-sm font-bold flex justify-between items-center z-20 shadow-[0_-10px_20px_rgba(16,185,129,0.2)]">
+                    <span class="flex items-center gap-2"><i data-lucide="hand" class="w-4 h-4"></i> 우측 빈 분기 슬롯을 선택하세요</span>
+                    <button onclick="cancelSelection()" class="bg-slate-900 text-white px-3 py-1.5 rounded text-xs">취소</button>
+                </div>
+            </div>
+
+            <!-- [Right] Pipeline (분기 시스템) -->
+            <div class="lg:col-span-7 bg-panel border border-slate-700 rounded-2xl flex flex-col h-[45vh] lg:h-[calc(100vh-6rem)] shadow-xl overflow-y-auto p-4 sm:p-5 relative hide-scrollbar">
+                <div class="flex justify-between items-end border-b border-slate-700 pb-3 mb-4 flex-shrink-0">
+                    <div>
+                        <h2 class="font-bold text-lg sm:text-xl mb-1 flex items-center gap-2 text-white">
+                            <i data-lucide="network" class="text-brand w-5 h-5"></i> 분기별 인지 커리큘럼
+                        </h2>
+                        <p class="text-[11px] sm:text-xs text-slate-400">1~4분기 슬롯에 교재를 배치하세요. AI가 흐름을 진단합니다.</p>
+                    </div>
+                    <div id="diag-msg" class="text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 text-center max-w-[120px] sm:max-w-none">
+                        진단 대기 중
+                    </div>
+                </div>
+
+                <div class="space-y-5 pb-4 flex-1" id="pipelineContainer">
+                    <!-- JS Render Pipeline -->
+                </div>
+
+                <!-- 공유/저장 툴바 -->
+                <div class="flex gap-2 flex-wrap pt-3 border-t border-slate-700 flex-shrink-0">
+                    <select id="goalSel" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg px-2 py-2.5 font-bold"><option value="">목표 선택…</option><option>내신</option><option>수능</option><option>회화</option><option>시험(토익/토플)</option><option>기초/입문</option></select>
+                    <button onclick="startByGoal()" class="flex-1 min-w-[90px] bg-purple-500 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="flag" class="w-4 h-4"></i> 목표 시작</button>
+                    <button onclick="autoFillBalance()" class="flex-1 min-w-[100px] bg-accent text-slate-900 font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="layout-grid" class="w-4 h-4"></i> 균형 채우기</button>
+                    <button onclick="prescribeVocab()" class="flex-1 min-w-[100px] bg-brand text-slate-900 font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="pill" class="w-4 h-4"></i> 어휘 처방</button>
+                    <button onclick="shareCurriculum()" class="flex-1 min-w-[100px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="upload-cloud" class="w-4 h-4"></i> 커리 공유</button>
+                    <button onclick="exportCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="save" class="w-4 h-4"></i> 저장</button>
+                    <button onclick="importCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="folder-open" class="w-4 h-4"></i> 불러오기</button>
+                    <button onclick="printCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="printer" class="w-4 h-4"></i> 출력</button>
+                    <button onclick="openDashboard()" class="flex-1 min-w-[100px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> 실시간 대시보드</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D View (인지 매핑) -->
+        <div id="view-3d" class="hidden absolute inset-0 bg-dark z-40 fade-in flex flex-col">
+            <div class="absolute top-4 left-4 z-50 bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-xl max-w-sm pointer-events-none">
+                <h3 class="text-brand font-bold text-lg mb-1 flex items-center gap-2"><i data-lucide="brain"></i> 3D 인지 매핑 진단</h3>
+                <p class="text-xs text-slate-300 mb-3">y축(높이)은 난이도를 나타냅니다. 마우스/터치로 360도 회전해보세요.</p>
+                <div class="space-y-2 text-xs">
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-white"></span> 정상 흐름</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_red]"></span> 난이도 급상승 (과부하 위험)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-warn shadow-[0_0_8px_orange]"></span> 난이도 역행</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-accent animate-pulse"></span> 스킬 병목 (한 분기 내 중복)</div>
+                </div>
+            </div>
+            <div id="canvas-container" class="w-full h-full cursor-move"></div>
+        </div>
+
+        <!-- 추천 View (파이프라인과 별개의 독립 추천 섹션) -->
+        <div id="view-rec" class="hidden absolute inset-0 overflow-y-auto bg-dark z-30 fade-in hide-scrollbar">
+          <div class="max-w-[1100px] mx-auto p-4">
+            <div class="mb-4">
+              <h2 class="text-xl font-bold flex items-center gap-2"><i data-lucide="sparkles" class="text-brand"></i> 교재 추천 — 정답률 기반 다음 단계</h2>
+              <p class="text-xs text-slate-400 mt-1">방금 끝낸 교재와 정답률 구간을 기준으로, 4대영역(듣기·말하기·읽기·쓰기) 밸런스 · CEFR · 인지 흐름을 종합해 다음 교재를 단계별로 추천합니다.</p>
+            </div>
+            <div class="bg-panel border border-slate-700 rounded-xl p-3 mb-4">
+              <div class="text-xs font-bold text-slate-300 mb-2">현재(방금 푼) 교재 선택</div>
+              <input id="recSearch" onkeyup="renderRecPicker()" placeholder="교재명 또는 출판사 검색…" class="w-full bg-slate-900 border border-slate-600 rounded-lg py-2 px-3 text-sm mb-2 focus:outline-none focus:border-brand">
+              <div id="recPicker" class="max-h-40 overflow-y-auto space-y-1 hide-scrollbar"></div>
+              <div id="recCurrentCard" class="mt-2"></div>
+            </div>
+            <div id="recResults"></div>
+          </div>
+        </div>
+        <!-- 랭킹 대시보드 뷰 -->
+        <div id="view-rank" class="hidden absolute inset-0 overflow-y-auto bg-dark z-30 fade-in hide-scrollbar">
+            <div class="max-w-[1100px] mx-auto p-3 sm:p-5">
+                <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <h2 class="text-lg font-black text-white flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-5 h-5 text-brand"></i> 교재 랭킹 대시보드</h2>
+                    <div id="rankBucket" class="flex gap-1"></div>
+                </div>
+                <div class="text-[11px] text-slate-500 mb-2">모든 사용자의 커리·평가·조합이 중앙에 공유되어 실시간(준실시간 폴링) 반영됩니다.</div>
+                <div id="rankFilters" class="mb-3 space-y-2"></div>
+                <!-- 장기 광고 슬롯(현재 비활성·공간 미점유) -->
+                <div id="adSlot" class="hidden mb-3 rounded-xl border border-dashed border-slate-700 text-center text-[11px] text-slate-600 py-3">광고 영역</div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div id="rankMine" class="bg-slate-800/40 rounded-xl border border-slate-700 p-3 min-h-[120px]"><div class="text-slate-500 text-sm">불러오는 중…</div></div>
+                    <div id="rankExternal" class="bg-slate-800/40 rounded-xl border border-slate-700 p-3 min-h-[120px]"><div class="text-slate-500 text-sm">불러오는 중…</div></div>
+                </div>
+                <div id="rankInsights" class="mt-4 bg-slate-800/40 rounded-xl border border-slate-700 p-3 hidden"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 모달(처방/대시보드) -->
+    <div id="modalWrap" class="hidden fixed inset-0 z-[90] bg-black/70 flex items-start justify-center p-4 overflow-auto">
+        <div class="bg-panel border border-slate-700 rounded-2xl w-full max-w-2xl mt-8 shadow-2xl">
+            <div class="flex justify-between items-center p-4 border-b border-slate-700">
+                <h3 id="modalTitle" class="font-bold text-white text-lg"></h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="modalBody" class="p-4"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-brand text-slate-900 font-bold px-6 py-3 rounded-full shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[100] flex items-center gap-2 translate-y-4">
+        <i data-lucide="check-circle" class="w-5 h-5"></i>
+        <span id="toastMsg">메시지</span>
+    </div>
+
+    <!-- 중앙 집계 설정 (배포 후 /exec URL 입력) -->
+    <script>
+        window.GUIDE_ENDPOINT = "";              // ← Apps Script 웹앱 /exec URL
+        window.GUIDE_DASHBOARD_POLL_MS = 30000;
+    </script>
+
+    <!-- Script -->
+    <script>
+        // ==========================================
+        // 1. Master Data Base — 빌드시 실제 644종 주입
+        // ==========================================
+        const MASTER_DATA = __MASTER_DATA__;
+
+        // 표지 없는 항목: 책마다 고유한 인라인 SVG 타이틀카드 생성(네트워크 불필요)
+        function _escSvg(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+        function _wrapTitle(t, n){
+            t = String(t||'').trim(); const words = t.split(/\s+/); const lines = []; let cur = '';
+            for(const w of words){
+                if((cur+' '+w).trim().length <= n){ cur = (cur+' '+w).trim(); }
+                else { if(cur) lines.push(cur);
+                    if(w.length > n){ for(let i=0;i<w.length;i+=n) lines.push(w.slice(i,i+n)); cur=''; }
+                    else cur = w;
+                }
+            }
+            if(cur) lines.push(cur);
+            return lines.slice(0,4);
+        }
+        function makeCoverCard(book){
+            const skillHue = { '독해':200,'문법':265,'듣기':35,'쓰기':325,'어휘':170,'말하기':50,'구문':240,'파닉스':150,'모의/기출':0 };
+            const id = book.id || book.title || ''; let h = 0;
+            for(let i=0;i<id.length;i++) h = (h*31 + id.charCodeAt(i)) >>> 0;
+            const base = (skillHue[book.skill]!=null ? skillHue[book.skill] : (h%360));
+            const hue = (base + (h%40) - 20 + 360) % 360, hue2 = (hue + 28) % 360;
+            const lines = _wrapTitle(book.title, 11);
+            const ty = 102 - (lines.length-1)*11;
+            const tspans = lines.map((l,i)=>`<tspan x='75' dy='${i===0?0:22}'>${_escSvg(l)}</tspan>`).join('');
+            const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='150' height='200'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='hsl(${hue},58%,34%)'/><stop offset='1' stop-color='hsl(${hue2},60%,16%)'/></linearGradient></defs><rect width='150' height='200' fill='url(#g)'/><rect width='7' height='200' fill='rgba(0,0,0,.28)'/><rect x='7' width='2' height='200' fill='rgba(255,255,255,.12)'/><g font-family='Apple SD Gothic Neo,Malgun Gothic,sans-serif' fill='#fff' text-anchor='middle'><text x='75' y='${ty}' font-size='15' font-weight='700'>${tspans}</text><text x='75' y='184' font-size='9' fill='rgba(255,255,255,.72)'>${_escSvg((book.pub||'').slice(0,18))}</text></g></svg>`;
+            return 'data:image/svg+xml,' + encodeURIComponent(svg);
+        }
+        MASTER_DATA.forEach(book => { if(!book.cover) book.cover = makeCoverCard(book); });
+
+        const TABS = __TABS__;
+
+        // ===== 그리드 모델: Y=영역(행), X=분기(열, 3단계×4분기=12) =====
+        const GRID_ROWS = ['독해','듣기','말하기','쓰기','문법','구문','어휘','파닉스','모의/기출'];
+        const GRID_CORE = ['독해','듣기','말하기','쓰기'];   // 4대영역
+        const GRID_COLS = 12;
+        const PHASE_NAME = { 1:'기반', 2:'체화', 3:'실전' };
+        const PHASE_LV   = { 1:[1,2,2], 2:[2,3,3], 3:[3,4,5] };
+        function colMeta(c){ const p=Math.floor(c/4)+1, q=(c%4)+1; return { phase:p, quarter:q, label:p+'-'+q }; }
+        function rowOf(skill){ return GRID_ROWS.indexOf(skill)>=0 ? skill : '독해'; }
+        function gridInit(){ const g={}; GRID_ROWS.forEach(s=>g[s]=new Array(GRID_COLS).fill(null)); return g; }
+        function gridPlaced(){ const out=[]; GRID_ROWS.forEach(s=>state.grid[s].forEach((uid,c)=>{ if(uid){const b=byId(uid); if(b) out.push({skill:s,col:c,book:b});}})); return out; }
+        function gridIsPlaced(id){ return GRID_ROWS.some(s=>state.grid[s] && state.grid[s].indexOf(id)>=0); }
+        function gridRowSeq(skill){ const seq=[]; (state.grid[skill]||[]).forEach((uid,c)=>{ if(uid){const b=byId(uid); if(b)seq.push({col:c,book:b});}}); return seq; }
+        function gridColSeq(){ const seq=[]; for(let c=0;c<GRID_COLS;c++) GRID_ROWS.forEach(s=>{ const uid=state.grid[s][c]; if(uid){const b=byId(uid); if(b)seq.push(b);} }); return seq; }
+
+        let state = {
+            currentTab: 'skill',
+            filterVal: '전체',
+            search: '',
+            selectedBookId: null,
+            lastAddedSkill: null,
+            view: '2d',
+            goal: '',
+            grid: gridInit()
+        };
+
+        function byId(id){ return MASTER_DATA.find(x => x.id === id); }
+
+        // 교재간 케미(궁합) v2 — 교육학 이론(Krashen i+1·ZPD·자동화·수용→생산) + 한국 학원 커리 근거
+        const _CHEM = {
+            RECEPTIVE:['듣기','독해'], PRODUCTIVE:['말하기','쓰기'], ELEMENT:['문법','구문','어휘'], EXAM:['모의/기출','모의기출'],
+            GRADE_IDX:{'유아/예비초':0,'초':0,'초등':0,'중':1,'중등':1,'고':2,'고등':2,'성인':3,'전체':1},
+            CEFR_IDX:{'PRE-A1':0,'A1':1,'A2':2,'B1':3,'B2':4,'C1':5,'C2':6},
+            TH:{great:65,good:38,ok:5,warn:-40},
+            FLOW:{ '파닉스>어휘':55,'파닉스>독해':52,'어휘>독해':58,'어휘>듣기':40,'문법>구문':56,'구문>독해':56,'문법>독해':40,
+                '듣기>말하기':52,'독해>쓰기':52,'구문>모의/기출':45,'독해>모의/기출':50,
+                '어휘>문법':30,'어휘>구문':30,'말하기>쓰기':30,'독해>듣기':25,'듣기>독해':28,'어휘>말하기':28,'어휘>쓰기':28,'쓰기>문법':12,
+                '말하기>듣기':10,'쓰기>독해':10,'듣기>쓰기':18,'독해>말하기':18,
+                '파닉스>문법':-70,'파닉스>구문':-70,'파닉스>모의/기출':-75,'모의/기출>파닉스':-50,'모의/기출>어휘':-30,'말하기>모의/기출':-20 }
+        };
+        function _cnorm(s){ return String(s||'').toLowerCase().replace(/[\s\-_]/g,''); }
+        function _seriesKey(b){ return String(b.title||'').toLowerCase().replace(/\b\d+\s*(st|nd|rd|th)\s+edition\b/g,' ').replace(/\b(level|lv|book|band|stage|grade|단계|권)\b/gi,' ').replace(/[0-9]+/g,' ').replace(/[^a-z0-9가-힣]+/g,'').trim(); }
+        function _gidx(g){ return _CHEM.GRADE_IDX[g] != null ? _CHEM.GRADE_IDX[g] : 1; }
+        function _isComp(a,b){ const R=_CHEM.RECEPTIVE,P=_CHEM.PRODUCTIVE,E=_CHEM.ELEMENT;
+            if((R.includes(a)&&P.includes(b))||(P.includes(a)&&R.includes(b))||(R.includes(a)&&R.includes(b))) return true;
+            if(a==='파닉스'&&(b==='어휘'||b==='독해')) return true;       // 토대→요소/독해 누적
+            if(E.includes(a)&&(E.includes(b)||b==='독해')) return true;    // 요소→요소/독해 누적
+            if(a==='어휘'&&(R.includes(b)||P.includes(b))) return true;    // 어휘→수용/생산
+            return false; }
+        function _skillFlow(p,c,dl,gb,lv){
+            if(p==='파닉스'&&(c==='독해'||c==='어휘')){ if(_gidx(gb)>=1) return {score:-25,reason:'중등+ 파닉스 직후 독해(대상 부적합)'}; }
+            if(c==='모의/기출'&&p!==c){ if(_gidx(gb)<2||lv<3) return {score:-35,reason:'기초 미완 조기 실전(좌절)'}; }
+            let base=_CHEM.FLOW[p+'>'+c];
+            if(base===undefined) return {score:0,reason:''};
+            if(base>0 && !(dl>=0&&dl<=1)) base=Math.round(base*0.5);
+            return {score:base, reason: base>=50?(p+'→'+c+' 정석 연계'):(base<=-50?(p+'→'+c+' 처리위계 위반'):'')};
+        }
+        function _levelDelta(dl,same,flowPos){
+            let s,r;
+            if(dl>=3){s=-85;r='i+3↑ 좌절(이해 붕괴)';} else if(dl===2){s=-30;r='+2 병목';}
+            else if(dl===1){s=28;r='i+1 최적 도전';} else if(dl===0){s=10;r='자동화 굳히기';}
+            else if(dl===-1){s=-18;r='역행 1단계';} else {s=-55;r='역행 2단계↑ 단절';}
+            if(dl===1&&flowPos) s=12;
+            if(dl===0&&same) s=0;
+            return {score:s,reason:r};
+        }
+        function _chemOut(score,grade,reason,topReasons){
+            const M={great:{css:'#10b981',icon:'✓ 최적'},good:{css:'#10b981',icon:'✓ 궁합'},ok:{css:'#94a3b8',icon:'– 무난'},warn:{css:'#f59e0b',icon:'⚠ 주의'},bad:{css:'#ef4444',icon:'⚠ 부적합'},dup:{css:'#0ea5e9',icon:'⟲ 복습'},start:{css:'#94a3b8',icon:'·'}};
+            const m=M[grade]||M.ok;
+            return { g:(grade==='great'?'good':grade), grade, score, t:reason, reason, css:m.css, icon:m.icon, topReasons:topReasons||[reason] };
+        }
+        function chemistry(prev, cur){
+            if(!prev || !prev.skill || !cur) return _chemOut(0,'start','학습 시작 지점',['학습 시작 지점']);
+            const pl=prev.level||3, cl=cur.level||3, dl=cl-pl, same=prev.skill===cur.skill;
+            const gd=_gidx(cur.gradeBand)-_gidx(prev.gradeBand);
+            const lowMode=_gidx(cur.gradeBand)<=1&&cl<=2, highMode=_gidx(cur.gradeBand)>=2||cl>=3;
+            const pSeries=_seriesKey(prev), cSeries=_seriesKey(cur);
+            let score=0; const reasons=[];
+            if(same&&dl===0&&pSeries&&pSeries===cSeries) return _chemOut(12,'dup','동일 시리즈·레벨 복습',['동일 시리즈·레벨 복습']);
+            const flow=_skillFlow(prev.skill,cur.skill,dl,cur.gradeBand,cl); score+=flow.score; if(flow.reason)reasons.push(flow.reason);
+            const ld=_levelDelta(dl,same,flow.score>0); score+=ld.score; if(ld.reason)reasons.push(ld.reason);
+            if(same){
+                if(dl===1&&cl<=2){score+=25;reasons.unshift('저레벨 동일스킬 상승(정착)');}
+                else if(dl===1&&cl>=4){score+=5;}
+                else if(dl===0&&(_CHEM.ELEMENT.includes(prev.skill)||_CHEM.EXAM.includes(prev.skill))){score+=18;reasons.push('어휘/기출 동급 누적복습');}
+                else if(dl===0&&cl>=4){score-=30;reasons.push('고레벨 제자리 정체');}
+                else if(dl===0){score+=10;}
+            }
+            if(_CHEM.RECEPTIVE.includes(prev.skill)&&_CHEM.PRODUCTIVE.includes(cur.skill)&&Math.abs(dl)<=1){score+=15;reasons.push('수용→생산 전이');}
+            if(_CHEM.RECEPTIVE.includes(prev.skill)&&_CHEM.RECEPTIVE.includes(cur.skill)&&!same&&Math.abs(dl)<=1){score+=12;}
+            if(Math.abs(gd)>=2){score-=55;reasons.push('학년대 2단계 점프');}
+            else if(gd===1&&dl>=2){score-=25;reasons.push('학년대+레벨 이중점프');}
+            else if(gd===1&&dl<=1&&dl>=0){score+=15;reasons.push('학년대↑+레벨유지');}
+            else if(gd===-1){score-=12;}
+            if((prev.skill==='말하기'||prev.skill==='듣기')&&(cur.skill==='문법'||cur.skill==='구문')&&gd===1&&!lowMode){score-=30;reasons.push('회화→문법 적응갭');}
+            const sameSeries=pSeries&&cSeries&&pSeries===cSeries, samePub=prev.pub&&cur.pub&&_cnorm(prev.pub)===_cnorm(cur.pub);
+            if(sameSeries&&same&&dl===1){score+=22;reasons.unshift('동일 시리즈 다음 권');}
+            else if(sameSeries&&same&&dl>=2){score-=18;reasons.push('시리즈 권 건너뜀');}
+            else if(sameSeries&&!same&&Math.abs(dl)<=1){score+=12;}
+            else if(samePub&&Math.abs(dl)<=1){score+=8;}
+            if(prev.cefr&&cur.cefr){ const pi=_CHEM.CEFR_IDX[String(prev.cefr).toUpperCase()], ci=_CHEM.CEFR_IDX[String(cur.cefr).toUpperCase()]; if(pi!=null&&ci!=null){ const cd=ci-pi; if(cd>=2){score-=25;reasons.push('CEFR 2단계↑ 도약');} else if(cd<=-2){score-=20;} } }
+            if(highMode&&!same&&Math.abs(dl)<=1&&_CHEM.ELEMENT.includes(prev.skill)&&_CHEM.ELEMENT.includes(cur.skill)){score+=10;reasons.push('요소스킬 인터리빙');}
+            if(lowMode&&!same&&!_isComp(prev.skill,cur.skill)){score-=25;reasons.push('초보 무관스킬 점프');}
+            if(Math.abs(dl)>=2) score=Math.min(score,30);
+            score=Math.max(-100,Math.min(100,Math.round(score)));
+            const grade= score>=_CHEM.TH.great?'great':score>=_CHEM.TH.good?'good':score>=_CHEM.TH.ok?'ok':score>=_CHEM.TH.warn?'warn':'bad';
+            return _chemOut(score,grade,reasons[0]||'표준 진행',reasons.slice(0,3));
+        }
+        // 케미: 각 영역(행)의 시간 진행(열) 시퀀스로 계산. key = skill:col
+        function buildChemMap(){
+            const map = {};
+            GRID_ROWS.forEach(s=>{ let prev=null; gridRowSeq(s).forEach(({col,book})=>{ map[s+':'+col]=chemistry(prev,book); prev=book; }); });
+            return map;
+        }
+
+        // ==========================================
+        // 3. UI Update (2D)
+        // ==========================================
+        function initApp() {
+            const lbl = document.getElementById('bookCountLabel'); if(lbl) lbl.innerText = MASTER_DATA.length;
+            renderFilters();
+            renderDB();
+            renderPipeline();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            if (typeof loadRatings === 'function') loadRatings();
+            if (typeof startRealtimeSync === 'function') startRealtimeSync();
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initApp);
+        else setTimeout(initApp, 50);
+
+        function setTab(tab) {
+            state.currentTab = tab;
+            state.filterVal = '전체';
+            ['skill', 'level', 'target', 'grade'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if(!btn) return;
+                btn.className = (t === tab)
+                    ? "flex-1 py-3 px-2 text-sm font-bold text-brand border-b-2 border-brand whitespace-nowrap"
+                    : "flex-1 py-3 px-2 text-sm font-bold text-slate-400 hover:text-white whitespace-nowrap";
+            });
+            renderFilters();
+            renderDB();
+        }
+
+        function renderFilters() {
+            const container = document.getElementById('filterContainer');
+            const items = TABS[state.currentTab] || ['전체'];
+            container.innerHTML = items.map(item => `
+                <button onclick="setFilter('${item}')" class="px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-colors border ${
+                    state.filterVal === item
+                    ? 'bg-brand text-slate-900 border-brand shadow-md'
+                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-slate-500'
+                }">${item}</button>
+            `).join('');
+        }
+
+        function setFilter(val) { state.filterVal = val; renderFilters(); renderDB(); }
+        function handleSearch() { state.search = document.getElementById('searchInput').value.toLowerCase(); renderDB(); }
+
+        function _normSeries(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9가-힣]+/g,''); }
+        // 다음 단계 교재 추천 점수: 케미 + 난이도 + 시리즈 연계 + 출판사/학년
+        function recScore(last, b){
+            let score = 0; const reasons = [];
+            const chem = chemistry(last, b);
+            score += chem.score * 0.6;                       // 케미 v2 점수 직접 활용(세분화)
+            if(chem.score>=38 && chem.reason) reasons.push(chem.reason);
+            const dl = (b.level||3) - (last.level||3);
+            if(dl===1){ score+=24; reasons.push('난이도 +1단계'); }
+            else if(dl===0){ score+=16; reasons.push('동일 난이도'); }
+            else if(dl===2){ score+=4; }
+            else { score-=14; }
+            if(_seriesKey(b) && _seriesKey(b)===_seriesKey(last)){ score+=46; reasons.push('같은 시리즈 다음 권'); }
+            if(b.pub && b.pub===last.pub){ score+=6; }
+            if(b.gradeBand && b.gradeBand===last.gradeBand){ score+=8; }
+            return { score, reasons, chem };
+        }
+        function getRecommendation() {
+            const addedIds = []; let last = null;
+            gridColSeq().forEach(b=>{ addedIds.push(b.id); last=b; });
+            if(!last) return null;
+            if(addedIds.length >= 8){
+                const m = MASTER_DATA.find(b => b.skill==='모의/기출' && !addedIds.includes(b.id));
+                if(m) return { book:m, msg:'후반부 실전 대비 — 모의고사/기출 풀이 권장', alts:[] };
+            }
+            const cands = MASTER_DATA.filter(b => !addedIds.includes(b.id) && b.id!==last.id)
+                .map(b => ({ b, r: recScore(last, b) }))
+                .filter(x => x.r.score > 0)
+                .sort((a,b) => b.r.score - a.r.score);
+            if(!cands.length) return null;
+            const top = cands[0];
+            return { book: top.b, msg: `"${(last.title||'').slice(0,18)}" 다음 → ${top.r.reasons.join(' · ') || '궁합 양호'}`, alts: cands.slice(1,3).map(x=>x.b) };
+        }
+
+        function renderDB() {
+            const container = document.getElementById('bookList');
+            const recBanner = document.getElementById('ai-rec-banner');
+            const rec = getRecommendation();
+            if(rec && !state.selectedBookId && !state.search) {
+                const b = rec.book;
+                recBanner.innerHTML = `
+                    <div class="flex-1">
+                        <div class="text-[11px] text-brand font-bold mb-1 flex items-center gap-1"><i data-lucide="bot" class="w-3.5 h-3.5"></i> AI 다음 분기 추천</div>
+                        <div class="text-sm font-bold text-white mb-0.5">[${b.pub}] ${b.title}</div>
+                        <div class="text-[11px] text-slate-300 leading-snug break-keep">${rec.msg}</div>
+                    </div>
+                    <div onclick="selectBook('${b.id}')" class="bg-brand text-slate-900 px-3 py-2 rounded-lg text-xs font-bold hover:bg-emerald-400 transition flex-shrink-0 text-center">선택<br>하기</div>`;
+                recBanner.classList.remove('hidden');
+            } else recBanner.classList.add('hidden');
+
+            const filtered = MASTER_DATA.filter(b => {
+                const matchSearch = b.title.toLowerCase().includes(state.search) || (b.pub||'').toLowerCase().includes(state.search);
+                let matchFilter = true;
+                if(state.filterVal !== '전체') {
+                    if(state.currentTab === 'skill') matchFilter = (b.skill === state.filterVal);
+                    else if(state.currentTab === 'level') matchFilter = b.level === parseInt(state.filterVal.charAt(0));
+                    else if(state.currentTab === 'target') matchFilter = (b.tags||[]).includes(state.filterVal);
+                    else if(state.currentTab === 'grade') matchFilter = (b.gradeBand === state.filterVal);
+                }
+                return matchSearch && matchFilter;
+            });
+
+            const dbc = document.getElementById('dbCount'); if(dbc) dbc.innerText = `${filtered.length}종 표시`;
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-slate-500 text-sm font-medium">조건에 맞는 교재가 없습니다.</div>`;
+            } else {
+                container.innerHTML = filtered.slice(0, 300).map(b => {
+                    const isSelected = state.selectedBookId === b.id;
+                    const coverHtml = `<img src="${b.cover}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='https://placehold.co/150x200/1e293b/64748b?text=BOOK'">`;
+                    const tagHtml = (b.tags||[]).slice(0,3).map(t => `<span class="text-[10px] text-slate-400 border border-slate-600 px-1 rounded bg-slate-800">${t}</span>`).join('');
+                    const trackHtml = b.track ? `<span class="text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-1.5 py-0.5 rounded">${b.track}</span>` : '';
+                    const rg = window.__ratingMap && window.__ratingMap[b.id];
+                    return `
+                    <div draggable="true" ondragstart="dragStart(event, '${b.id}')" onclick="selectBook('${b.id}')"
+                         class="relative bg-card p-3 rounded-xl border-2 transition-all cursor-pointer flex gap-3 select-none ${isSelected ? 'mode-select-active bg-slate-700' : 'border-slate-700 hover:border-slate-500'}">
+                        <button onclick="event.stopPropagation();showBookDetail('${b.id}')" title="상세·평가" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-slate-700/80 hover:bg-brand hover:text-slate-900 text-slate-300 text-xs flex items-center justify-center z-10">ⓘ</button>
+                        <div class="w-12 h-16 bg-slate-800 rounded border border-slate-600 flex items-center justify-center overflow-hidden flex-shrink-0">${coverHtml}</div>
+                        <div class="flex-1 flex flex-col justify-center overflow-hidden">
+                            <span class="text-[10px] text-brand font-bold">${b.pub}</span>
+                            <h4 class="text-sm font-bold text-white truncate w-full" title="${b.title}">${b.title}</h4>
+                            <div class="text-[10px] text-slate-400 truncate" title="${(b.comment||'').replace(/"/g,'&quot;')}">${b.comment||''}</div>
+                            <div class="mt-1 flex gap-1 flex-wrap items-center">
+                                <span class="text-[10px] bg-brand text-slate-900 font-bold px-1.5 py-0.5 rounded">${b.skill}</span>
+                                <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded">Lv.${b.level}</span>
+                                ${b.status==='절판'?`<span class="text-[10px] bg-red-500/20 text-red-300 border border-red-500/40 px-1.5 py-0.5 rounded font-bold">절판</span>`:''}
+                                ${rg&&rg.count?`<span class="text-[10px] font-black px-1.5 py-0.5 rounded" style="background:${gradeColor(rg.grade)};color:#0b1220" title="커뮤니티 평균 ${rg.avg} · ${rg.count}명">${rg.grade}</span>`:''}
+                                ${trackHtml}${tagHtml}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('') + (filtered.length>300?`<div class="text-center py-4 text-slate-500 text-xs">상위 300종 표시 · 검색으로 좁히세요 (총 ${filtered.length}종)</div>`:'');
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // 파이프라인 = 행렬: Y=영역(행), X=분기(열). 각 영역 행에서 시간(열) 진행 케미 표시.
+        function renderPipeline() {
+            const container = document.getElementById('pipelineContainer');
+            const chemMap = buildChemMap();
+            const sel = state.selectedBookId ? byId(state.selectedBookId) : null;
+            const selRow = sel ? rowOf(sel.skill) : null;
+            const phaseColors = {1:'text-brand', 2:'text-accent', 3:'text-purple-400'};
+            const gcols = `grid-template-columns: 58px repeat(${GRID_COLS}, minmax(54px,1fr)); gap:3px;`;
+
+            let header = `<div class="grid" style="${gcols}"><div class="text-[9px] text-slate-500 flex items-end pb-1">영역＼분기</div>`;
+            for(let c=0;c<GRID_COLS;c++){ const m=colMeta(c); header += `<div class="text-center ${m.quarter===1?'border-l border-slate-700':''}">${m.quarter===1?`<div class="text-[8px] ${phaseColors[m.phase]} font-bold">${m.phase}단계</div>`:'<div class="h-3"></div>'}<div class="text-[8px] text-slate-500">${m.quarter}Q</div></div>`; }
+            header += `</div>`;
+
+            let rowsHtml = '';
+            GRID_ROWS.forEach(skill=>{
+                const core = GRID_CORE.includes(skill);
+                const empty = gridRowSeq(skill).length===0;
+                let cells = `<div class="grid items-stretch" style="${gcols}"><div class="flex flex-col justify-center"><span class="text-[11px] font-bold ${core?'text-white':'text-slate-400'}">${skill}</span>${core?'<span class="text-[7px] text-brand">4대영역</span>':''}${empty?'<span class="text-[7px] text-warn">미배치</span>':''}</div>`;
+                for(let c=0;c<GRID_COLS;c++){
+                    const uid = state.grid[skill][c]; const m=colMeta(c); const bl = m.quarter===1?'border-l border-slate-700':'';
+                    if(uid){
+                        const b=byId(uid); const chem=chemMap[skill+':'+c];
+                        cells += `<div class="relative group rounded border border-slate-600 bg-card overflow-hidden ${bl}" style="min-height:60px">
+                            <button onclick="event.stopPropagation();removeCell('${skill}',${c})" class="absolute top-0 right-0 w-4 h-4 bg-danger text-white rounded-bl items-center justify-center opacity-0 group-hover:opacity-100 z-10 text-[10px] hidden group-hover:flex">×</button>
+                            <button onclick="event.stopPropagation();showBookDetail('${uid}')" class="block w-full text-left">
+                                <div class="h-7 bg-dark overflow-hidden flex items-center justify-center"><img src="${b.cover}" class="w-full h-full object-cover opacity-90" loading="lazy" onerror="this.style.display='none'"></div>
+                                <div class="px-0.5 pb-0.5 text-center"><div class="text-[7px] text-white truncate" title="${b.title}">${b.title}</div><div class="text-[7px] text-slate-500">Lv${b.level}</div>${chem&&chem.g!=='start'?`<div class="text-[7px] font-black leading-none" style="color:${chem.css}" title="${chem.t}">${chem.icon}</div>`:''}</div>
+                            </button></div>`;
+                    } else {
+                        const tgt = sel && selRow===skill;
+                        cells += `<div onclick="handleCellClick('${skill}',${c})" ondragover="allowDrop(event)" ondrop="handleCellDrop(event,'${skill}',${c})" class="rounded border border-dashed flex items-center justify-center cursor-pointer ${bl} ${tgt?'border-brand bg-brand/10':'border-slate-700 bg-slate-800/20 hover:border-slate-500'}" style="min-height:60px" title="${skill} · ${m.label} 추천"><span class="text-[11px] ${tgt?'text-brand':'text-slate-600'}">${tgt?'＋':'·'}</span></div>`;
+                    }
+                }
+                cells += `</div>`;
+                rowsHtml += `<div class="${skill==='문법'?'mt-1.5 pt-1.5 border-t border-slate-700':''}">${cells}</div>`;
+            });
+
+            container.innerHTML = `<div class="overflow-x-auto hide-scrollbar"><div style="min-width:720px">${header}<div class="space-y-1 mt-1">${rowsHtml}</div></div></div>`;
+
+            let diag='흐름 양호', dc='bg-slate-800 text-brand border-brand/50';
+            const missing=GRID_CORE.filter(s=>gridRowSeq(s).length===0);
+            let warn=false,bad=false; Object.values(chemMap).forEach(c=>{ if(c.grade==='bad')bad=true; else if(c.grade==='warn')warn=true; });
+            if(missing.length){ diag='⚠ 미배치 4대영역: '+missing.join('·'); dc='bg-warn/20 text-warn border-warn/50'; }
+            else if(bad){ diag='⚠️ 부적합 연계'; dc='bg-danger/20 text-danger border-danger/50'; }
+            else if(warn){ diag='⚠ 주의 연계'; dc='bg-accent/20 text-accent border-accent/50'; }
+            const dEl=document.getElementById('diag-msg');
+            if(dEl){ dEl.innerText=diag; dEl.className=`text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded-lg border ${dc} text-center max-w-[140px] sm:max-w-none`; }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            if(state.view === '3d') update3DGraph();
+        }
+
+        // ==========================================
+        // 4. Interaction Logic
+        // ==========================================
+        function selectBook(id) { if(state.selectedBookId === id){ cancelSelection(); return; } state.selectedBookId = id; document.getElementById('cancel-banner').classList.remove('hidden'); renderDB(); renderPipeline(); }
+        function cancelSelection() { state.selectedBookId = null; document.getElementById('cancel-banner').classList.add('hidden'); renderDB(); renderPipeline(); }
+        function dragStart(e, id) { e.dataTransfer.setData('bookId', id); cancelSelection(); }
+        function allowDrop(e) { e.preventDefault(); }
+        function handleCellDrop(e, skill, col){ e.preventDefault(); const id=e.dataTransfer.getData('bookId'); if(id) placeInGrid(id, col); }
+        function handleCellClick(skill, col){
+            if(state.selectedBookId){ placeInGrid(state.selectedBookId, col); cancelSelection(); }
+            else { recommendForCell(skill, col); }   // 빈 셀 클릭 → 영역×시점 추천
+        }
+        function placeInGrid(bookId, col){
+            const b=byId(bookId); if(!b) return;
+            if(gridIsPlaced(bookId)){ showToast('이미 배치된 교재입니다.', true); return; }
+            const skill=rowOf(b.skill);
+            if(state.grid[skill][col]){ showToast(`${skill} ${colMeta(col).label} 칸이 찼습니다.`, true); return; }
+            state.grid[skill][col]=bookId; state.lastAddedSkill=b.skill;
+            showToast(`${skill} · ${colMeta(col).label}에 배치`);
+            renderDB(); renderPipeline();
+        }
+        function removeCell(skill, col){ if(state.grid[skill]) state.grid[skill][col]=null; renderPipeline(); renderDB(); }
+        function showToast(msg, isError=false) {
+            const el = document.getElementById('toast');
+            el.innerHTML = `<i data-lucide="${isError?'alert-triangle':'check-circle'}" class="w-5 h-5"></i><span class="whitespace-nowrap">${msg}</span>`;
+            if(typeof lucide!=='undefined') lucide.createIcons();
+            el.className = `fixed bottom-10 left-1/2 transform -translate-x-1/2 font-bold px-6 py-3 rounded-full shadow-2xl transition-all duration-300 z-[100] flex items-center gap-2 ${isError ? 'bg-danger text-white' : 'bg-brand text-slate-900'} opacity-100 translate-y-0`;
+            clearTimeout(window.__t); window.__t = setTimeout(() => { el.classList.add('opacity-0', 'translate-y-4'); el.classList.remove('opacity-100', 'translate-y-0'); }, 2500);
+        }
+
+        // ==========================================
+        // 4b. 어휘 처방 · 공유 · 저장/불러오기 · 대시보드
+        // ==========================================
+        function openModal(title, html){ document.getElementById('modalTitle').innerText=title; document.getElementById('modalBody').innerHTML=html; document.getElementById('modalWrap').classList.remove('hidden'); if(typeof lucide!=='undefined') lucide.createIcons(); }
+        function closeModal(){ document.getElementById('modalWrap').classList.add('hidden'); if(window.__dashTimer){ clearInterval(window.__dashTimer); window.__dashTimer=null; } }
+
+        function curriculumLevels(){ return gridPlaced().map(x=>x.book.level); }
+        function prescribeVocab(){
+            const lv = curriculumLevels(); const target = lv.length ? Math.round(lv.reduce((a,c)=>a+c,0)/lv.length) : 3;
+            const cands = MASTER_DATA.filter(b => b.skill==='어휘' && Math.abs(b.level-target)<=1).slice(0,6);
+            const rows = cands.length ? cands.map((b,i)=>`
+                <div class="flex items-center gap-3 p-2 border border-slate-700 rounded-lg mb-2 bg-slate-800/40">
+                    <div class="text-brand font-black w-6 text-center">${i+1}</div>
+                    <img src="${b.cover}" class="w-9 h-12 object-cover rounded" onerror="this.style.display='none'">
+                    <div class="flex-1 min-w-0"><div class="text-sm font-bold text-white truncate">${b.title}</div><div class="text-[11px] text-slate-400 truncate">${b.pub} · Lv.${b.level}${b.cefr?(' · '+b.cefr):''}</div></div>
+                    <button onclick="addToActive('${b.id}')" class="bg-brand text-slate-900 text-xs font-bold px-3 py-2 rounded-lg">담기</button>
+                </div>`).join('') : '<div class="text-slate-400 text-sm">조건에 맞는 어휘 교재가 없습니다.</div>';
+            openModal(`어휘 자동 처방 (커리 평균 Lv.${target})`, `<div class="text-xs text-slate-400 mb-3">나머지 영역을 배치한 뒤 레벨에 맞춰 어휘 교재를 추천합니다. "담기"로 빈 분기에 자동 배치됩니다.</div>${rows}`);
+        }
+        function addToActive(id){ closeModal(); selectBook(id); toggleView('2d'); showToast('배치할 분기 슬롯을 누르세요 (취소: 하단 취소 버튼)'); }
+
+        // 4대영역(독해·듣기·말하기·쓰기) 행마다 단계별 1권씩 균형 자동 채움 — 단계 레벨 + 케미
+        function autoFillBalance(){
+            let filled=0;
+            GRID_CORE.forEach(skill=>{
+                for(let phase=1; phase<=3; phase++){
+                    const colStart=(phase-1)*4;
+                    if(state.grid[skill].slice(colStart,colStart+4).some(x=>x)) continue;  // 이 단계에 이미 있음
+                    let targetCol=-1; for(let c=colStart;c<colStart+4;c++){ if(!state.grid[skill][c]){ targetCol=c; break; } }
+                    if(targetCol<0) continue;
+                    const lv=PHASE_LV[phase], midLv=lv[1];
+                    const rs=gridRowSeq(skill).filter(x=>x.col<targetCol); const prev=rs.length?rs[rs.length-1].book:null;
+                    const cands=MASTER_DATA.filter(b=>b.skill===skill && !gridIsPlaced(b.id) && b.status!=='절판').map(b=>{
+                        let s=(lv.indexOf(b.level)>=0?22:0) - Math.abs((b.level||3)-midLv)*7;
+                        if(prev){ s+=chemistry(prev,b).score*0.5; if(_cnorm(b.pub||'')===_cnorm(prev.pub||'')) s+=5; }
+                        return {b,s};
+                    }).sort((a,b)=>b.s-a.s);
+                    if(cands.length){ state.grid[skill][targetCol]=cands[0].b.id; filled++; }
+                }
+            });
+            renderPipeline(); renderDB();
+            showToast(filled? `${filled}칸을 4대영역 균형으로 채웠습니다.` : '추가할 빈 4대영역이 없습니다.', !filled);
+        }
+
+        // 빈 셀(영역×시점) 클릭 → 그 자리에 맞는 교재 추천 (추천 외 교재도 DB에서 자유 배치 가능)
+        function recommendForCell(skill, col){
+            const m=colMeta(col), lv=PHASE_LV[m.phase], midLv=lv[1];
+            const rs=gridRowSeq(skill).filter(x=>x.col<col); const prev=rs.length?rs[rs.length-1].book:null;
+            const cands=MASTER_DATA.filter(b=>b.skill===skill && !gridIsPlaced(b.id) && b.status!=='절판').map(b=>{
+                let s=(lv.indexOf(b.level)>=0?25:0) - Math.abs((b.level||3)-midLv)*7; let chem=null;
+                if(prev){ chem=chemistry(prev,b); s+=chem.score*0.6; }
+                return {b,s,chem};
+            }).sort((a,b)=>b.s-a.s).slice(0,8);
+            const rows = cands.length ? cands.map((c,i)=>`
+                <div class="flex items-center gap-3 p-2 border border-slate-700 rounded-lg mb-2 bg-slate-800/40">
+                    <div class="text-brand font-black w-5 text-center">${i+1}</div>
+                    <img src="${c.b.cover}" class="w-9 h-12 object-cover rounded" onerror="this.style.display='none'">
+                    <div class="flex-1 min-w-0"><div class="text-sm font-bold text-white truncate">${c.b.title}</div><div class="text-[11px] text-slate-400 truncate">${c.b.pub} · Lv.${c.b.level}${c.b.cefr?(' · '+c.b.cefr):''}${c.chem?` · <span style="color:${c.chem.css}">${c.chem.icon}</span>`:''}</div></div>
+                    <button onclick="placeFromRec('${skill}',${col},'${c.b.id}')" class="bg-brand text-slate-900 text-xs font-bold px-3 py-2 rounded-lg">배치</button>
+                </div>`).join('') : '<div class="text-slate-400 text-sm">추천 후보가 없습니다. 좌측 DB에서 직접 골라 배치하세요.</div>';
+            openModal(`${skill} · ${m.phase}단계 ${m.quarter}분기 추천`, `<div class="text-xs text-slate-400 mb-3">이 칸(영역×시점)에 맞는 ${skill} 교재입니다. 추천에 없어도 좌측 DB에서 아무 교재나 골라 배치할 수 있어요.</div>${rows}`);
+        }
+        function placeFromRec(skill, col, id){ closeModal(); if(state.grid[skill][col]){ showToast('칸이 찼습니다', true); return; } if(gridIsPlaced(id)){ showToast('이미 배치됨', true); return; } state.grid[skill][col]=id; renderPipeline(); renderDB(); showToast(`${skill} · ${colMeta(col).label}에 배치`); }
+
+        // 목표 기반 시작 추천 (다면적: 목표별 핵심영역×레벨로 1단계1분기 시작점 제시)
+        const GOALS = {
+            '내신': {skills:['문법','독해','어휘','쓰기'], lv:2},
+            '수능': {skills:['독해','구문','어휘','듣기'], lv:3},
+            '회화': {skills:['듣기','말하기','어휘','독해'], lv:2},
+            '시험(토익/토플)': {skills:['독해','듣기','어휘','문법'], lv:3},
+            '기초/입문': {skills:['파닉스','어휘','독해','듣기'], lv:1}
+        };
+        function startByGoal(){
+            const sel=document.getElementById('goalSel'); const g=(sel&&sel.value)||state.goal;
+            if(!g||!GOALS[g]){ showToast('상단에서 목표를 선택하세요', true); return; }
+            state.goal=g; const conf=GOALS[g]; let n=0;
+            conf.skills.forEach(skill=>{ const row=rowOf(skill), col=0; if(state.grid[row][col]) return;
+                const cands=MASTER_DATA.filter(b=>b.skill===skill && !gridIsPlaced(b.id) && b.status!=='절판' && Math.abs((b.level||3)-conf.lv)<=1)
+                    .sort((a,b)=>Math.abs((a.level||3)-conf.lv)-Math.abs((b.level||3)-conf.lv));
+                if(cands.length){ state.grid[row][col]=cands[0].id; n++; } });
+            renderPipeline(); renderDB();
+            showToast(n? `'${g}' 목표 시작 교재 ${n}권 배치 — 다음 분기는 셀 클릭으로 추천` : '추천 시작 교재를 못 찾았습니다', !n);
+        }
+
+        // 커리큘럼 예쁘게 출력/PDF
+        function printCurriculum(){
+            const placed=gridPlaced(); if(!placed.length){ showToast('먼저 교재를 배치하세요', true); return; }
+            let thead='<tr><th>영역＼분기</th>'; for(let c=0;c<GRID_COLS;c++){const m=colMeta(c); thead+=`<th>${m.phase}-${m.quarter}</th>`;} thead+='</tr>';
+            let body=''; GRID_ROWS.forEach(skill=>{ if(gridRowSeq(skill).length===0) return; const core=GRID_CORE.includes(skill);
+                let row=`<tr><td class="sk${core?' core':''}">${skill}</td>`;
+                for(let c=0;c<GRID_COLS;c++){ const uid=state.grid[skill][c], b=uid?byId(uid):null; row+=`<td>${b?`<b>${(b.title||'').replace(/</g,'&lt;')}</b><br><span class="lv">${b.pub} · Lv.${b.level}${b.cefr?(' · '+b.cefr):''}</span>`:''}</td>`; }
+                row+='</tr>'; body+=row; });
+            const dist=coreSkillGap();
+            const html=`<!doctype html><html><head><meta charset="utf-8"><title>나의 영어 커리큘럼</title><style>
+                body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:24px;color:#0f172a;max-width:1100px;margin:auto}
+                h1{font-size:22px;margin:0 0 4px} .sub{color:#64748b;font-size:12px;margin-bottom:16px}
+                table{border-collapse:collapse;width:100%;font-size:11px} th,td{border:1px solid #cbd5e1;padding:6px;text-align:center;vertical-align:top;min-width:60px}
+                th{background:#f1f5f9} td.sk{background:#f8fafc;font-weight:bold;text-align:left} td.sk.core{background:#e0f2fe;color:#075985} .lv{color:#64748b;font-size:10px}
+                .legend{margin-top:14px;font-size:11px;color:#475569} @media print{.noprint{display:none}}
+            </style></head><body>
+                <h1>📘 나의 영어 학습 커리큘럼</h1>
+                <div class="sub">${state.goal?('목표: <b>'+state.goal+'</b> · '):''}총 ${placed.length}권 · 가로=분기(시간 진행) / 세로=4대영역+요소 · ${new Date().toLocaleDateString('ko-KR')}</div>
+                <table><thead>${thead}</thead><tbody>${body}</tbody></table>
+                <div class="legend">4대영역 분포 — 독해 ${dist.독해}·듣기 ${dist.듣기}·말하기 ${dist.말하기}·쓰기 ${dist.쓰기}</div>
+                <button class="noprint" onclick="window.print()" style="margin-top:16px;padding:9px 18px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer">🖨 인쇄 / PDF 저장</button>
+            </body></html>`;
+            const w=window.open('','_blank'); if(!w){ showToast('팝업 차단을 해제해주세요', true); return; } w.document.write(html); w.document.close();
+        }
+
+        function collectPlan(){
+            const placed=gridPlaced(); const picks=[], partCounts={};
+            placed.forEach(({book})=>{ picks.push(book.id); partCounts[book.skill]=(partCounts[book.skill]||0)+1; });
+            const seq=gridColSeq().map(b=>b.id);   // 시간순(열 우선) 시퀀스 → 조합 집계용
+            return { picks:Array.from(new Set(picks)), curriculum:seq, gridSnap:state.grid, goal:state.goal||'', partCounts, submittedAt:new Date().toISOString() };
+        }
+        function exportCurriculum(){
+            const data={ kind:'ih-curriculum', savedAt:new Date().toISOString(), goal:state.goal||'', grid:state.grid };
+            const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a');
+            a.href=URL.createObjectURL(blob); a.download='ih_커리큘럼.json'; a.click(); URL.revokeObjectURL(a.href); showToast('커리큘럼을 저장했습니다.');
+        }
+        function importCurriculum(){
+            const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+            inp.onchange=()=>{ const f=inp.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result);
+                if(d.grid){ state.grid=gridInit(); GRID_ROWS.forEach(s=>{ if(Array.isArray(d.grid[s])) d.grid[s].forEach((id,c)=>{ if(id&&c<GRID_COLS) state.grid[s][c]=id; }); }); if(d.goal)state.goal=d.goal; renderDB(); renderPipeline(); showToast('커리큘럼을 불러왔습니다.'); }
+                else if(d.pipeline){ state.grid=gridInit(); for(let p=1;p<=3;p++)for(let q=1;q<=4;q++){ const id=d.pipeline[p]&&d.pipeline[p][q]; if(id){const b=byId(id); if(b) state.grid[rowOf(b.skill)][(p-1)*4+(q-1)]=id;} } renderDB(); renderPipeline(); showToast('커리큘럼을 불러왔습니다(구버전 변환).'); }
+                else showToast('형식 오류', true);
+            }catch(e){ showToast('JSON 파싱 실패', true); } }; r.readAsText(f); };
+            inp.click();
+        }
+        function shareCurriculum(){
+            const plan=collectPlan(); if(!plan.picks.length){ showToast('먼저 교재를 배치하세요.', true); return; }
+            plan.nickname=(prompt('별명(선택):','')||'').trim(); plan.attemptId='ih-'+Date.now();
+            try{ const arr=JSON.parse(localStorage.getItem('ih_shared_local')||'[]'); arr.push(plan); localStorage.setItem('ih_shared_local', JSON.stringify(arr)); }catch(e){}
+            const ep=(window.GUIDE_ENDPOINT||'').trim();
+            if(!ep){ showToast('서버 미설정: 로컬에 저장됨', true); return; }
+            fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(plan)}).then(()=>showToast('커리큘럼을 공유했습니다.')).catch(()=>showToast('전송 실패(로컬 저장됨)', true));
+        }
+        function titleOf(id){ const b=byId(id); return b?b.title:id; }
+        function openDashboard(){
+            openModal('실시간 인기 교재 · 커리 대시보드', `<div id="dashSeg" class="flex gap-2 flex-wrap mb-3">${['all','day','week','month','year'].map(b=>`<button data-b="${b}" class="px-3 py-1 rounded-full text-xs font-bold border ${b==='all'?'bg-brand text-slate-900 border-brand':'bg-slate-800 text-slate-300 border-slate-600'}">${({all:'전체',day:'일간',week:'주간',month:'월간',year:'연간'})[b]}</button>`).join('')}</div><div id="dashBody" class="text-sm text-slate-300">불러오는 중…</div>`);
+            window.__dashBucket='all';
+            const seg=document.getElementById('dashSeg'); seg.querySelectorAll('button').forEach(btn=>btn.onclick=()=>{ window.__dashBucket=btn.dataset.b; seg.querySelectorAll('button').forEach(x=>{x.className='px-3 py-1 rounded-full text-xs font-bold border bg-slate-800 text-slate-300 border-slate-600';}); btn.className='px-3 py-1 rounded-full text-xs font-bold border bg-brand text-slate-900 border-brand'; loadDashboard(); });
+            loadDashboard();
+            if(window.__dashTimer) clearInterval(window.__dashTimer);
+            window.__dashTimer=setInterval(()=>{ if(document.getElementById('dashBody')) loadDashboard(); }, Number(window.GUIDE_DASHBOARD_POLL_MS)||30000);
+        }
+        function loadDashboard(){
+            const body=document.getElementById('dashBody'); if(!body) return;
+            const ep=(window.GUIDE_ENDPOINT||'').trim();
+            if(!ep){ // 로컬 미리보기
+                let arr=[]; try{ arr=JSON.parse(localStorage.getItem('ih_shared_local')||'[]'); }catch(e){}
+                if(!arr.length){ body.innerHTML='<div class="text-slate-400">중앙 서버 미설정 · 로컬 공유 기록 없음. "커리 공유"를 눌러보세요.</div>'; return; }
+                const m={}; arr.forEach(p=>(p.picks||[]).forEach(u=>m[u]=(m[u]||0)+1));
+                const list=Object.keys(m).map(u=>({u,c:m[u]})).sort((a,b)=>b.c-a.c).slice(0,15);
+                body.innerHTML='<div class="text-xs text-warn mb-2">중앙 서버 미설정 — 로컬 미리보기</div>'+barRows(list.map(x=>({uid:x.u,count:x.c})));
+                return;
+            }
+            fetch(ep+(ep.indexOf('?')>=0?'&':'?')+'summary=1&bucket='+encodeURIComponent(window.__dashBucket||'all')).then(r=>r.json()).then(d=>{ body.innerHTML=renderSummary(d); }).catch(()=>{ body.innerHTML='<div class="text-danger">불러오기 실패(네트워크/CORS)</div>'; });
+        }
+        function barRows(list){ if(!list||!list.length) return '<div class="text-slate-400">데이터 없음</div>'; const max=list[0].count||1; return list.map((it,i)=>`<div class="flex items-center gap-2 mb-1 text-xs"><div class="w-40 truncate">${i+1}. ${titleOf(it.uid)}</div><div class="flex-1 bg-slate-800 rounded h-3 overflow-hidden"><div class="h-full bg-gradient-to-r from-accent to-brand" style="width:${Math.round(it.count/max*100)}%"></div></div><div class="w-16 text-right">${it.count}${it.pct!=null?` (${it.pct}%)`:''}</div></div>`).join(''); }
+        function renderSummary(d){ if(!d||!d.ok) return '<div class="text-danger">데이터 형식 오류</div>'; let h=`<div class="text-xs text-slate-400 mb-2">총 제출 ${d.total||0}건 / 누적 ${d.totalAll||0}건 · ${d.bucket}</div>`; h+='<div class="font-bold text-white mb-1">인기 교재 Top</div>'+barRows(d.popularMaterials||[]);
+            if(d.popularPairs&&d.popularPairs.length){ h+='<div class="font-bold text-white mt-3 mb-1">인기 조합(연속 교재)</div>'+d.popularPairs.slice(0,10).map((p,i)=>`<div class="text-xs mb-1">${i+1}. ${titleOf(p.from)} <span class="text-brand">→</span> ${titleOf(p.to)} <span class="text-slate-500">(${p.count})</span></div>`).join(''); }
+            return h; }
+
+        // ===== 교재 상세 + A/B/C/D/F 등급 평가 (누적: 일/주/월/년) =====
+        window.__ratingMap = {};
+        function gradeColor(g){ return ({A:'#10b981',B:'#0ea5e9',C:'#eab308',D:'#f97316',F:'#ef4444'})[g]||'#94a3b8'; }
+        function loadRatings(){
+            const ep=(window.GUIDE_ENDPOINT||'').trim(); if(!ep) return;
+            fetch(ep+(ep.indexOf('?')>=0?'&':'?')+'ratings=1').then(r=>r.json()).then(d=>{
+                if(d&&Array.isArray(d.ratings)){ const m={}; d.ratings.forEach(x=>m[x.uid]=x);
+                    const changed = d.ratings.some(x=>{const o=window.__ratingMap[x.uid]; return !o||o.grade!==x.grade||o.count!==x.count;}) || Object.keys(window.__ratingMap).length!==Object.keys(m).length;
+                    window.__ratingMap=m; if(changed&&typeof renderDB==='function') renderDB();
+                }
+            }).catch(()=>{});
+        }
+        // 실시간 동기화: 모든 사용자 활동(평가·커리·조합)이 중앙 백엔드로 공유 → 주기 폴링으로 반영
+        function startRealtimeSync(){
+            const ep=(window.GUIDE_ENDPOINT||'').trim(); if(!ep || window.__syncTimer) return;
+            window.__syncTimer=setInterval(()=>{ if(typeof loadRatings==='function') loadRatings(); }, Number(window.GUIDE_SYNC_MS)||60000);
+        }
+        function showBookDetail(id){
+            const b=byId(id); if(!b) return;
+            const r=window.__ratingMap[id];
+            const meta=[b.pub,b.skill,'Lv.'+b.level,b.cefr,b.gradeBand,(b.status==='절판'?'⛔ 절판':''),b.kdc,b.pubDate].filter(Boolean).join(' · ');
+            const toc=b.toc?`<div class="mt-3"><div class="text-xs font-bold text-slate-400 mb-1">목차</div><div class="text-[11px] text-slate-300 leading-relaxed max-h-40 overflow-auto bg-slate-900 rounded p-2 whitespace-pre-wrap">${String(b.toc).replace(/</g,'&lt;')}</div></div>`:'';
+            const community=r&&r.count?`<span style="color:${gradeColor(r.grade)}" class="font-black text-2xl">${r.grade}</span> <span class="text-xs text-slate-400">평균 ${r.avg} · ${r.count}명 평가</span>`:'<span class="text-xs text-slate-500">아직 평가가 없습니다 — 첫 평가를 남겨보세요</span>';
+            const distHtml = r&&r.count&&r.dist ? `<div class="flex gap-1 mt-2">${['A','B','C','D','F'].map(g=>{const n=(r.dist[g]||0),pct=Math.round(n/r.count*100);return `<div class="flex-1 text-center"><div class="text-[9px] font-black" style="color:${gradeColor(g)}">${g}</div><div class="h-12 bg-slate-900 rounded flex items-end overflow-hidden"><div style="height:${pct}%;background:${gradeColor(g)}" class="w-full"></div></div><div class="text-[9px] text-slate-500">${n}</div></div>`;}).join('')}</div>` : '';
+            openModal(b.title, `
+                <div class="text-xs text-slate-400 mb-1">${meta}</div>
+                ${b.isbn?`<div class="text-[10px] text-slate-500 mb-2">ISBN ${b.isbn}${b.source?(' · '+b.source):''}</div>`:''}
+                <div class="text-sm text-slate-300 mb-1">${b.fullComment||b.comment||''}</div>
+                ${toc}
+                <div class="mt-4 border-t border-slate-700 pt-3">
+                  <div class="text-xs font-bold text-slate-400 mb-1">커뮤니티 등급</div>
+                  <div class="mb-3">${community}${distHtml}</div>
+                  <div class="text-xs font-bold text-slate-400 mb-1">써봤다면 등급을 남겨주세요 (누적·일/주/월/년 집계)</div>
+                  <div class="flex gap-2">${['A','B','C','D','F'].map(g=>`<button onclick="postRating('${id}','${g}')" class="flex-1 py-2.5 rounded-lg font-black text-white" style="background:${gradeColor(g)}">${g}</button>`).join('')}</div>
+                </div>`);
+        }
+        function postRating(uid, grade){
+            const b=byId(uid);
+            const rec={type:'rating', uid:uid, title:b?b.title:'', grade:grade, nickname:(localStorage.getItem('ih_nick')||'')};
+            try{ const a=JSON.parse(localStorage.getItem('ih_ratings_local')||'[]'); a.push({uid:uid,grade:grade,t:Date.now()}); localStorage.setItem('ih_ratings_local',JSON.stringify(a)); }catch(e){}
+            const ep=(window.GUIDE_ENDPOINT||'').trim();
+            if(!ep){ showToast('서버 미설정: 로컬 저장됨 ('+grade+')', true); closeModal(); return; }
+            fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(rec)})
+                .then(()=>{ showToast('등급 '+grade+' 등록!'); setTimeout(loadRatings,800); closeModal(); })
+                .catch(()=>{ showToast('전송 실패(로컬 저장됨)', true); closeModal(); });
+        }
+
+        // ==========================================
+        // 4c. 교재 추천 섹션 (정답률 구간별 · CEFR · 4대영역)
+        // ==========================================
+        function cefrRank(c){ const m={'PRE-A1':0,'A1':1,'A1+':1.5,'A2':2,'A2+':2.5,'B1':3,'B1+':3.5,'B2':4,'B2+':4.5,'C1':5,'C2':6}; return (c&&m[c]!=null)?m[c]:null; }
+        function renderRecPicker(){
+            const q=(document.getElementById('recSearch').value||'').toLowerCase();
+            const list = q ? MASTER_DATA.filter(b=>b.title.toLowerCase().includes(q)||(b.pub||'').toLowerCase().includes(q)).slice(0,12) : [];
+            document.getElementById('recPicker').innerHTML = list.map(b=>`<div onclick="selectRecCurrent('${b.id}')" class="cursor-pointer text-xs p-2 rounded bg-slate-800 hover:bg-slate-700 flex justify-between gap-2"><span class="truncate">${b.title}</span><span class="text-slate-500 flex-shrink-0">${b.skill}·Lv${b.level}</span></div>`).join('') || (q?'<div class="text-xs text-slate-500 p-2">검색 결과 없음</div>':'');
+        }
+        function selectRecCurrent(id){ state.recCurrent=id; document.getElementById('recPicker').innerHTML=''; document.getElementById('recSearch').value=''; renderRecView(); }
+        function coreSkillGap(){
+            const core={'듣기':0,'말하기':0,'독해':0,'쓰기':0};
+            gridPlaced().forEach(({book})=>{ if(core[book.skill]!=null) core[book.skill]++; });
+            return core;
+        }
+        function recForBook(cur, band){
+            const lvDelta={high:1, mid:0, low:-1}[band];
+            const desired=Math.max(1,Math.min(5,(cur.level||3)+lvDelta));
+            const cr=cefrRank(cur.cefr);
+            const cefrWant = cr!=null ? cr + (band==='high'?1:band==='low'?-1:0.5) : null;
+            const gap=coreSkillGap();
+            return MASTER_DATA.filter(b=>b.id!==cur.id).map(b=>{
+                let s=0; const why=[];
+                const ld=Math.abs((b.level||3)-desired); s+=(ld===0?30:ld===1?13:ld===2?2:-12);
+                if(cefrWant!=null && cefrRank(b.cefr)!=null){ const cd=Math.abs(cefrRank(b.cefr)-cefrWant); if(cd<=0.5){s+=26;why.push('CEFR 적정');} else if(cd<=1) s+=12; }
+                const chem=chemistry(cur,b); s += chem.score*0.4; if(chem.score>=38) why.push(chem.reason); else if(chem.score<=-40) s-=10;
+                if(_seriesKey(b)&&_seriesKey(cur)&&_seriesKey(b)===_seriesKey(cur)){ s+=(band==='mid'?48:band==='high'?34:20); why.push('같은 시리즈 다음 권'); }
+                if(gap[b.skill]!=null){ s+=Math.max(0, 8-gap[b.skill]*4); if(gap[b.skill]===0) why.push('4대영역 보완'); }
+                if(band==='low' && b.skill===cur.skill){ s+=18; why.push('약점영역 보강'); }
+                if(band==='high'){ const flow={'문법':'구문','구문':'독해','독해':'쓰기','어휘':'독해'}; if(flow[cur.skill]===b.skill){s+=14;why.push('다음 인지단계');} }
+                if(b.pub===cur.pub) s+=5;
+                return {b,s,why};
+            }).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3);
+        }
+        function recCol(title, theory, css, cur, band){
+            const recs=recForBook(cur,band);
+            const cards=recs.map(x=>{const b=x.b; return `
+                <div class="bg-slate-800/60 border border-slate-700 rounded-lg p-2 mb-2">
+                  <div class="flex gap-2">
+                    <img src="${b.cover||'https://placehold.co/60x80/1e293b/64748b?text=BOOK'}" class="w-9 h-12 object-cover rounded flex-shrink-0" onerror="this.src='https://placehold.co/60x80/1e293b/64748b?text=BOOK'">
+                    <div class="min-w-0 flex-1">
+                      <div class="text-[11px] font-bold text-white truncate" title="${b.title}">${b.title}</div>
+                      <div class="text-[10px] text-slate-400 truncate">${b.pub} · ${b.skill} · Lv${b.level}${b.cefr?(' · '+b.cefr):''}</div>
+                      <div class="text-[10px] text-brand mt-0.5 truncate">${x.why.slice(0,2).join(' · ')||'궁합 양호'}</div>
+                    </div>
+                  </div>
+                  ${b.comment?`<div class="text-[10px] text-slate-400 mt-1 leading-snug line-clamp-2">${b.comment}</div>`:''}
+                  <button onclick="addToActive('${b.id}')" class="w-full mt-1.5 bg-slate-700 hover:bg-slate-600 text-[10px] font-bold py-1.5 rounded">파이프라인에 담기</button>
+                </div>`;}).join('') || '<div class="text-xs text-slate-500">추천 후보 없음</div>';
+            return `<div class="bg-panel border rounded-xl p-3" style="border-color:${css}55">
+                <div class="font-bold text-sm mb-1" style="color:${css}">${title}</div>
+                <div class="text-[10px] text-slate-400 mb-2 leading-snug">${theory}</div>${cards}</div>`;
+        }
+        function renderRecView(){
+            const wrap=document.getElementById('recResults'); if(!wrap) return;
+            const cur=state.recCurrent?byId(state.recCurrent):null;
+            const curCard=document.getElementById('recCurrentCard');
+            if(!cur){ if(curCard)curCard.innerHTML=''; wrap.innerHTML='<div class="text-center text-slate-500 py-10 text-sm">현재 교재를 검색·선택하면 정답률 구간별 추천이 표시됩니다.</div>'; return; }
+            if(curCard) curCard.innerHTML=`<div class="flex gap-2 items-center bg-slate-900 border border-brand/40 rounded-lg p-2"><img src="${cur.cover||''}" class="w-8 h-11 object-cover rounded" onerror="this.style.display='none'"><div class="min-w-0"><div class="text-sm font-bold text-white truncate">${cur.title}</div><div class="text-[11px] text-slate-400">${cur.pub} · ${cur.skill} · Lv${cur.level}${cur.cefr?(' · '+cur.cefr):''}</div></div></div>`;
+            wrap.innerHTML=`<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                ${recCol('📈 80%+ · 심화','충분히 숙달 → i+1(크라센 i+1). 다음 CEFR/레벨로 도약','#10b981',cur,'high')}
+                ${recCol('➡️ 60~79% · 체화','이해는 됐으나 정착 필요 → 같은 단계 다지기·시리즈 다음 권(자동화)','#0ea5e9',cur,'mid')}
+                ${recCol('🔁 40%↓ · 보강','미흡 → 한 단계 낮춰 약점영역 재학습(ZPD 하향)','#f59e0b',cur,'low')}
+            </div>`;
+            if(typeof lucide!=='undefined') lucide.createIcons();
+        }
+
+        // ==========================================
+        // 5. 3D Cognitive Visualization (Three.js)
+        // ==========================================
+        let scene, camera, renderer, nodes=[], links=[];
+        function toggleView(v) {
+            state.view = v;
+            const views = { '2d':'view-2d', 'rec':'view-rec', '3d':'view-3d', 'rank':'view-rank' };
+            Object.keys(views).forEach(k => { const el=document.getElementById(views[k]); if(el) el.classList.toggle('hidden', k!==v); });
+            const base = "px-3 py-2 sm:px-4 rounded-md text-xs sm:text-sm font-bold transition-all flex items-center gap-2";
+            ['2d','rec','3d','rank'].forEach(k => { const b=document.getElementById('btn-'+k); if(!b) return;
+                b.className = (k===v) ? base+" bg-brand text-slate-900" : base+" bg-slate-800 text-slate-400 hover:text-white border border-slate-700"; });
+            if(v==='3d') setTimeout(() => { if(!renderer) init3D(); else resize3D(); update3DGraph(); }, 100);
+            if(v==='rec') renderRecView();
+            if(v==='rank') renderRankView();
+            if(typeof lucide!=='undefined') lucide.createIcons();
+        }
+        // ===== 랭킹 대시보드 =====
+        window.__rankState = { bucket:'all', grade:'', area:'', source:'app' };
+        function renderRankView(){
+            const buckets={all:'전체',day:'일간',week:'주간',month:'월간',year:'연간'};
+            const bw=document.getElementById('rankBucket');
+            if(bw) bw.innerHTML=Object.keys(buckets).map(b=>`<button onclick="setRank('bucket','${b}')" class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${window.__rankState.bucket===b?'bg-brand text-slate-900 border-brand':'bg-slate-800 text-slate-300 border-slate-600'}">${buckets[b]}</button>`).join('');
+            const grades=['','초','중','고','성인'], areas=['','문법','구문','어휘','독해','듣기','말하기','쓰기','파닉스','모의/기출'];
+            const chip=(type,val,cur,label)=>`<button onclick="setRank('${type}','${val}')" class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${cur===val?'bg-accent text-slate-900 border-accent':'bg-slate-800 text-slate-300 border-slate-600'}">${label||val||'전체'}</button>`;
+            const fw=document.getElementById('rankFilters');
+            if(fw) fw.innerHTML=
+                `<div class="flex gap-1 flex-wrap items-center"><span class="text-[11px] text-slate-500 w-10">학년</span>${grades.map(g=>chip('grade',g,window.__rankState.grade,g||'전체')).join('')}</div>`+
+                `<div class="flex gap-1 flex-wrap items-center"><span class="text-[11px] text-slate-500 w-10">영역</span>${areas.map(a=>chip('area',a,window.__rankState.area,a||'전체')).join('')}</div>`;
+            loadRankData();
+        }
+        function setRank(key,val){ window.__rankState[key]=val; renderRankView(); }
+        function _rankCard(title, inner){ return `<div class="font-black text-white mb-2 text-sm">${title}</div>${inner}`; }
+        function loadRankData(){
+            const ep=(window.GUIDE_ENDPOINT||'').trim();
+            const mine=document.getElementById('rankMine'), ext=document.getElementById('rankExternal');
+            const st=window.__rankState;
+            if(!ep){
+                // 로컬 미리보기 (서버 미설정)
+                let arr=[]; try{ arr=JSON.parse(localStorage.getItem('ih_shared_local')||'[]'); }catch(e){}
+                const m={}; arr.forEach(p=>(p.picks||[]).forEach(u=>m[u]=(m[u]||0)+1));
+                const list=Object.keys(m).map(u=>({uid:u,count:m[u]})).sort((a,b)=>b.count-a.count).slice(0,15);
+                mine.innerHTML=_rankCard('① 내 가이드 — 인기 교재 <span class="text-[10px] text-warn">(로컬 미리보기)</span>', list.length?barRows(list):'<div class="text-slate-500 text-xs">아직 공유된 커리가 없습니다. 설계모드에서 "커리 공유"를 눌러보세요.</div>');
+                ext.innerHTML=_rankCard('② 외부 시장 랭킹', '<div class="text-slate-500 text-xs">서버(GAS) 연동 시 YES24 판매·정보나루 대출 랭킹이 표시됩니다.<br>설정: <code class="text-brand">GUIDE_ENDPOINT</code>에 Apps Script /exec URL 입력.</div>');
+                return;
+            }
+            // ① 내 가이드 (summary: 인기교재·조합·커리템플릿) + 평가 Top
+            const qs=`summary=1&bucket=${encodeURIComponent(st.bucket)}${st.grade?('&grade='+encodeURIComponent(st.grade)):''}`;
+            fetch(ep+(ep.indexOf('?')>=0?'&':'?')+qs).then(r=>r.json()).then(d=>{
+                let h=_rankCard('① 내 가이드 — 인기 교재', barRows((d.popularMaterials||[]).slice(0,12)));
+                if(d.popularPairs&&d.popularPairs.length) h+=`<div class="font-bold text-white mt-3 mb-1 text-sm">인기 조합(연속 교재)</div>`+d.popularPairs.slice(0,8).map((p,i)=>`<div class="text-xs mb-1 truncate">${i+1}. ${titleOf(p.from)} <span class="text-brand">→</span> ${titleOf(p.to)} <span class="text-slate-500">(${p.count})</span></div>`).join('');
+                if(d.popularCurricula&&d.popularCurricula.length) h+=`<div class="font-bold text-white mt-3 mb-1 text-sm">인기 커리 템플릿</div>`+d.popularCurricula.slice(0,5).map((c,i)=>`<div class="text-xs mb-1 truncate" title="${(c.seq||[]).map(titleOf).join(' → ')}">${i+1}. ${(c.seq||[]).slice(0,4).map(titleOf).join(' → ')}${c.seq.length>4?'…':''} <span class="text-slate-500">(${c.count})</span></div>`).join('');
+                mine.innerHTML=h;
+            }).catch(()=>{ mine.innerHTML='<div class="text-danger text-xs">불러오기 실패(네트워크/CORS). GitHub Pages(https)에서 열어야 외부 연동이 됩니다.</div>'; });
+            // 평가 Top (커뮤니티 등급)
+            fetch(ep+(ep.indexOf('?')>=0?'&':'?')+`ratings=1&bucket=${encodeURIComponent(st.bucket)}`).then(r=>r.json()).then(d=>{
+                if(d&&Array.isArray(d.ratings)&&d.ratings.length){ const top=d.ratings.filter(x=>x.count>=1).slice(0,10);
+                    mine.innerHTML+=`<div class="font-bold text-white mt-3 mb-1 text-sm">커뮤니티 등급 Top</div>`+top.map((x,i)=>`<div class="text-xs mb-1 flex items-center gap-2"><span class="font-black" style="color:${gradeColor(x.grade)}">${x.grade}</span><span class="truncate flex-1">${titleOf(x.uid)}</span><span class="text-slate-500">${x.avg}·${x.count}명</span></div>`).join('');
+                }
+            }).catch(()=>{});
+            // ② 외부 랭킹
+            const rqs=`rankings=1&source=${encodeURIComponent(st.source||'all')}${st.grade?('&gradeBand='+encodeURIComponent(st.grade)):''}${st.area?('&englishArea='+encodeURIComponent(st.area)):''}`;
+            const srcTabs=['app','yes24','data4library'].map(s=>`<button onclick="setRank('source','${s}')" class="px-2 py-0.5 rounded text-[11px] font-bold ${st.source===s?'bg-brand text-slate-900':'bg-slate-700 text-slate-300'}">${({app:'앱',yes24:'YES24 판매',data4library:'도서관 대출'})[s]}</button>`).join(' ');
+            fetch(ep+(ep.indexOf('?')>=0?'&':'?')+rqs).then(r=>r.json()).then(d=>{
+                let h=_rankCard('② 외부 시장 랭킹', `<div class="flex gap-1 mb-2">${srcTabs}</div>`);
+                if(d&&d.items&&d.items.length){ h+=d.items.slice(0,15).map((it,i)=>`<div class="text-xs mb-1 flex items-center gap-2"><span class="w-5 text-slate-500">${it.rank||i+1}</span><span class="truncate flex-1">${it.title||titleOf(it.matchedUid)}</span>${it.matchedUid?'<span class="text-[10px] text-brand">✓수록</span>':''}</div>`).join('');
+                    h+=`<div class="text-[10px] text-slate-600 mt-1">출처 ${st.source} · ${d.generatedAt?d.generatedAt.slice(0,10):''}</div>`;
+                } else h+='<div class="text-slate-500 text-xs">해당 조건 랭킹 캐시 없음(트리거 미실행/조건 미일치).</div>';
+                ext.innerHTML=h;
+            }).catch(()=>{ ext.innerHTML=_rankCard('② 외부 시장 랭킹',`<div class="flex gap-1 mb-2">${srcTabs}</div><div class="text-slate-500 text-xs">불러오기 실패.</div>`); });
+        }
+        function init3D() {
+            const container = document.getElementById('canvas-container');
+            if (!container || container.clientWidth === 0) return;
+            scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x0f172a, 0.05);
+            camera = new THREE.PerspectiveCamera(60, container.clientWidth/container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 5, 12); camera.lookAt(0, 2, 0);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight); renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+            const pLight = new THREE.PointLight(0x10b981, 1, 50); pLight.position.set(5, 10, 5); scene.add(pLight);
+            scene.add(new THREE.GridHelper(20, 20, 0x334155, 0x1e293b));
+            let isDragging = false, prevX;
+            container.addEventListener('mousedown', e => { isDragging=true; prevX=e.clientX; });
+            container.addEventListener('mousemove', e => { if(!isDragging) return; const dx = e.clientX - prevX; camera.position.x -= dx*0.05; camera.lookAt(0,2,0); prevX = e.clientX; });
+            container.addEventListener('mouseup', () => isDragging=false);
+            container.addEventListener('mouseleave', () => isDragging=false);
+            container.addEventListener('touchstart', e => { isDragging=true; prevX=e.touches[0].clientX; }, {passive:true});
+            container.addEventListener('touchmove', e => { if(!isDragging) return; const dx = e.touches[0].clientX - prevX; camera.position.x -= dx*0.05; camera.lookAt(0,2,0); prevX = e.touches[0].clientX; }, {passive:true});
+            container.addEventListener('touchend', () => isDragging=false);
+            window.addEventListener('resize', resize3D);
+            animate3D();
+        }
+        function resize3D() { if(!renderer) return; const container = document.getElementById('canvas-container'); if (container.clientWidth === 0) return; camera.aspect = container.clientWidth/container.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(container.clientWidth, container.clientHeight); }
+        const SKILL_COLOR = { '독해':0x0ea5e9,'문법':0x8b5cf6,'듣기':0xf59e0b,'쓰기':0xec4899,'말하기':0xeab308,'어휘':0x14b8a6,'구문':0x6366f1,'파닉스':0x10b981,'모의/기출':0xef4444 };
+        function makeLabel(text, hex){
+            try{ const cv=document.createElement('canvas'); cv.width=256; cv.height=64; const ctx=cv.getContext('2d');
+                ctx.fillStyle='rgba(15,23,42,0.82)'; ctx.fillRect(0,0,256,64); ctx.strokeStyle='#'+hex.toString(16).padStart(6,'0'); ctx.lineWidth=4; ctx.strokeRect(2,2,252,60);
+                ctx.font='bold 21px Apple SD Gothic Neo,Malgun Gothic,sans-serif'; ctx.fillStyle='#fff'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(text,128,34);
+                const tex=new THREE.CanvasTexture(cv); const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true})); spr.scale.set(2.6,0.65,1); return spr;
+            }catch(e){ return null; }
+        }
+        // 3D 인지 매핑: X=분기(시간) · Y=난이도(레벨) · Z=영역(행). 영역별 진행 케미를 색 링크로.
+        function update3DGraph() {
+            if(!scene) return;
+            nodes.forEach(n => scene.remove(n)); links.forEach(l => scene.remove(l)); nodes = []; links = [];
+            const placed = gridPlaced();
+            const rowZ = {}; GRID_ROWS.forEach((s,i)=> rowZ[s]=(i-(GRID_ROWS.length-1)/2)*1.7);
+            const geo = new THREE.SphereGeometry(0.42, 24, 24);
+            const posOf = {};
+            // 영역 축 라벨(친절): 각 행 z위치에 영역명
+            GRID_ROWS.forEach(s=>{ const lab=makeLabel(s, SKILL_COLOR[s]||0x94a3b8); if(lab){ lab.position.set(-(GRID_COLS-1)/2*1.1-2.4, 1.0, rowZ[s]); lab.scale.set(1.8,0.45,1); scene.add(lab); nodes.push(lab); } });
+            // 단계 라벨
+            [1,2,3].forEach(p=>{ const lab=makeLabel(p+'단계('+PHASE_NAME[p]+')', 0x94a3b8); if(lab){ lab.position.set(((p-1)*4+1.5-(GRID_COLS-1)/2)*1.1, 0.2, (GRID_ROWS.length/2)*1.7+1); scene.add(lab); nodes.push(lab); } });
+            placed.forEach(({skill,col,book})=>{
+                const color=SKILL_COLOR[book.skill]||0x94a3b8;
+                const mesh=new THREE.Mesh(geo, new THREE.MeshPhongMaterial({color, emissive:color, emissiveIntensity:0.3}));
+                const x=(col-(GRID_COLS-1)/2)*1.1, y=(book.level||3)*1.3, z=rowZ[skill];
+                mesh.position.set(x,y,z); mesh.userData={time: col*0.3}; scene.add(mesh); nodes.push(mesh);
+                posOf[skill+':'+col]=mesh.position.clone();
+                const spr=makeLabel((book.title||'').slice(0,11)+' L'+book.level, color); if(spr){ spr.position.set(x, y+0.62, z); scene.add(spr); nodes.push(spr); }
+            });
+            // 영역별 시간 진행 케미 링크
+            GRID_ROWS.forEach(skill=>{
+                let prev=null;
+                gridRowSeq(skill).forEach(({col,book})=>{
+                    if(prev){ const chem=chemistry(prev.book, book);
+                        let lc=0x64748b, op=0.5;
+                        if(chem.grade==='bad'){lc=0xef4444;op=1;} else if(chem.grade==='warn'){lc=0xf59e0b;op=.85;} else if(chem.grade==='dup'){lc=0x0ea5e9;op=.8;} else if(chem.grade==='great'||chem.grade==='good'){lc=0x10b981;op=.95;}
+                        const lg=new THREE.BufferGeometry().setFromPoints([posOf[skill+':'+prev.col], posOf[skill+':'+col]]);
+                        const ln=new THREE.Line(lg, new THREE.LineBasicMaterial({color:lc,transparent:true,opacity:op}));
+                        scene.add(ln); links.push(ln);
+                    }
+                    prev={col,book};
+                });
+            });
+        }
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const time = Date.now() * 0.003;
+            nodes.forEach(n => { if(n.userData.isBottleneck){ const s = 1 + Math.sin(time + n.userData.time) * 0.3; n.scale.set(s,s,s); } });
+            if(renderer && scene && camera) renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>

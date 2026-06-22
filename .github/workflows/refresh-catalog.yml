@@ -1,0 +1,69 @@
+name: refresh-catalog
+# KOBIC 신간·표지 자동 갱신 → 재빌드 → 커밋 (당신 PC 없이 클라우드에서)
+on:
+  schedule:
+    - cron: '0 18 * * *'   # 매일 03:00 KST (18:00 UTC)
+  workflow_dispatch:        # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-catalog
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: KOBIC 신간 발굴 (영어교재 후보)
+        run: node tools/harvest_kobic.js
+        env:
+          KOBIC_MAXPAGES: '8'   # 신간 갱신은 얕게(최근분 위주)
+
+      - name: 신규 교재 병합 (기존 ISBN 건너뜀)
+        run: node tools/harvest_kobic_merge.js
+
+      - name: 표지 보강 (없는 것만)
+        run: node tools/collect_covers.js || true
+
+      - name: 앱 재빌드
+        run: cd tools && node build_app.js
+
+      - name: 변경분 커밋
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "변경 없음"
+          else
+            git commit -m "chore: KOBIC 신간·표지 자동 갱신 ($(date -u +%Y-%m-%d))"
+            git push
+          fi
+
+  # GitHub Pages 배포 (index.html을 https로 공유)
+  deploy-pages:
+    needs: refresh
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'        # repo 루트(index.html + covers/)를 그대로 배포
+      - id: deployment
+        uses: actions/deploy-pages@v4

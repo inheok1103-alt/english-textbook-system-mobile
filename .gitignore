@@ -1,0 +1,11 @@
+# 임시/중간 산출물
+data/_*.json
+data/_*.log
+data/*_candidates.json
+data/book_image_candidates.csv
+node_modules/
+*.tmp
+
+# OS
+Thumbs.db
+.DS_Store
