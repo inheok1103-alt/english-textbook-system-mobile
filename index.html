@@ -134,7 +134,7 @@
                         <p class="text-[11px] sm:text-xs text-slate-400">가로=시간 진행 / 세로=4대영역. 빈 칸을 누르면 그 자리에 맞는 교재를 추천합니다.</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <select id="timeUnitSel" onchange="setTimeUnit(this.value)" class="bg-slate-900 border border-slate-600 text-white text-[11px] rounded-lg px-2 py-1.5 font-bold"><option value="year">년차</option><option value="quarter" selected>분기</option><option value="month">월</option></select>
+                        <select id="timeUnitSel" onchange="setTimeUnit(this.value)" title="시간 단위" class="bg-slate-900 border border-slate-600 text-white text-[11px] rounded-lg px-2 py-1.5 font-bold"><option value="year">년별(장기 12년)</option><option value="quarter" selected>분기별(2년)</option><option value="month">월별(6개월)</option></select>
                         <div id="diag-msg" class="text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 text-center max-w-[120px] sm:max-w-none">
                             진단 대기 중
                         </div>
@@ -310,19 +310,20 @@
         // ===== 그리드 모델: Y=영역(행), X=분기(열, 3단계×4분기=12) =====
         const GRID_ROWS = ['독해','듣기','말하기','쓰기','문법','구문','어휘','파닉스','모의/기출'];
         const GRID_CORE = ['독해','듣기','말하기','쓰기'];   // 4대영역
-        let GRID_COLS = 12;
-        let TIME_UNIT = 'quarter';   // year(장기 로드맵, 최다 칸) | quarter | month(단기 줌인)
-        const TIME_UNITS = { year:{cols:12, ko:'년차'}, quarter:{cols:12, ko:'분기'}, month:{cols:6, ko:'월'} };
+        // 큰 단위일수록 더 긴 로드맵(=더 많은 칸). 년별(장기 12년) > 분기별(3년) > 월별(1년 줌인)
+        let TIME_UNIT = 'quarter';
+        const TIME_UNITS = { year:{cols:12, ko:'년별', desc:'장기 로드맵 12년(1칸=1년)'}, quarter:{cols:8, ko:'분기별', desc:'2년 × 4분기(1칸=1분기)'}, month:{cols:6, ko:'월별', desc:'6개월 단기집중(1칸=1달)'} };
+        let GRID_COLS = TIME_UNITS.quarter.cols;   // 기본 = 분기별(8칸)
         const PHASE_NAME = { 1:'기반', 2:'체화', 3:'실전' };
         const PHASE_LV   = { 1:[1,2,2], 2:[2,3,3], 3:[3,4,5] };
-        // 컬럼 메타: 단계는 위치비율로 추정(PHASE_LV 매핑), 라벨은 단위별
+        // 컬럼 메타: 단계는 위치비율(전체의 1/3씩)로 추정 → PHASE_LV 매핑. 라벨은 단위별.
         function colMeta(c){
             const phase = Math.min(3, Math.floor((GRID_COLS>1 ? c/GRID_COLS : 0)*3)+1);
-            let label, quarter=(c%4)+1;
-            if(TIME_UNIT==='year') label=(c+1)+'년차';
-            else if(TIME_UNIT==='month') label=(c+1)+'개월차';
-            else label=(Math.floor(c/4)+1)+'-'+((c%4)+1);
-            return { phase, quarter, label };
+            let label;
+            if(TIME_UNIT==='year') label=(c+1)+'년차';                          // 1년차~12년차 (장기)
+            else if(TIME_UNIT==='month') label=(c+1)+'월';                       // 1월~6월 (단기 줌인)
+            else label=(Math.floor(c/4)+1)+'년 '+((c%4)+1)+'분기';               // 1년1분기~3년4분기
+            return { phase, quarter:(c%4)+1, label };
         }
         function setTimeUnit(unit){
             if(!TIME_UNITS[unit]) return;
