@@ -609,7 +609,7 @@
                     const uid = state.grid[skill][c]; const m=colMeta(c); const bl = isPhaseStart(c)?'border-l border-slate-700':'';
                     if(uid){
                         const b=byId(uid); const chem=chemMap[skill+':'+c];
-                        cells += `<div class="relative group rounded border border-slate-600 bg-card overflow-hidden ${bl}" style="min-height:60px">
+                        cells += `<div class="relative group rounded border border-slate-600 bg-card overflow-hidden ${bl}" style="min-height:50px">
                             <button onclick="event.stopPropagation();removeCell('${skill}',${c})" class="absolute top-0 right-0 w-4 h-4 bg-danger text-white rounded-bl items-center justify-center opacity-0 group-hover:opacity-100 z-10 text-[10px] hidden group-hover:flex">×</button>
                             <button onclick="event.stopPropagation();showBookDetail('${uid}')" class="block w-full text-left">
                                 <div class="h-7 bg-dark overflow-hidden flex items-center justify-center"><img src="${b.cover}" class="w-full h-full object-cover opacity-90" loading="lazy" onerror="this.style.display='none'"></div>
@@ -617,7 +617,7 @@
                             </button></div>`;
                     } else {
                         const tgt = sel && selRow===skill;
-                        cells += `<div onclick="handleCellClick('${skill}',${c})" ondragover="allowDrop(event)" ondrop="handleCellDrop(event,'${skill}',${c})" class="rounded border border-dashed flex items-center justify-center cursor-pointer ${bl} ${tgt?'border-brand bg-brand/10':'border-slate-700 bg-slate-800/20 hover:border-slate-500'}" style="min-height:60px" title="${skill} · ${m.label} 추천"><span class="text-[11px] ${tgt?'text-brand':'text-slate-600'}">${tgt?'＋':'·'}</span></div>`;
+                        cells += `<div onclick="handleCellClick('${skill}',${c})" ondragover="allowDrop(event)" ondrop="handleCellDrop(event,'${skill}',${c})" class="rounded border border-dashed flex items-center justify-center cursor-pointer ${bl} ${tgt?'border-brand bg-brand/10':'border-slate-700 bg-slate-800/20 hover:border-slate-500'}" style="min-height:50px" title="${skill} · ${m.label} 추천"><span class="text-[11px] ${tgt?'text-brand':'text-slate-600'}">${tgt?'＋':'·'}</span></div>`;
                     }
                 }
                 cells += `</div>`;
