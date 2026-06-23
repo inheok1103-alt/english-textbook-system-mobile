@@ -1,11 +1,11 @@
 {
   "meta": {
-    "generatedAt": "2026-06-21T11:17:12.324Z",
+    "generatedAt": "2026-06-22T21:30:19.824Z",
     "source": "YES24 search",
-    "totalMaterials": 994,
-    "found": 791,
-    "needsReview": 189,
-    "notFound": 14,
+    "totalMaterials": 4378,
+    "found": 4264,
+    "needsReview": 107,
+    "notFound": 7,
     "errors": 0
   },
   "images": {
@@ -407,10 +407,19 @@
       "searchQuery": "좋은책신사고 그래머 와이즈 Lv.1"
     },
     "IH-ENG-0046": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0046.jpg",
+      "imageUrl": "https://image.yes24.com/goods/167475753/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/167475753",
+      "source": "YES24",
+      "sourceTitle": "진짜 잘 이해되는 중학 영문법 1",
+      "sourceAuthor": "저",
+      "score": 33,
+      "bytes": 18464,
+      "contentType": "image/jpeg",
       "materialTitle": "진짜 중학 영문법 1",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 진짜 중학 영문법 1"
     },
     "IH-ENG-0047": {
       "status": "found",
@@ -10480,7 +10489,7 @@
       "searchQuery": "Compass Publishing (컴퍼스 퍼블리싱) Power Reading 3"
     },
     "IH-ENG-0006": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0006.jpg",
       "imageUrl": "https://image.yes24.com/goods/27559053/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/27559053",
@@ -10495,7 +10504,7 @@
       "searchQuery": "이퓨쳐(e-future) e-future Classic Readers Starter"
     },
     "IH-ENG-0009": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0009.jpg",
       "imageUrl": "https://image.yes24.com/goods/123408994/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/123408994",
@@ -10558,7 +10567,7 @@
       "isbn": "9791162402511"
     },
     "IH-ENG-0020": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0020.jpg",
       "imageUrl": "https://image.yes24.com/goods/105489968/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/105489968",
@@ -10636,13 +10645,22 @@
       "isbn": "9788900444247"
     },
     "IH-ENG-0039": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0039.jpg",
+      "imageUrl": "https://image.yes24.com/goods/17322287/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/17322287",
+      "source": "YES24",
+      "sourceTitle": "세계 역사 이야기 영어 리딩 훈련 고대 1",
+      "sourceAuthor": "등저",
+      "score": 25,
+      "bytes": 19861,
+      "contentType": "image/jpeg",
       "materialTitle": "리딩 와이즈 Lv.1",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "리딩 와이즈 Lv.1 교재"
     },
     "IH-ENG-0040": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0040.jpg",
       "imageUrl": "https://image.yes24.com/goods/69985196/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/69985196",
@@ -10657,7 +10675,7 @@
       "searchQuery": "리딩 와이즈 Starter 교재"
     },
     "IH-ENG-0043": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0043.jpg",
       "imageUrl": "https://image.yes24.com/goods/126969270/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/126969270",
@@ -10672,13 +10690,22 @@
       "searchQuery": "좋은책신사고 그래머 와이즈 Starter"
     },
     "IH-ENG-0044": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0044.jpg",
+      "imageUrl": "https://image.yes24.com/goods/163670387/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/163670387",
+      "source": "YES24",
+      "sourceTitle": "그래it 중학 영문법 개념+문제 마스터 Level 1",
+      "sourceAuthor": "저",
+      "score": 8,
+      "bytes": 8854,
+      "contentType": "image/jpeg",
       "materialTitle": "그래써 중학 영문법 개념마스터 Lv.1",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 그래써 중학 영문법 개념마스터 Lv.1"
     },
     "IH-ENG-0045": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0045.jpg",
       "imageUrl": "https://image.yes24.com/goods/168206696/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/168206696",
@@ -10693,7 +10720,7 @@
       "searchQuery": "좋은책신사고 이그잼 영문법 1500제 Lv.1"
     },
     "IH-ENG-0048": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0048.jpg",
       "imageUrl": "https://image.yes24.com/goods/3528805/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/3528805",
@@ -10708,7 +10735,8 @@
       "searchQuery": "라이팅 와이즈 Lv.1-2 교재"
     },
     "IH-ENG-0050": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0050.jpg",
       "imageUrl": "https://image.yes24.com/goods/125708282/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125708282",
       "source": "YES24",
@@ -10722,7 +10750,7 @@
       "searchQuery": "좋은책신사고 초빈출 어휘"
     },
     "IH-ENG-0056": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0056.jpg",
       "imageUrl": "https://image.yes24.com/goods/6431223/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/6431223",
@@ -10737,7 +10765,8 @@
       "searchQuery": "천재교육 POP 초등영어 교과서 영단어"
     },
     "IH-ENG-0058": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0058.jpg",
       "imageUrl": "https://image.yes24.com/goods/3754970/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/3754970",
       "source": "YES24",
@@ -10751,13 +10780,23 @@
       "searchQuery": "키출판사 기적같은 키즈 리딩 Reading Key"
     },
     "IH-ENG-0060": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0060.jpg",
+      "imageUrl": "https://image.yes24.com/goods/59884340/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/59884340",
+      "source": "YES24",
+      "sourceTitle": "미국교과서 읽는 리딩 Reading Key Preschool Starter 1",
+      "sourceAuthor": "저",
+      "score": 54,
+      "bytes": 45535,
+      "contentType": "image/jpeg",
       "materialTitle": "미국교과서 읽는 리딩 Reading Key Starter 1",
       "publisher": "키출판사",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "키출판사 미국교과서 읽는 리딩 Reading Key Starter 1"
     },
     "IH-ENG-0061": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0061.jpg",
       "imageUrl": "https://image.yes24.com/goods/3754970/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/3754970",
       "source": "YES24",
@@ -10771,7 +10810,8 @@
       "searchQuery": "키출판사 미국식으로 읽는 리딩 Reading Key"
     },
     "IH-ENG-0062": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0062.jpg",
       "imageUrl": "https://image.yes24.com/goods/3754970/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/3754970",
       "source": "YES24",
@@ -10785,7 +10825,7 @@
       "searchQuery": "키출판사 키즈 리딩 Reading Key"
     },
     "IH-ENG-0063": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0063.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791165263362.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791165263362",
@@ -10909,7 +10949,7 @@
       "searchQuery": "다락원 Grammar Mate 1"
     },
     "IH-ENG-0094": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0094.jpg",
       "imageUrl": "https://image.yes24.com/goods/168206696/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/168206696",
@@ -10924,25 +10964,52 @@
       "searchQuery": "좋은책신사고 이그잼 듣기모의고사 25회 Lv.2"
     },
     "IH-ENG-0096": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0096.jpg",
+      "imageUrl": "https://image.yes24.com/goods/163670934/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/163670934",
+      "source": "YES24",
+      "sourceTitle": "그래it 중학 영문법 개념+문제 마스터 Level 2",
+      "sourceAuthor": "저",
+      "score": 8,
+      "bytes": 8717,
+      "contentType": "image/jpeg",
       "materialTitle": "그래써 중학 영문법 개념마스터 Lv.2",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 그래써 중학 영문법 개념마스터 Lv.2"
     },
     "IH-ENG-0097": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0097.jpg",
+      "imageUrl": "https://image.yes24.com/goods/163670387/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/163670387",
+      "source": "YES24",
+      "sourceTitle": "그래it 중학 영문법 개념+문제 마스터 Level 1",
+      "sourceAuthor": "저",
+      "score": 8,
+      "bytes": 8854,
+      "contentType": "image/jpeg",
       "materialTitle": "그래써 중학 영문법 문제마스터 Lv.1",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 그래써 중학 영문법 문제마스터 Lv.1"
     },
     "IH-ENG-0098": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0098.jpg",
+      "imageUrl": "https://image.yes24.com/goods/163670934/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/163670934",
+      "source": "YES24",
+      "sourceTitle": "그래it 중학 영문법 개념+문제 마스터 Level 2",
+      "sourceAuthor": "저",
+      "score": 8,
+      "bytes": 8717,
+      "contentType": "image/jpeg",
       "materialTitle": "그래써 중학 영문법 문제마스터 Lv.2",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 그래써 중학 영문법 문제마스터 Lv.2"
     },
     "IH-ENG-0099": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0099.jpg",
       "imageUrl": "https://image.yes24.com/goods/168206696/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/168206696",
@@ -10957,7 +11024,7 @@
       "searchQuery": "좋은책신사고 이그잼 영문법 1500제 Lv.2"
     },
     "IH-ENG-0100": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0100.jpg",
       "imageUrl": "https://image.yes24.com/goods/167511065/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/167511065",
@@ -10972,20 +11039,30 @@
       "searchQuery": "좋은책신사고 진짜 중학 영문법 2"
     },
     "IH-ENG-0101": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0101.jpg",
       "materialTitle": "라이팅 와이즈 Lv.2-1",
       "publisher": "좋은책신사고",
       "note": "series-shared(restored)"
     },
     "IH-ENG-0102": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0102.jpg",
+      "imageUrl": "https://image.yes24.com/goods/3528805/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/3528805",
+      "source": "YES24",
+      "sourceTitle": "NEXUS TOEFL iBT WRITING LEVEL 2 넥서스 토플 라이팅 레벨 2",
+      "sourceAuthor": "저",
+      "score": 25,
+      "bytes": 20773,
+      "contentType": "image/jpeg",
       "materialTitle": "라이팅 와이즈 Lv.2-2",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "라이팅 와이즈 Lv.2-2 교재"
     },
     "IH-ENG-0105": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0105.jpg",
       "imageUrl": "https://image.yes24.com/goods/125708282/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125708282",
       "source": "YES24",
@@ -10999,7 +11076,7 @@
       "searchQuery": "좋은책신사고 초빈출 어휘"
     },
     "IH-ENG-0109": {
-      "status": "needs_review",
+      "status": "found",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788974574574.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9788974574574",
       "source": "Kyobo",
@@ -11063,7 +11140,7 @@
       "isbn": "9791188808151"
     },
     "IH-ENG-0116": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0116.jpg",
       "materialTitle": "문법이 쓰기다",
       "publisher": "키출판사",
@@ -11093,7 +11170,7 @@
       "searchQuery": "다락원 Grammar ViSTA 1"
     },
     "IH-ENG-0169": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0169.jpg",
       "imageUrl": "https://image.yes24.com/goods/17322287/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/17322287",
@@ -11108,7 +11185,7 @@
       "searchQuery": "리딩 와이즈 Lv.3 교재"
     },
     "IH-ENG-0170": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0170.jpg",
       "imageUrl": "https://image.yes24.com/goods/168377203/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/168377203",
@@ -11123,32 +11200,59 @@
       "searchQuery": "좋은책신사고 이그잼 듣기모의고사 25회 Lv.3"
     },
     "IH-ENG-0173": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0173.jpg",
+      "imageUrl": "https://image.yes24.com/goods/163671448/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/163671448",
+      "source": "YES24",
+      "sourceTitle": "그래it 중학 영문법 개념+문제 마스터 Level 3",
+      "sourceAuthor": "저",
+      "score": 8,
+      "bytes": 8528,
+      "contentType": "image/jpeg",
       "materialTitle": "그래써 중학 영문법 개념마스터 Lv.3",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 그래써 중학 영문법 개념마스터 Lv.3"
     },
     "IH-ENG-0174": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0174.jpg",
+      "imageUrl": "https://image.yes24.com/goods/163671448/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/163671448",
+      "source": "YES24",
+      "sourceTitle": "그래it 중학 영문법 개념+문제 마스터 Level 3",
+      "sourceAuthor": "저",
+      "score": 8,
+      "bytes": 8528,
+      "contentType": "image/jpeg",
       "materialTitle": "그래써 중학 영문법 문제마스터 Lv.3",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 그래써 중학 영문법 문제마스터 Lv.3"
     },
     "IH-ENG-0175": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0175.jpg",
+      "imageUrl": "https://image.yes24.com/goods/168377203/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/168377203",
+      "source": "YES24",
+      "sourceTitle": "이그잼 Exam 영문법 1500제 Level 3",
+      "sourceAuthor": "저",
+      "score": 36,
+      "bytes": 13651,
+      "contentType": "image/jpeg",
       "materialTitle": "이그잼 영문법 1500제 Lv.3",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 이그잼 영문법 1500제 Lv.3"
     },
     "IH-ENG-0176": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0176.jpg",
       "materialTitle": "라이팅 와이즈 Lv.3-1",
       "publisher": "좋은책신사고",
       "note": "series-shared(restored)"
     },
     "IH-ENG-0177": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0177.jpg",
       "imageUrl": "https://image.yes24.com/goods/119761712/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/119761712",
@@ -11163,7 +11267,8 @@
       "searchQuery": "라이팅 와이즈 Lv.3-2 교재"
     },
     "IH-ENG-0179": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0179.jpg",
       "imageUrl": "https://image.yes24.com/goods/125708282/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125708282",
       "source": "YES24",
@@ -11177,7 +11282,7 @@
       "searchQuery": "좋은책신사고 초빈출 어휘"
     },
     "IH-ENG-0190": {
-      "status": "needs_review",
+      "status": "found",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791189719470.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791189719470",
       "source": "Kyobo",
@@ -11193,7 +11298,8 @@
       "isbn": "9791189719470"
     },
     "IH-ENG-0191": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0191.jpg",
       "imageUrl": "https://image.yes24.com/goods/43721018/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/43721018",
       "source": "YES24",
@@ -11207,7 +11313,7 @@
       "searchQuery": "키출판사 구문이 독해다 (초5)"
     },
     "IH-ENG-0193": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0193.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/7051862005219.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/7051862005219",
@@ -11223,7 +11329,8 @@
       "isbn": "7051862005219"
     },
     "IH-ENG-0195": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0195.jpg",
       "imageUrl": "https://image.yes24.com/goods/3754970/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/3754970",
       "source": "YES24",
@@ -11237,19 +11344,37 @@
       "searchQuery": "키출판사 American School Textbook Listening & Speaking"
     },
     "IH-ENG-0196": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0196.jpg",
+      "imageUrl": "https://image.yes24.com/goods/8988566/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/8988566",
+      "source": "YES24",
+      "sourceTitle": "미국교과서 읽는 리스닝 &amp; 스피킹 Listening &amp; Speaking Key Prek 준비편 1",
+      "sourceAuthor": ", 공저",
+      "score": 43,
+      "bytes": 26758,
+      "contentType": "image/jpeg",
       "materialTitle": "미국교과서 읽는 ASTB LISTENING KEY 1",
       "publisher": "키출판사",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "키출판사 미국교과서 읽는 ASTB LISTENING KEY 1"
     },
     "IH-ENG-0198": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0198.jpg",
+      "imageUrl": "https://image.yes24.com/goods/11323341/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/11323341",
+      "source": "YES24",
+      "sourceTitle": "미국교과서 읽는 리스닝 &amp; 스피킹 Listening &amp; Speaking Key Prek 준비편 3",
+      "sourceAuthor": ", 공저",
+      "score": 54,
+      "bytes": 29356,
+      "contentType": "image/jpeg",
       "materialTitle": "미국교과서 읽는 리스닝 Listen & Speak Key",
       "publisher": "키출판사",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "키출판사 미국교과서 읽는 리스닝 Listen & Speak Key"
     },
     "IH-ENG-0201": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0201.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791189719456.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791189719456",
@@ -11281,7 +11406,8 @@
       "isbn": "7070035000231"
     },
     "IH-ENG-0207": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0207.jpg",
       "imageUrl": "https://image.yes24.com/goods/116036516/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/116036516",
       "source": "YES24",
@@ -11310,7 +11436,7 @@
       "searchQuery": "쎄듀(CEDU) ReadingGraphy (리딩그라피) Level 1"
     },
     "IH-ENG-0210": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0210.jpg",
       "imageUrl": "https://image.yes24.com/goods/147031178/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/147031178",
@@ -11325,7 +11451,7 @@
       "searchQuery": "NE능률 Grammar Inside Level 1"
     },
     "IH-ENG-0212": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0212.jpg",
       "imageUrl": "https://image.yes24.com/goods/114665533/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/114665533",
@@ -11355,7 +11481,7 @@
       "searchQuery": "동아출판 Grammar CLEAR Starter 1"
     },
     "IH-ENG-0216": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0216.jpg",
       "imageUrl": "https://image.yes24.com/goods/44335688/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/44335688",
@@ -11370,7 +11496,7 @@
       "searchQuery": "Phonics Monster 1 (Single Letters) 교재"
     },
     "IH-ENG-0219": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0219.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791162409015.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791162409015",
@@ -11386,7 +11512,7 @@
       "isbn": "9791162409015"
     },
     "IH-ENG-0228": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0228.jpg",
       "imageUrl": "https://image.yes24.com/goods/125760119/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125760119",
@@ -11401,7 +11527,8 @@
       "searchQuery": "리딩 와이즈 Starter/Lv.1 교재"
     },
     "IH-ENG-0232": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0232.jpg",
       "imageUrl": "https://image.yes24.com/goods/107489492/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/107489492",
       "source": "YES24",
@@ -11415,7 +11542,8 @@
       "searchQuery": "컨셉 영어듣기 기본모의고사 30회 교재"
     },
     "IH-ENG-0233": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0233.jpg",
       "imageUrl": "https://image.yes24.com/goods/107489492/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/107489492",
       "source": "YES24",
@@ -11429,7 +11557,7 @@
       "searchQuery": "컨셉 영어듣기 유형모의고사 25회 교재"
     },
     "IH-ENG-0234": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0234.jpg",
       "imageUrl": "https://image.yes24.com/goods/125202617/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125202617",
@@ -11444,7 +11572,8 @@
       "searchQuery": "영어독해 기본모의고사 15회 교재"
     },
     "IH-ENG-0235": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0235.jpg",
       "imageUrl": "https://image.yes24.com/goods/107489492/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/107489492",
       "source": "YES24",
@@ -11458,7 +11587,7 @@
       "searchQuery": "영어독해 약점유형 모의고사 20회 교재"
     },
     "IH-ENG-0236": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0236.jpg",
       "imageUrl": "https://image.yes24.com/goods/20103002/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/20103002",
@@ -11473,13 +11602,22 @@
       "searchQuery": "영어독해 종합모의고사 15회 교재"
     },
     "IH-ENG-0237": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0237.jpg",
+      "imageUrl": "https://image.yes24.com/goods/126969270/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/126969270",
+      "source": "YES24",
+      "sourceTitle": "Grammar Wise Starter 그래머 와이즈 스타터",
+      "sourceAuthor": "저",
+      "score": 36,
+      "bytes": 10651,
+      "contentType": "image/jpeg",
       "materialTitle": "그래머 와이즈 Starter/Lv.1",
       "publisher": "좋은책신사고",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "좋은책신사고 그래머 와이즈 Starter/Lv.1"
     },
     "IH-ENG-0238": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0238.jpg",
       "imageUrl": "https://image.yes24.com/goods/22958919/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/22958919",
@@ -11494,7 +11632,7 @@
       "searchQuery": "그래머 중학 영문법 개념마스터 Lv.1 교재"
     },
     "IH-ENG-0239": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0239.jpg",
       "imageUrl": "https://image.yes24.com/goods/22958919/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/22958919",
@@ -11509,7 +11647,7 @@
       "searchQuery": "그래머 중학 영문법 문제마스터 Lv.1 교재"
     },
     "IH-ENG-0245": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0245.jpg",
       "imageUrl": "https://image.yes24.com/goods/167384508/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/167384508",
@@ -11524,7 +11662,7 @@
       "searchQuery": "좋은책신사고 진짜 고교 영문법 2"
     },
     "IH-ENG-0248": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0248.jpg",
       "imageUrl": "https://image.yes24.com/goods/119761712/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/119761712",
@@ -11539,7 +11677,8 @@
       "searchQuery": "라이팅 와이즈 Lv.1-1~3-2 교재"
     },
     "IH-ENG-0252": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0252.jpg",
       "imageUrl": "https://image.yes24.com/goods/125708282/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125708282",
       "source": "YES24",
@@ -11553,7 +11692,8 @@
       "searchQuery": "좋은책신사고 초비출 영단어 고교 필수"
     },
     "IH-ENG-0253": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0253.jpg",
       "imageUrl": "https://image.yes24.com/goods/125708282/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125708282",
       "source": "YES24",
@@ -11567,7 +11707,8 @@
       "searchQuery": "좋은책신사고 초비출 영단어 수능 필수"
     },
     "IH-ENG-0257": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0257.jpg",
       "imageUrl": "https://image.yes24.com/goods/125708282/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125708282",
       "source": "YES24",
@@ -11725,13 +11866,23 @@
       "isbn": "9791165260354"
     },
     "IH-ENG-0275": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0275.jpg",
+      "imageUrl": "https://image.yes24.com/goods/3866484/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/3866484",
+      "source": "YES24",
+      "sourceTitle": "미국교과서 읽는 리딩 Easy 3 AMERiCAN SCHOOL TEXTBOOK Reading KEY",
+      "sourceAuthor": ", 공저",
+      "score": 47,
+      "bytes": 33554,
+      "contentType": "image/jpeg",
       "materialTitle": "미국교과서 읽는 리딩 ASTB READING KEY (중3)",
       "publisher": "키출판사",
-      "note": "kyobo-misfit-reverted"
+      "searchQuery": "키출판사 미국교과서 읽는 리딩 ASTB READING KEY (중3)"
     },
     "IH-ENG-0276": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0276.jpg",
       "imageUrl": "https://image.yes24.com/goods/3754970/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/3754970",
       "source": "YES24",
@@ -11745,7 +11896,8 @@
       "searchQuery": "키출판사 미국교과서 읽는 리딩 ASTB READING KEY 1 (중1)"
     },
     "IH-ENG-0277": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0277.jpg",
       "imageUrl": "https://image.yes24.com/goods/3754970/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/3754970",
       "source": "YES24",
@@ -11759,7 +11911,8 @@
       "searchQuery": "키출판사 미국교과서 독해"
     },
     "IH-ENG-0278": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0278.jpg",
       "imageUrl": "https://image.yes24.com/goods/67350410/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/67350410",
       "source": "YES24",
@@ -11773,7 +11926,8 @@
       "searchQuery": "키출판사 강성태 중학 필수 영문법 1"
     },
     "IH-ENG-0279": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0279.jpg",
       "imageUrl": "https://image.yes24.com/goods/67350410/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/67350410",
       "source": "YES24",
@@ -11819,7 +11973,7 @@
       "isbn": "9791189719487"
     },
     "IH-ENG-0284": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0284.jpg",
       "imageUrl": "https://image.yes24.com/goods/179715199/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/179715199",
@@ -11866,7 +12020,7 @@
       "isbn": "9791188808762"
     },
     "IH-ENG-0290": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0290.jpg",
       "imageUrl": "https://image.yes24.com/goods/142192638/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/142192638",
@@ -11897,7 +12051,7 @@
       "isbn": "9791165263379"
     },
     "IH-ENG-0292": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0292.jpg",
       "imageUrl": "https://image.yes24.com/goods/59884340/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/59884340",
@@ -11912,7 +12066,7 @@
       "searchQuery": "키출판사 미국교과서 읽는 영단어 KEY 1"
     },
     "IH-ENG-0294": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0294.jpg",
       "imageUrl": "https://image.yes24.com/goods/61198433/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/61198433",
@@ -11927,7 +12081,7 @@
       "searchQuery": "키출판사 미국교과서 읽는 영단어 KEY 3"
     },
     "IH-ENG-0298": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0298.jpg",
       "imageUrl": "https://image.yes24.com/goods/42788254/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/42788254",
@@ -11942,7 +12096,7 @@
       "searchQuery": "키출판사 중학 단어가 읽기다 (중1)"
     },
     "IH-ENG-0301": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0301.jpg",
       "imageUrl": "https://image.yes24.com/goods/119410293/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/119410293",
@@ -12033,7 +12187,7 @@
       "searchQuery": "비상교육 완자 VOCA PICK 중등수능 기본"
     },
     "IH-ENG-0380": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0380.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791162409008.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791162409008",
@@ -12049,7 +12203,7 @@
       "isbn": "9791162409008"
     },
     "IH-ENG-0383": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0383.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791162409060.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791162409060",
@@ -12065,7 +12219,7 @@
       "isbn": "9791162409060"
     },
     "IH-ENG-0387": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0387.jpg",
       "imageUrl": "https://image.yes24.com/goods/125202617/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125202617",
@@ -12080,7 +12234,7 @@
       "searchQuery": "컨셉 영어독해 기본모의고사 15회 교재"
     },
     "IH-ENG-0388": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0388.jpg",
       "imageUrl": "https://image.yes24.com/goods/20103002/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/20103002",
@@ -12095,7 +12249,8 @@
       "searchQuery": "컨셉 영어독해 종합모의고사 15회 교재"
     },
     "IH-ENG-0389": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0389.jpg",
       "imageUrl": "https://image.yes24.com/goods/125708282/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/125708282",
       "source": "YES24",
@@ -12141,7 +12296,8 @@
       "isbn": "9791125959618"
     },
     "IH-ENG-0393": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0393.jpg",
       "imageUrl": "https://image.yes24.com/goods/43721018/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/43721018",
       "source": "YES24",
@@ -12155,7 +12311,7 @@
       "searchQuery": "키출판사 중학영어 구문이 독해다"
     },
     "IH-ENG-0394": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0394.jpg",
       "imageUrl": "https://image.yes24.com/goods/84909620/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/84909620",
@@ -12170,7 +12326,7 @@
       "searchQuery": "키출판사 강성태 영독해 속독편"
     },
     "IH-ENG-0396": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0396.jpg",
       "imageUrl": "https://image.yes24.com/goods/91766823/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/91766823",
@@ -12200,7 +12356,7 @@
       "searchQuery": "키출판사 매3영"
     },
     "IH-ENG-0399": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0399.jpg",
       "imageUrl": "https://image.yes24.com/goods/57552678/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/57552678",
@@ -12215,7 +12371,7 @@
       "searchQuery": "키출판사 매3영 전국연합 학력평가 기출 (고1)"
     },
     "IH-ENG-0400": {
-      "status": "needs_review",
+      "status": "found",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791189719005.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791189719005",
       "source": "Kyobo",
@@ -12231,7 +12387,8 @@
       "isbn": "9791189719005"
     },
     "IH-ENG-0401": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0401.jpg",
       "imageUrl": "https://image.yes24.com/goods/67350410/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/67350410",
       "source": "YES24",
@@ -12245,7 +12402,7 @@
       "searchQuery": "키출판사 강성태 중학 필수 영문법"
     },
     "IH-ENG-0403": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0403.jpg",
       "imageUrl": "https://image.yes24.com/goods/91766763/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/91766763",
@@ -12276,7 +12433,7 @@
       "isbn": "9791188808779"
     },
     "IH-ENG-0407": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0407.jpg",
       "imageUrl": "https://image.yes24.com/goods/119410293/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/119410293",
@@ -12291,7 +12448,7 @@
       "searchQuery": "키출판사 중학 열공법 (열+공부+문제+대공략)"
     },
     "IH-ENG-0408": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0408.jpg",
       "imageUrl": "https://image.yes24.com/goods/4740034/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/4740034",
@@ -12306,7 +12463,7 @@
       "searchQuery": "키출판사 중학영문법 문법"
     },
     "IH-ENG-0409": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0409.jpg",
       "imageUrl": "https://image.yes24.com/goods/4740034/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/4740034",
@@ -12321,7 +12478,8 @@
       "searchQuery": "키출판사 중학영문법 문법"
     },
     "IH-ENG-0410": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0410.jpg",
       "imageUrl": "https://image.yes24.com/goods/84928661/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/84928661",
       "source": "YES24",
@@ -12350,7 +12508,7 @@
       "searchQuery": "키출판사 문법이 쓰기다 서술형"
     },
     "IH-ENG-0413": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0413.jpg",
       "imageUrl": "https://image.yes24.com/goods/139878101/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/139878101",
@@ -12365,7 +12523,7 @@
       "searchQuery": "키출판사 중학신전영어 서술형 전략이다"
     },
     "IH-ENG-0417": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0417.jpg",
       "imageUrl": "https://image.yes24.com/goods/76176484/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/76176484",
@@ -12396,7 +12554,7 @@
       "isbn": "9788974574956"
     },
     "IH-ENG-0419": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0419.jpg",
       "imageUrl": "https://image.yes24.com/goods/42788254/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/42788254",
@@ -12411,7 +12569,8 @@
       "searchQuery": "키출판사 키출판사 중학 영단어"
     },
     "IH-ENG-0426": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0426.jpg",
       "imageUrl": "https://image.yes24.com/goods/107489492/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/107489492",
       "source": "YES24",
@@ -12440,7 +12599,8 @@
       "searchQuery": "Compass Publishing Reading Discovery 1"
     },
     "IH-ENG-0446": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0446.jpg",
       "imageUrl": "https://image.yes24.com/goods/167503391/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/167503391",
       "source": "YES24",
@@ -12454,7 +12614,7 @@
       "searchQuery": "자이스토리 Xi STORY 영어 독해 실전"
     },
     "IH-ENG-0447": {
-      "status": "needs_review",
+      "status": "found",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791162409077.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791162409077",
       "source": "Kyobo",
@@ -12470,19 +12630,19 @@
       "isbn": "9791162409077"
     },
     "IH-ENG-0448": {
-      "status": "no_cover_real",
-      "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/4801162409016.jpg",
-      "sourcePage": "https://product.kyobobook.co.kr/detail/4801162409016",
-      "source": "Kyobo",
-      "sourceTitle": "자이스토리 영어 독해 기본(2026)",
+      "status": "found",
+      "localPath": "covers/IH-ENG-0448.jpg",
+      "imageUrl": "https://image.yes24.com/goods/160656899/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/160656899",
+      "source": "YES24",
+      "sourceTitle": "Xistory 자이스토리 영어 독해 기본 (2026년)",
       "sourceAuthor": "등저",
-      "score": 62,
-      "bytes": 34150,
+      "score": 124,
+      "bytes": 15649,
       "contentType": "image/jpeg",
       "materialTitle": "자이스토리 영어 독해 기본",
       "publisher": "수경출판사/자이스토리",
-      "searchQuery": "자이스토리 영어 독해 기본",
-      "isbn": "4801162409016"
+      "searchQuery": "자이스토리 자이스토리 영어 독해 기본"
     },
     "IH-ENG-0450": {
       "status": "found",
@@ -12500,7 +12660,7 @@
       "searchQuery": "자이스토리 연도별 모의고사 고3 영어"
     },
     "IH-ENG-0451": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0451.jpg",
       "imageUrl": "https://image.yes24.com/goods/160655410/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/160655410",
@@ -12515,7 +12675,7 @@
       "searchQuery": "자이스토리 전국연합 고1 영어 (기출)"
     },
     "IH-ENG-0454": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0454.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791162409084.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791162409084",
@@ -12531,7 +12691,7 @@
       "isbn": "9791162409084"
     },
     "IH-ENG-0464": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0464.jpg",
       "imageUrl": "https://image.yes24.com/goods/168375900/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/168375900",
@@ -12546,7 +12706,7 @@
       "searchQuery": "키출판사 매3영 수능 기출 (고3)"
     },
     "IH-ENG-0465": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0465.jpg",
       "imageUrl": "https://image.yes24.com/goods/57552676/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/57552676",
@@ -12561,7 +12721,7 @@
       "searchQuery": "키출판사 매3영 전국연합 학력평가 기출 (고2)"
     },
     "IH-ENG-0466": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0466.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791189719494.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791189719494",
@@ -12577,21 +12737,22 @@
       "isbn": "9791189719494"
     },
     "IH-ENG-0467": {
-      "status": "no_cover_real",
-      "imageUrl": "https://image.yes24.com/goods/84928661/L",
-      "sourcePage": "https://www.yes24.com/Product/Goods/84928661",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0467.jpg",
+      "imageUrl": "https://image.yes24.com/goods/142192638/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/142192638",
       "source": "YES24",
-      "sourceTitle": "고등영어, 서술형이 전략이다",
+      "sourceTitle": "중학 실전 영어 서술형이 전략이다 2",
       "sourceAuthor": "저",
       "score": 32,
-      "bytes": 18008,
+      "bytes": 19379,
       "contentType": "image/jpeg",
       "materialTitle": "서술형 전략이다",
       "publisher": "키출판사",
       "searchQuery": "키출판사 서술형 전략이다"
     },
     "IH-ENG-0475": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0475.jpg",
       "imageUrl": "https://image.yes24.com/goods/16366080/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/16366080",
@@ -12637,7 +12798,7 @@
       "isbn": "9791129711281"
     },
     "IH-ENG-0489": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0489.jpg",
       "imageUrl": "https://image.yes24.com/goods/124216405/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/124216405",
@@ -12652,22 +12813,22 @@
       "searchQuery": "메가스터디북스 메가스터디 수능기출 올픽 영어영역 어법·어휘"
     },
     "IH-ENG-0542": {
-      "status": "no_cover_real",
-      "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/4801162409009.jpg",
-      "sourcePage": "https://product.kyobobook.co.kr/detail/4801162409009",
-      "source": "Kyobo",
-      "sourceTitle": "자이스토리 영어 독해 완성(2026)",
+      "status": "found",
+      "localPath": "covers/IH-ENG-0542.jpg",
+      "imageUrl": "https://image.yes24.com/goods/160656219/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/160656219",
+      "source": "YES24",
+      "sourceTitle": "Xistory 자이스토리 영어 독해 완성 (2026년)",
       "sourceAuthor": "등저",
-      "score": 62,
-      "bytes": 34150,
+      "score": 124,
+      "bytes": 15252,
       "contentType": "image/jpeg",
       "materialTitle": "자이스토리 영어 독해 완성",
       "publisher": "수경출판사/자이스토리",
-      "searchQuery": "자이스토리 영어 독해 완성",
-      "isbn": "4801162409009"
+      "searchQuery": "자이스토리 자이스토리 영어 독해 완성"
     },
     "IH-ENG-0545": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0545.jpg",
       "imageUrl": "https://image.yes24.com/goods/162328043/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/162328043",
@@ -12682,7 +12843,7 @@
       "searchQuery": "자이스토리 자이스토리 어법어휘 완성"
     },
     "IH-ENG-0551": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0551.jpg",
       "imageUrl": "https://image.yes24.com/goods/120227138/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/120227138",
@@ -12743,7 +12904,7 @@
       "isbn": "9791162409077"
     },
     "IH-ENG-0563": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0563.jpg",
       "imageUrl": "https://image.yes24.com/goods/169275544/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/169275544",
@@ -12758,7 +12919,7 @@
       "searchQuery": "자이스토리 연도별 모의고사 고3 영어 (기출)"
     },
     "IH-ENG-0564": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0564.jpg",
       "imageUrl": "https://image.yes24.com/goods/167503124/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/167503124",
@@ -12788,7 +12949,7 @@
       "searchQuery": "키출판사 매3영 문장구조 구문독해"
     },
     "IH-ENG-0568": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0568.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791189719050.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791189719050",
@@ -12804,7 +12965,7 @@
       "isbn": "9791189719050"
     },
     "IH-ENG-0569": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0569.jpg",
       "imageUrl": "https://image.yes24.com/goods/57552678/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/57552678",
@@ -12819,7 +12980,7 @@
       "searchQuery": "키출판사 매3영 고1 전국연합 학력평가 기출"
     },
     "IH-ENG-0570": {
-      "status": "needs_review",
+      "status": "found",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9791189719005.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9791189719005",
       "source": "Kyobo",
@@ -12835,7 +12996,8 @@
       "isbn": "9791189719005"
     },
     "IH-ENG-0571": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0571.jpg",
       "imageUrl": "https://image.yes24.com/goods/84928661/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/84928661",
       "source": "YES24",
@@ -12849,7 +13011,7 @@
       "searchQuery": "키출판사 고등영어 내신 어법 서술형 전략이다"
     },
     "IH-ENG-0573": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0573.jpg",
       "imageUrl": "https://image.yes24.com/goods/76176484/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/76176484",
@@ -12864,7 +13026,7 @@
       "searchQuery": "키출판사 고등영단어 단어가 읽기다"
     },
     "IH-ENG-0579": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0579.jpg",
       "imageUrl": "https://image.yes24.com/goods/57552676/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/57552676",
@@ -12879,7 +13041,7 @@
       "searchQuery": "키출판사 매3영 고2 전국연합 학력평가 기출"
     },
     "IH-ENG-0580": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0580.jpg",
       "imageUrl": "https://image.yes24.com/goods/168375900/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/168375900",
@@ -12894,7 +13056,7 @@
       "searchQuery": "키출판사 매3영 고3 수능 기출"
     },
     "IH-ENG-0582": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0582.jpg",
       "imageUrl": "https://image.yes24.com/goods/120227138/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/120227138",
@@ -12909,34 +13071,34 @@
       "searchQuery": "키출판사 매3영 어법어휘"
     },
     "IH-ENG-0588": {
-      "status": "no_cover_real",
-      "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/4801189432240.jpg",
-      "sourcePage": "https://product.kyobobook.co.kr/detail/4801189432240",
-      "source": "Kyobo",
-      "sourceTitle": "THIS IS READING Starter (디스 이즈 리딩 스타터) 3(해설서)",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0588.jpg",
+      "imageUrl": "https://image.yes24.com/goods/69985221/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/69985221",
+      "source": "YES24",
+      "sourceTitle": "THIS IS READING Starter 디스 이즈 리딩 스타터 3",
       "sourceAuthor": "저",
-      "score": 62,
-      "bytes": 34150,
+      "score": 57,
+      "bytes": 34565,
       "contentType": "image/jpeg",
       "materialTitle": "This is Reading (디스 이즈 리딩)",
       "publisher": "NE능률",
-      "searchQuery": "This is Reading (디스 이즈 리딩)",
-      "isbn": "4801189432240"
+      "searchQuery": "NE능률 This is Reading (디스 이즈 리딩)"
     },
     "IH-ENG-0613": {
-      "status": "no_cover_real",
-      "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9780821576090.jpg",
-      "sourcePage": "https://product.kyobobook.co.kr/detail/9780821576090",
-      "source": "Kyobo",
-      "sourceTitle": "Vocabulary Workshop Level D",
+      "status": "found",
+      "localPath": "covers/IH-ENG-0613.jpg",
+      "imageUrl": "https://image.yes24.com/goods/9495788/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/9495788",
+      "source": "YES24",
+      "sourceTitle": "Vocabulary Workshop",
       "sourceAuthor": "Holt, Rinehart, and Winston, Inc. (COR)",
-      "score": 64,
-      "bytes": 34150,
+      "score": 73,
+      "bytes": 2858,
       "contentType": "image/jpeg",
       "materialTitle": "Vocabulary Workshop (Sadlier-Oxford)",
       "publisher": "해외원서(특목고)",
-      "searchQuery": "Vocabulary Workshop (Sadlier-Oxford)",
-      "isbn": "9780821576090"
+      "searchQuery": "Vocabulary Workshop (Sadlier-Oxford) 교재"
     },
     "IH-ENG-0620": {
       "status": "found",
@@ -12987,7 +13149,7 @@
       "isbn": "9781009797580"
     },
     "IH-ENG-0632": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0632.jpg",
       "imageUrl": "https://image.yes24.com/goods/151978171/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/151978171",
@@ -13034,7 +13196,7 @@
       "isbn": "9780194906395"
     },
     "IH-ENG-0657": {
-      "status": "needs_review",
+      "status": "found",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788996245544.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9788996245544",
       "source": "Kyobo",
@@ -13066,7 +13228,8 @@
       "isbn": "9798893310153"
     },
     "IH-ENG-0668": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0668.jpg",
       "imageUrl": "https://image.yes24.com/goods/34986432/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/34986432",
       "source": "YES24",
@@ -13080,7 +13243,8 @@
       "searchQuery": "Cambridge Cambridge Prepare"
     },
     "IH-ENG-0671": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0671.jpg",
       "imageUrl": "https://image.yes24.com/goods/33194331/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/33194331",
       "source": "YES24",
@@ -13094,19 +13258,19 @@
       "searchQuery": "Pearson/Longman Big English / Big English Plus"
     },
     "IH-ENG-0672": {
-      "status": "no_cover_real",
-      "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788498378467.jpg",
-      "sourcePage": "https://product.kyobobook.co.kr/detail/9788498378467",
-      "source": "Kyobo",
-      "sourceTitle": "Our discovery Island 5 Primary: Student´s book",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0672.jpg",
+      "imageUrl": "https://image.yes24.com/goods/9970078/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/9970078",
+      "source": "YES24",
+      "sourceTitle": "The Isle of Pines, Or, a Late Discovery of a Fourth Island in Terra Australis, Incognita Being a True Relation of Certain English Persons, Who in the",
       "sourceAuthor": "Neville, Henry",
-      "score": 62,
-      "bytes": 34150,
+      "score": 27,
+      "bytes": 2858,
       "contentType": "image/jpeg",
       "materialTitle": "Our Discovery Island",
       "publisher": "Pearson/Longman",
-      "searchQuery": "Our Discovery Island",
-      "isbn": "9788498378467"
+      "searchQuery": "Our Discovery Island 교재"
     },
     "IH-ENG-0673": {
       "status": "found",
@@ -13157,7 +13321,7 @@
       "isbn": "9780357446119"
     },
     "IH-ENG-0685": {
-      "status": "needs_review",
+      "status": "found",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788954796767.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9788954796767",
       "source": "Kyobo",
@@ -13221,7 +13385,7 @@
       "isbn": "9798886680003"
     },
     "IH-ENG-0758": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0758.jpg",
       "imageUrl": "https://image.yes24.com/goods/104122269/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/104122269",
@@ -13252,7 +13416,8 @@
       "isbn": "9781337118606"
     },
     "IH-ENG-0762": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0762.jpg",
       "imageUrl": "https://image.yes24.com/goods/2576343/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/2576343",
       "source": "YES24",
@@ -13266,7 +13431,7 @@
       "searchQuery": "AP English Language and Composition 대비 교재 교재"
     },
     "IH-ENG-0764": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0764.jpg",
       "imageUrl": "https://image.yes24.com/goods/160655410/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/160655410",
@@ -13281,7 +13446,8 @@
       "searchQuery": "마더텅 / 수경출판사 기출 모의고사 문제집 (마더텅 / 자이스토리)"
     },
     "IH-ENG-0771": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0771.jpg",
       "imageUrl": "https://image.yes24.com/goods/13846172/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/13846172",
       "source": "YES24",
@@ -13327,7 +13493,8 @@
       "isbn": "9780451526342"
     },
     "IH-ENG-0781": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0781.jpg",
       "imageUrl": "https://image.yes24.com/goods/85493267/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/85493267",
       "source": "YES24",
@@ -13372,7 +13539,8 @@
       "isbn": "9781337115834"
     },
     "IH-ENG-0787": {
-      "status": "no_cover_real",
+      "status": "found",
+      "localPath": "covers/IH-ENG-0787.jpg",
       "imageUrl": "https://image.yes24.com/goods/102167146/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/102167146",
       "source": "YES24",
@@ -13402,7 +13570,7 @@
       "isbn": "9781640151864"
     },
     "IH-ENG-0805": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0805.jpg",
       "imageUrl": "https://image.yes24.com/goods/162337474/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/162337474",
@@ -13417,7 +13585,7 @@
       "searchQuery": "Vivid Reading Basic 1 교재"
     },
     "IH-ENG-0806": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0806.jpg",
       "imageUrl": "https://image.yes24.com/goods/162337474/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/162337474",
@@ -13432,7 +13600,7 @@
       "searchQuery": "Vivid Reading Basic 2 교재"
     },
     "IH-ENG-0807": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0807.jpg",
       "imageUrl": "https://image.yes24.com/goods/162337474/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/162337474",
@@ -13447,7 +13615,7 @@
       "searchQuery": "Vivid Reading Basic 3 교재"
     },
     "IH-ENG-0809": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0809.jpg",
       "imageUrl": "https://image.yes24.com/goods/2309014/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/2309014",
@@ -13636,7 +13804,7 @@
       "isbn": "7051862005134"
     },
     "IH-ENG-0862": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0862.jpg",
       "imageUrl": "https://image.yes24.com/goods/96402488/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/96402488",
@@ -13651,7 +13819,7 @@
       "searchQuery": "Collins (HarperCollins Publishers, 영국) Collins Easy Learning Phonics Ages 4-5"
     },
     "IH-ENG-0863": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0863.jpg",
       "imageUrl": "https://image.yes24.com/goods/96402488/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/96402488",
@@ -13682,22 +13850,22 @@
       "isbn": "9780194646772"
     },
     "IH-ENG-0868": {
-      "status": "no_cover_real",
-      "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9780194646475.jpg",
-      "sourcePage": "https://product.kyobobook.co.kr/detail/9780194646475",
-      "source": "Kyobo",
-      "sourceTitle": "Oxford Read and Discover",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0868.jpg",
+      "imageUrl": "https://image.yes24.com/goods/4401456/L",
+      "sourcePage": "https://www.yes24.com/Product/Goods/4401456",
+      "source": "YES24",
+      "sourceTitle": "Oxford Read and Discover: Level 5: 900-Word Vocabularyexploring Our World Activity Book",
       "sourceAuthor": "Oxford",
-      "score": 70,
-      "bytes": 34150,
+      "score": 53,
+      "bytes": 25052,
       "contentType": "image/jpeg",
       "materialTitle": "Oxford Read and Discover Level 4 (750 Headwords)",
       "publisher": "Oxford University Press (OUP)",
-      "searchQuery": "oxford read and discover",
-      "isbn": "9780194646475"
+      "searchQuery": "Oxford Read and Discover Level 4 (750 Headwords) 교재"
     },
     "IH-ENG-0869": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0869.jpg",
       "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9780194643894.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9780194643894",
@@ -13760,7 +13928,8 @@
       "isbn": "9791166371998"
     },
     "IH-ENG-0896": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0896.jpg",
       "imageUrl": "https://image.yes24.com/goods/116036516/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/116036516",
       "source": "YES24",
@@ -13774,7 +13943,8 @@
       "searchQuery": "Shinoy and the Chaos Crew - Band 09 / Gold 교재"
     },
     "IH-ENG-0897": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0897.jpg",
       "imageUrl": "https://image.yes24.com/goods/116036516/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/116036516",
       "source": "YES24",
@@ -13788,7 +13958,8 @@
       "searchQuery": "Shinoy and the Chaos Crew - Band 10 / White 교재"
     },
     "IH-ENG-0898": {
-      "status": "no_cover_real",
+      "status": "needs_review",
+      "localPath": "covers/IH-ENG-0898.jpg",
       "imageUrl": "https://image.yes24.com/goods/116036516/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/116036516",
       "source": "YES24",
@@ -13817,7 +13988,7 @@
       "searchQuery": "쎄듀(CEDU) ReadingGraphy (리딩그라피) Level 4"
     },
     "IH-ENG-0911": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0911.jpg",
       "imageUrl": "https://image.yes24.com/goods/147031178/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/147031178",
@@ -13896,7 +14067,7 @@
       "isbn": "9791166372520"
     },
     "IH-ENG-0922": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0922.jpg",
       "imageUrl": "https://image.yes24.com/goods/17466312/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/17466312",
@@ -13911,7 +14082,7 @@
       "searchQuery": "Oxford University Press Oxford Phonics World 3: Long Vowels"
     },
     "IH-ENG-0924": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0924.jpg",
       "imageUrl": "https://image.yes24.com/goods/17466312/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/17466312",
@@ -13926,7 +14097,7 @@
       "searchQuery": "Oxford University Press Oxford Phonics World 5: Letter Combinations"
     },
     "IH-ENG-0927": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0927.jpg",
       "imageUrl": "https://image.yes24.com/goods/148913648/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/148913648",
@@ -14127,7 +14298,7 @@
       "searchQuery": "쎄듀(CEDU) 천일문 완성 Master 500 Sentences"
     },
     "IH-ENG-0978": {
-      "status": "needs_review",
+      "status": "found",
       "localPath": "covers/IH-ENG-0978.jpg",
       "imageUrl": "https://image.yes24.com/goods/16995327/L",
       "sourcePage": "https://www.yes24.com/Product/Goods/16995327",
