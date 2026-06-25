@@ -29286,16 +29286,6 @@
       "publisher": "길벗스쿨",
       "bytes": 51462
     },
-    "IH-ENG-2551": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-2551.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202507/9791164067794C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791164067794",
-      "materialTitle": "슈퍼 파닉스 한글 + 소리 나는 자석 세트",
-      "publisher": "길벗스쿨",
-      "bytes": 51328
-    },
     "IH-ENG-2552": {
       "status": "found",
       "localPath": "covers/IH-ENG-2552.jpg",
@@ -29385,56 +29375,6 @@
       "materialTitle": "기적의 파닉스 리딩 1",
       "publisher": "길벗스쿨",
       "bytes": 53772
-    },
-    "IH-ENG-2562": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-2562.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202308/9791164065226C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791164065226",
-      "materialTitle": "슈퍼 파닉스 한글 4: 복잡한 모음, 쌍자음",
-      "publisher": "길벗스쿨",
-      "bytes": 69673
-    },
-    "IH-ENG-2563": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-2563.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202308/9791164065219C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791164065219",
-      "materialTitle": "슈퍼 파닉스 한글 3: 받침",
-      "publisher": "길벗스쿨",
-      "bytes": 63814
-    },
-    "IH-ENG-2564": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-2564.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202308/9791164065202C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791164065202",
-      "materialTitle": "슈퍼 파닉스 한글 2: 자음",
-      "publisher": "길벗스쿨",
-      "bytes": 67461
-    },
-    "IH-ENG-2565": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-2565.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202308/9791164065196C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791164065196",
-      "materialTitle": "슈퍼 파닉스 한글 1: 모음",
-      "publisher": "길벗스쿨",
-      "bytes": 66798
-    },
-    "IH-ENG-2566": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-2566.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202308/9791164065240C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791164065240",
-      "materialTitle": "슈퍼 파닉스 한글 + 쓰기 한글 세트",
-      "publisher": "길벗스쿨",
-      "bytes": 46993
     },
     "IH-ENG-2567": {
       "status": "found",
@@ -40940,16 +40880,6 @@
       "publisher": "해커스공무원",
       "bytes": 59341
     },
-    "IH-ENG-3752": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-3752.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202305/9791161507057C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791161507057",
-      "materialTitle": "Go! 독학 광둥어 단어장",
-      "publisher": "시원스쿨닷컴",
-      "bytes": 73505
-    },
     "IH-ENG-3753": {
       "status": "found",
       "localPath": "covers/IH-ENG-3753.jpg",
@@ -43261,26 +43191,6 @@
       "publisher": "메가스터디교육",
       "bytes": 65697
     },
-    "IH-ENG-3990": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-3990.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202510/9791140703746C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791140702916",
-      "materialTitle": "프로그래머스 코딩 테스트 문제 풀이 전략: 자바 편",
-      "publisher": "길벗",
-      "bytes": 22413
-    },
-    "IH-ENG-3991": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-3991.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202510/9791140703883C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791140702893",
-      "materialTitle": "프로그래머스 코딩 테스트 문제 풀이 전략: 파이썬 편",
-      "publisher": "길벗",
-      "bytes": 22489
-    },
     "IH-ENG-3992": {
       "status": "found",
       "localPath": "covers/IH-ENG-3992.jpg",
@@ -43320,16 +43230,6 @@
       "materialTitle": "2023 조태정 영어 리그래머(#Re-grammar) 합격문법 125",
       "publisher": "메가스터디교육",
       "bytes": 45200
-    },
-    "IH-ENG-3996": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-3996.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202311/9791165219642C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791165219642",
-      "materialTitle": "프로그래머가 알아야 할 알고리즘 40",
-      "publisher": "길벗",
-      "bytes": 40361
     },
     "IH-ENG-3997": {
       "status": "found",
@@ -43461,16 +43361,6 @@
       "publisher": "EBS한국교육방송공사",
       "bytes": 20181
     },
-    "IH-ENG-4010": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4010.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202407/9791160507829C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791160507829",
-      "materialTitle": "프로그래머를 위한 확률과 통계",
-      "publisher": "길벗",
-      "bytes": 63995
-    },
     "IH-ENG-4011": {
       "status": "found",
       "localPath": "covers/IH-ENG-4011.jpg",
@@ -43481,16 +43371,6 @@
       "publisher": "쎄듀",
       "bytes": 44616
     },
-    "IH-ENG-4012": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4012.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202407/9791160506624C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791160506624",
-      "materialTitle": "프로그래머를 위한 기초 해석학",
-      "publisher": "길벗",
-      "bytes": 62194
-    },
     "IH-ENG-4013": {
       "status": "found",
       "localPath": "covers/IH-ENG-4013.jpg",
@@ -43500,16 +43380,6 @@
       "materialTitle": "EBS 강의노트 수능개념 정승익의 150문장 완성 그래머킹(2019 수능대비)",
       "publisher": "EBS한국교육방송공사",
       "bytes": 19993
-    },
-    "IH-ENG-4014": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4014.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202407/9791160503371C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791160503371",
-      "materialTitle": "프로그래머를 위한 베이지안 with 파이썬",
-      "publisher": "길벗",
-      "bytes": 64440
     },
     "IH-ENG-4015": {
       "status": "found",
@@ -44231,36 +44101,6 @@
       "publisher": "해커스공무원",
       "bytes": 64794
     },
-    "IH-ENG-4092": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4092.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202505/9788927713166C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788927713166",
-      "materialTitle": "JLPT 한권으로 끝내기 보카 N5~N1",
-      "publisher": "다락원",
-      "bytes": 72572
-    },
-    "IH-ENG-4093": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4093.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202503/9788927713050C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788927713050",
-      "materialTitle": "JLPT 한권으로 끝내기 보카 N1",
-      "publisher": "다락원",
-      "bytes": 43931
-    },
-    "IH-ENG-4094": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4094.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202510/9788927767725C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788927713043",
-      "materialTitle": "JLPT 한권으로 끝내기 보카 N2",
-      "publisher": "다락원",
-      "bytes": 44312
-    },
     "IH-ENG-4095": {
       "status": "found",
       "localPath": "covers/IH-ENG-4095.jpg",
@@ -44280,26 +44120,6 @@
       "materialTitle": "2025 해커스공무원 매일 하프모의고사 영어 2 24회분",
       "publisher": "해커스공무원",
       "bytes": 55135
-    },
-    "IH-ENG-4097": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4097.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202510/9788927767701C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788927713036",
-      "materialTitle": "JLPT 한권으로 끝내기 보카 N3",
-      "publisher": "다락원",
-      "bytes": 58379
-    },
-    "IH-ENG-4098": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4098.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202502/9788927713029C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788927713029",
-      "materialTitle": "JLPT 한권으로 끝내기 보카 N5·4",
-      "publisher": "다락원",
-      "bytes": 66401
     },
     "IH-ENG-4099": {
       "status": "found",
@@ -45171,16 +44991,6 @@
       "publisher": "키출판사",
       "bytes": 46307
     },
-    "IH-ENG-4191": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4191.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202207/9788927710707C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788927710707",
-      "materialTitle": "JLPT 보카 한권으로 끝내기",
-      "publisher": "다락원",
-      "bytes": 21058
-    },
     "IH-ENG-4192": {
       "status": "found",
       "localPath": "covers/IH-ENG-4192.jpg",
@@ -45221,26 +45031,6 @@
       "publisher": "월드컴",
       "bytes": 25369
     },
-    "IH-ENG-4196": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4196.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202209/9788959957330C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788959957330",
-      "materialTitle": "JPT 보카 한권으로 끝내기",
-      "publisher": "다락원",
-      "bytes": 23004
-    },
-    "IH-ENG-4197": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4197.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202209/9788959954223C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788959954223",
-      "materialTitle": "나의 하루가 몽땅 들어있는 일본어 보카 25시",
-      "publisher": "다락원",
-      "bytes": 44945
-    },
     "IH-ENG-4198": {
       "status": "found",
       "localPath": "covers/IH-ENG-4198.jpg",
@@ -45260,16 +45050,6 @@
       "materialTitle": "레츠고 외고 보카 (완성편)(2009)",
       "publisher": "넥서스에듀",
       "bytes": 18012
-    },
-    "IH-ENG-4200": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-4200.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202210/9788959956593C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788959956593",
-      "materialTitle": "중국어 보카 25시",
-      "publisher": "다락원",
-      "bytes": 361992
     },
     "IH-ENG-4203": {
       "status": "found",
@@ -73121,16 +72901,6 @@
       "publisher": "어학마을",
       "bytes": 29837
     },
-    "IH-ENG-7116": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-7116.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202606/9788999737220C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788999737220",
-      "materialTitle": "알기 쉽고 재미있는 한글 파닉스 쑥쑥",
-      "publisher": "학지사",
-      "bytes": 50354
-    },
     "IH-ENG-7117": {
       "status": "found",
       "localPath": "covers/IH-ENG-7117.jpg",
@@ -73321,16 +73091,6 @@
       "publisher": "예문아카이브",
       "bytes": 70820
     },
-    "IH-ENG-7136": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-7136.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202502/9788999732621C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788999732621",
-      "materialTitle": "차곡차곡 한글 파닉스",
-      "publisher": "학지사",
-      "bytes": 48154
-    },
     "IH-ENG-7137": {
       "status": "found",
       "localPath": "covers/IH-ENG-7137.jpg",
@@ -73430,16 +73190,6 @@
       "materialTitle": "초등영어 읽기독립: 파닉스1 1단계",
       "publisher": "휴먼어린이",
       "bytes": 61683
-    },
-    "IH-ENG-7147": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-7147.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202405/9791198587503C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791198587503",
-      "materialTitle": "케이파닉스 한글",
-      "publisher": "케이파닉스",
-      "bytes": 52735
     },
     "IH-ENG-7148": {
       "status": "found",

@@ -92,6 +92,13 @@ async function getDetail(isbn) {
 }
 function isEnglish(d, title) {
   const s = (d.cat + " " + d.kdc + " " + title).toLowerCase();
+  // ★비영어 차단: 영어 ELT 신호가 없는데 한글/일본어/중국어/프로그래밍 등이면 제외(보카·외국어 오매칭 방지)
+  const engOk = /영어|english|영문|영작|영단어|tesol|toeic|toefl|teps|미국|영국|grammar|reading|phonics|longman|oxford|cambridge|pearson|bricks|구문|독해|어법/i.test(s);
+  if (!engOk) {
+    const kn = (String(d.kdc || "").match(/\b(\d{3})\b/) || [])[1];
+    if (kn && /^(71|72|73|00|05|09)/.test(kn)) return false;                // 710한국어 720중국어 730일본어 000총류
+    if (/일본어|중국어|광둥어|불어|독일어|스페인어|러시아어|베트남어|아랍어|태국어|한글|한국어\s*학습|한자|한문|프로그래밍|컴퓨터|코딩|파이썬|자바|엑셀|vba|일본어능력시험|jlpt|jpt|hsk|topik|토픽/i.test(s)) return false;
+  }
   if (/\b740\b|\b840\b|영어|english|외국어/.test(s)) return true;          // 분류/KDC 우선(740 영어, 840 영미문학)
   // 제목 영어학습 키워드(분류 추출 실패 대비). 단 비영어 학습서 오인 방지 위해 영역 키워드 한정
   if (/영문법|영단어|영작|영어회화|영어듣기|영어독해|영어쓰기|리딩|reading|grammar|그래머|phonics|파닉스|보카|voca|토익|toeic|토플|toefl|텝스|teps|리스닝|listening|스피킹|speaking|라이팅|writing/.test(s)) return true;
