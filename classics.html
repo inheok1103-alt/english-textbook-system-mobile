@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>THE ANATOMY: Decoding the Classics 큐레이션</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ECEEF1; --surface:#FFFFFF; --ink:#16202B; --muted:#5C6773;
+    --line:#D8DCE2; --accent:#2E5E5A; --accent-soft:#DCE7E5;
+    --lv1:#2E7D5B; --lv2:#6B9A3C; --lv3:#C79A2B; --lv4:#C56A2E; --lv5:#9E342F;
+    --pd-bg:#E2EFE6; --pd-ink:#1F6B45; --c-bg:#F4E6D6; --c-ink:#9A5A20;
+    --in-bg:#E5E9EE; --in-ink:#33506B; --ex-bg:#E0EBE7; --ex-ink:#2E5E5A;
+    --display:"Fraunces",Georgia,"Times New Roman",serif;
+    --body:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);
+    font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom);}
+  .wrap{max-width:680px;margin:0 auto;}
+
+  header{position:sticky;top:0;z-index:30;background:var(--bg);
+    border-bottom:1px solid var(--line);
+    padding:14px 16px 10px;padding-top:max(14px,env(safe-area-inset-top));}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent);margin:0 0 2px;}
+  h1{font-family:var(--display);font-weight:600;font-size:23px;line-height:1.1;
+    margin:0;letter-spacing:-.01em;}
+  .sub{font-size:12.5px;color:var(--muted);margin:3px 0 0;}
+  .search{margin-top:11px;position:relative;}
+  .search input{width:100%;font-size:16px;font-family:var(--body);color:var(--ink);
+    padding:11px 13px 11px 38px;border:1px solid var(--line);border-radius:11px;
+    background:var(--surface);outline:none;}
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);
+    width:17px;height:17px;color:var(--muted);}
+
+  .filters{padding:10px 0 4px;}
+  .frow{display:flex;gap:7px;overflow-x:auto;padding:3px 16px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .frow::-webkit-scrollbar{display:none;}
+  .flabel{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);padding:0 16px;margin:6px 0 2px;}
+  .chip{flex:0 0 auto;font-size:13px;font-family:var(--body);white-space:nowrap;
+    padding:7px 13px;border:1px solid var(--line);border-radius:999px;
+    background:var(--surface);color:var(--ink);cursor:pointer;transition:.12s;
+    min-height:34px;display:inline-flex;align-items:center;gap:6px;}
+  .chip:active{transform:scale(.96);}
+  .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .chip .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+  .chip.lv1 .dot{background:var(--lv1);} .chip.lv2 .dot{background:var(--lv2);}
+  .chip.lv3 .dot{background:var(--lv3);} .chip.lv4 .dot{background:var(--lv4);}
+  .chip.lv5 .dot{background:var(--lv5);}
+
+  .toolbar{display:flex;align-items:center;justify-content:space-between;
+    gap:10px;padding:9px 16px 6px;}
+  .count{font-family:var(--mono);font-size:12px;color:var(--muted);}
+  .count b{color:var(--ink);font-weight:600;}
+  .tbtns{display:flex;gap:7px;}
+  .tbtn{font-size:12px;font-family:var(--body);padding:6px 10px;border:1px solid var(--line);
+    border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer;min-height:32px;}
+  .tbtn:active{transform:scale(.96);}
+
+  details.legend{margin:2px 16px 6px;border:1px solid var(--line);
+    border-radius:10px;background:var(--surface);overflow:hidden;}
+  details.legend summary{list-style:none;cursor:pointer;padding:10px 13px;
+    font-size:13px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;}
+  details.legend summary::-webkit-details-marker{display:none;}
+  details.legend[open] summary{border-bottom:1px solid var(--line);color:var(--ink);}
+  .legend-body{padding:11px 13px;font-size:12.5px;color:var(--muted);line-height:1.6;}
+  .legend-body .lvrow{display:flex;align-items:center;gap:9px;margin:5px 0;}
+  .legend-body .seg{display:flex;gap:2px;}
+  .legend-body .meta{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line);}
+
+  main{padding:4px 16px 40px;}
+  .group{margin-top:16px;}
+  .ghead{display:flex;align-items:baseline;gap:9px;position:sticky;top:0;z-index:5;padding:7px 0 6px;}
+  .ghead h2{font-family:var(--display);font-weight:600;font-size:18px;margin:0;letter-spacing:-.01em;}
+  .ghead .gc{font-family:var(--mono);font-size:11px;color:var(--muted);}
+  .ghead::after{content:"";flex:1;height:1px;background:var(--line);align-self:center;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:13px;
+    padding:13px 14px;margin-bottom:9px;}
+  .card .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
+  .card .ti{min-width:0;}
+  .card .author{font-family:var(--mono);font-size:11px;letter-spacing:.04em;
+    color:var(--muted);text-transform:uppercase;}
+  .card .title{font-family:var(--display);font-weight:600;font-size:17px;line-height:1.22;
+    margin:1px 0 0;letter-spacing:-.01em;}
+  .card .yr{font-family:var(--mono);font-size:12px;color:var(--muted);flex:0 0 auto;padding-top:2px;}
+  .card .note{font-size:13.5px;color:#36424F;margin:8px 0 0;line-height:1.5;}
+  .card .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;}
+  .pill{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;padding:3px 8px;
+    border-radius:6px;border:1px solid var(--line);color:var(--muted);background:transparent;text-transform:uppercase;}
+  .pill.pd{background:var(--pd-bg);color:var(--pd-ink);border-color:transparent;}
+  .pill.c{background:var(--c-bg);color:var(--c-ink);border-color:transparent;}
+  .pill.era{background:transparent;color:var(--accent);border-color:var(--accent-soft);}
+  .pill.intensive{background:var(--in-bg);color:var(--in-ink);border-color:transparent;}
+  .pill.extensive{background:var(--ex-bg);color:var(--ex-ink);border-color:transparent;}
+  .pill.award{background:#F4E3B8;color:#7A5A12;border-color:transparent;}
+  .pill.must{background:#DFE7EC;color:#274B63;border-color:transparent;}
+  .lvmeter{display:flex;align-items:center;gap:7px;margin-left:auto;}
+  .lvmeter .segs{display:flex;gap:2px;}
+  .lvmeter .segs i{width:15px;height:9px;border-radius:2px;background:#E4E7EB;}
+  .lvmeter .lab{font-family:var(--mono);font-size:11px;font-weight:600;}
+  .lv1 .lab{color:var(--lv1);} .lv2 .lab{color:var(--lv2);} .lv3 .lab{color:var(--lv3);}
+  .lv4 .lab{color:var(--lv4);} .lv5 .lab{color:var(--lv5);}
+
+  .empty{text-align:center;color:var(--muted);padding:48px 20px;font-size:14px;}
+  .empty b{display:block;color:var(--ink);font-family:var(--display);font-size:18px;margin-bottom:6px;}
+  footer{padding:18px 16px 30px;color:var(--muted);font-size:11.5px;line-height:1.6;
+    border-top:1px solid var(--line);margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent);text-decoration:none;margin-bottom:6px;">← 커리큘럼 제작기</a>
+    <p class="eyebrow">THE FINISHING TOUCH</p>
+    <h1>Decoding the Classics</h1>
+    <p class="sub">구문 코퍼스 후보 도서 · 분야 x 난이도 x 정독·다독 x 저작권</p>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="q" type="search" placeholder="저자 / 작품 / 키워드 검색" autocomplete="off">
+    </div>
+  </header>
+
+  <div class="filters">
+    <div class="flabel">추천</div>
+    <div class="frow" id="fTop">
+      <button class="chip" id="topChip" aria-pressed="false">필독·수상작만 보기</button>
+    </div>
+    <div class="flabel">학습 모드</div>
+    <div class="frow" id="fMode">
+      <button class="chip" data-m="정독" aria-pressed="false">정독 (구문 해부)</button>
+      <button class="chip" data-m="다독" aria-pressed="false">다독 (많이 읽기)</button>
+    </div>
+    <div class="flabel">분야</div>
+    <div class="frow" id="fField"></div>
+    <div class="flabel">통사 난이도</div>
+    <div class="frow" id="fLv">
+      <button class="chip lv1" data-lv="1" aria-pressed="false"><span class="dot"></span>Lv1</button>
+      <button class="chip lv2" data-lv="2" aria-pressed="false"><span class="dot"></span>Lv2</button>
+      <button class="chip lv3" data-lv="3" aria-pressed="false"><span class="dot"></span>Lv3</button>
+      <button class="chip lv4" data-lv="4" aria-pressed="false"><span class="dot"></span>Lv4</button>
+      <button class="chip lv5" data-lv="5" aria-pressed="false"><span class="dot"></span>Lv5</button>
+    </div>
+    <div class="flabel">저작권</div>
+    <div class="frow" id="fCr">
+      <button class="chip" data-cr="PD" aria-pressed="false">수록가능 (PD)</button>
+      <button class="chip" data-cr="C" aria-pressed="false">인용제한 (저작권)</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <span class="count" id="count"></span>
+    <div class="tbtns">
+      <button class="tbtn" id="sortBtn">난이도 높은순</button>
+      <button class="tbtn" id="resetBtn">초기화</button>
+    </div>
+  </div>
+
+  <details class="legend">
+    <summary>난이도 / 정독·다독 / 표기 안내</summary>
+    <div class="legend-body">
+      통사 난이도는 내용 전문성이 아니라 문장 구조(도치, 삽입절, 도미문, 관계사 중첩, 생략 등)가 학생에게 얼마나 까다로운가를 기준으로 매겼습니다.
+      <div class="lvrow"><span class="seg"><i style="background:var(--lv1);width:14px;height:8px;border-radius:2px"></i></span> Lv1 매우 평이한 단문체</div>
+      <div class="lvrow"><span class="seg"><i style="background:var(--lv2);width:14px;height:8px;border-radius:2px"></i></span> Lv2 현대 표준 교양서</div>
+      <div class="lvrow"><span class="seg"><i style="background:var(--lv3);width:14px;height:8px;border-radius:2px"></i></span> Lv3 복문 빈번, 평가원 중상</div>
+      <div class="lvrow"><span class="seg"><i style="background:var(--lv4);width:14px;height:8px;border-radius:2px"></i></span> Lv4 도미문 일상적, 평가원 최고난도</div>
+      <div class="lvrow"><span class="seg"><i style="background:var(--lv5);width:14px;height:8px;border-radius:2px"></i></span> Lv5 18-19세기 Mandarin style 최상위</div>
+      <div class="meta"><b>정독</b>: 고난도 구문을 해부하는 코퍼스용(Lv4-5 중심). <b>다독</b>: 쉽고 많이 끝까지 읽어 유창성을 키우는 자료(Lv1-3 중심). 두 트랙을 병행하면 효과적입니다.</div>
+      <div class="meta"><b>PD(수록가능)</b>: 1962년 이전 사망 저자, 퍼블릭 도메인이라 원문 직접 수록 가능. <b>저작권(인용제한)</b>: 보호 중이라 짧은 발췌와 출처표기로 제한. 앵커=고전 PD, 정전=현대 표준, 최신=2023년 이후, 교본=수사학 참고서, 리더=그래디드 리더 시리즈.</div>
+      <div class="meta"><b>필독</b>: 분야를 정의하는 고전·정전급 필독서. <b>수상</b>: 퓰리처, 전미도서비평가협회상, 영국왕립학회상, 에드거상 등 주요 상 수상작. 상단 "필독·수상작만 보기"로 핵심만 추릴 수 있습니다. 태그는 1차 큐레이션이므로 자유롭게 조정하시면 됩니다. (ELT 그래디드 리더와 수사학 교본 등 교재성 항목은 제외했습니다.)</div>
+    </div>
+  </details>
+
+  <main id="list"></main>
+
+  <footer>
+    THE ANATOMY: DECODING THE CLASSICS 코퍼스 후보 큐레이션. 저작권 표기는 한국 저작권법(사망 후 70년, 1962년 이전 사망=만료) 기준 일반론이며 번역본 및 편집본은 별도 권리가 있을 수 있어 수록 전 개별 확인을 권장합니다. 다독 추천은 영어권(미국, 영국 등) 베스트셀러 및 주요 서점·매체 추천에 근거하며 Lv 등급은 통사 밀도의 상대 평가로 작품 및 장별 편차가 있습니다.
+  </footer>
+</div>
+
+<script>
+const FIELDS = ["전방위교양","고전 인문·에세이","인지·심리","철학·인식론","수학·논리·과학사","경제","진화·생명","물리·우주","인류·문명사","언어·언어학","예술·미학","법·정치","기술·AI","내러티브·회고"];
+
+const BOOKS = [
+  // 전방위 교양 (cross-domain general knowledge)
+  {f:"전방위교양",a:"Bill Bryson",t:"A Short History of Nearly Everything",y:2003,lv:2,cr:"C",e:"정전",m:"다독",n:"빅뱅부터 현대 과학까지 한 권에. 명료하고 유머러스한 다독 교양의 대표작. 영어권 스테디셀러."},
+  {f:"전방위교양",a:"Bill Bryson",t:"A Short History of Nearly Everything 2.0",y:2025,lv:2,cr:"C",e:"최신",m:"다독",n:"전면 개정판. Big Bang부터 오늘까지 과학사를 갱신. UK 베스트셀러."},
+  {f:"전방위교양",a:"Yuval Noah Harari",t:"Sapiens",y:2011,lv:2,cr:"C",e:"정전",m:"다독",n:"인류사를 역사와 과학으로 엮은 파노라마. 짧고 명쾌해 다독·교양에 모두 적합."},
+  {f:"전방위교양",a:"Hans Rosling",t:"Factfulness",y:2018,lv:2,cr:"C",e:"정전",m:"다독",n:"데이터로 세계관을 교정하는 10가지 본능. 일화와 통계가 가독성 높음."},
+  {f:"전방위교양",a:"Stephen Hawking",t:"A Brief History of Time",y:1988,lv:3,cr:"C",e:"정전",m:"다독",n:"우주론 교양의 고전. 비유로 풀어내나 개념 밀도는 있음."},
+  {f:"전방위교양",a:"J. M. Roberts",t:"The Penguin History of the World",y:1976,lv:3,cr:"C",e:"정전",m:"다독",n:"세계사 통사 한 권의 파노라마. 배경지식 확장에 강력."},
+  {f:"전방위교양",a:"E. H. Gombrich",t:"A Little History of the World",y:2005,lv:2,cr:"C",e:"정전",m:"다독",n:"어린이용으로 쓰였으나 어른에게도 명료한 세계사 입문. 따뜻한 서술."},
+  {f:"전방위교양",a:"Lewis Dartnell",t:"The Knowledge",y:2014,lv:2,cr:"C",e:"정전",m:"다독",n:"문명을 처음부터 재건한다면? 전 분야 핵심 지식을 통합하는 발상."},
+  {f:"전방위교양",a:"Randall Munroe",t:"What If?",y:2014,lv:1,cr:"C",e:"정전",m:"다독",n:"황당한 질문에 과학으로 답. 매우 평이하고 재미있어 다독 입문에 최적."},
+  {f:"전방위교양",a:"Lloyd & Mitchinson",t:"The Book of General Ignorance (QI)",y:2006,lv:2,cr:"C",e:"정전",m:"다독",n:"상식의 오류를 뒤집는 잡학. 짧은 항목들이라 부담 없는 다독."},
+  {f:"전방위교양",a:"Will & Ariel Durant",t:"The Lessons of History",y:1968,lv:4,cr:"C",e:"정전",m:"정독",n:"11권 문명사 대작의 정수. 우아하고 만연한 종합 산문, 긴 도미문."},
+  {f:"전방위교양",a:"Jacques Barzun",t:"From Dawn to Decadence",y:2000,lv:4,cr:"C",e:"정전",m:"정독",n:"500년 서구 문화사. 박학하고 균형 잡힌 도미문."},
+  {f:"전방위교양",a:"Arnold J. Toynbee",t:"A Study of History",y:1947,lv:5,cr:"C",e:"정전",m:"정독",n:"문명 흥망의 거대 서사. 길고 추상적인 종합 문장의 연쇄."},
+
+  // 인지·심리
+  {f:"인지·심리",a:"William James",t:"The Principles of Psychology",y:1890,lv:5,cr:"PD",e:"앵커",m:"정독",n:"19세기 학술 도미문, 삽입과 후치수식이 극도로 빈번. 의식의 흐름 서술의 보고."},
+  {f:"인지·심리",a:"William James",t:"The Varieties of Religious Experience",y:1902,lv:4,cr:"PD",e:"앵커",m:"정독",n:"강연체라 비교적 풀어쓴 편이나 명료하면서도 웅변적. 대조구문 풍부."},
+  {f:"인지·심리",a:"Daniel Kahneman",t:"Thinking, Fast and Slow",y:2011,lv:3,cr:"C",e:"정전",m:"정독",n:"설명체에 학술 정의와 조건절이 섞인 중상 난이도. 평가원이 선호하는 레지스터."},
+  {f:"인지·심리",a:"Steven Pinker",t:"How the Mind Works",y:1997,lv:3,cr:"C",e:"정전",m:"정독",n:"의식적 classic style. 명료하나 문장이 길고 대시 삽입이 잦다."},
+  {f:"인지·심리",a:"Oliver Sacks",t:"The Man Who Mistook His Wife for a Hat",y:1985,lv:3,cr:"C",e:"정전",m:"다독",n:"임상 서사체. 우아하지만 비교적 접근 가능."},
+  {f:"인지·심리",a:"Charles Duhigg",t:"The Power of Habit",y:2012,lv:2,cr:"C",e:"정전",m:"다독",n:"습관의 과학을 사례로 풀어냄. 가독성 높은 내러티브 논픽션."},
+  {f:"인지·심리",a:"Malcolm Gladwell",t:"Outliers",y:2008,lv:2,cr:"C",e:"정전",m:"다독",n:"성공의 조건을 일화로 풀어내는 미국식 내러티브. 다독 인기작."},
+  {f:"인지·심리",a:"Adam Grant",t:"Think Again",y:2021,lv:2,cr:"C",e:"정전",m:"다독",n:"다시 생각하는 법. 사례 중심의 평이한 서술."},
+  {f:"인지·심리",a:"Masud Husain",t:"Our Brains, Our Selves",y:2025,lv:2,cr:"C",e:"최신",m:"다독",n:"2025 Royal Society 과학도서상 수상. Oliver Sacks풍 임상 서사, 평이."},
+  {f:"인지·심리",a:"Pria Anand",t:"The Mind Electric",y:2025,lv:2,cr:"C",e:"최신",m:"다독",n:"신경과 임상 서사. 평이한 현대 산문."},
+
+  // 철학·인식론
+  {f:"철학·인식론",a:"David Hume",t:"An Enquiry Concerning Human Understanding",y:1748,lv:5,cr:"PD",e:"앵커",m:"정독",n:"18세기 철학 산문. 도미문, 이중부정, 긴 조건절."},
+  {f:"철학·인식론",a:"Thomas Browne",t:"Religio Medici",y:1643,lv:5,cr:"PD",e:"앵커",m:"정독",n:"17세기 바로크 산문의 정점. 라틴계 어휘와 극단적 도미문. Mandarin style의 원류."},
+  {f:"철학·인식론",a:"Samuel Johnson",t:"The Rambler",y:1750,lv:5,cr:"PD",e:"앵커",m:"정독",n:"18세기 균형과 대조의 대가. 라틴계 어휘, 격식 있는 도미문."},
+  {f:"철학·인식론",a:"John Stuart Mill",t:"On Liberty",y:1859,lv:4,cr:"PD",e:"앵커",m:"정독",n:"균형 잡힌 도미문. 양보와 대조 구문이 중첩."},
+  {f:"철학·인식론",a:"John Henry Newman",t:"The Idea of a University",y:1852,lv:4,cr:"PD",e:"앵커",m:"정독",n:"Victorian 격식 산문. 누적적 도미문과 긴 종속절."},
+  {f:"철학·인식론",a:"Alfred North Whitehead",t:"Science and the Modern World",y:1925,lv:4,cr:"PD",e:"앵커",m:"정독",n:"추상적 사변을 압축한 도미문. 비유적 일반화."},
+  {f:"철학·인식론",a:"Isaiah Berlin",t:"The Hedgehog and the Fox",y:1953,lv:4,cr:"C",e:"정전",m:"정독",n:"길고 누적적인 문장, 박학한 인유. virtuoso performance로 평가."},
+  {f:"철학·인식론",a:"Bertrand Russell",t:"The Problems of Philosophy",y:1912,lv:3,cr:"C",e:"정전",m:"정독",n:"명료한 분석철학 산문이나 추상명사와 조건절 밀도가 높음."},
+  {f:"철학·인식론",a:"Thomas Nagel",t:"What Does It All Mean?",y:1987,lv:2,cr:"C",e:"정전",m:"다독",n:"의도적으로 평이하게 쓴 철학 입문서."},
+  {f:"철학·인식론",a:"Angie Hobbs",t:"Why Plato Matters Now",y:2025,lv:2,cr:"C",e:"최신",m:"다독",n:"일반 독자용 평이한 산문. Five Books 2025 선정."},
+
+  // 경제
+  {f:"경제",a:"Adam Smith",t:"The Wealth of Nations",y:1776,lv:4,cr:"PD",e:"앵커",m:"정독",n:"대화체적이고 명료한 18세기 논증 산문. 긴 예시 나열."},
+  {f:"경제",a:"Thorstein Veblen",t:"The Theory of the Leisure Class",y:1899,lv:5,cr:"PD",e:"앵커",m:"정독",n:"반어와 풍자의 만연체. 추상명사와 다중 삽입. conspicuous consumption."},
+  {f:"경제",a:"John Maynard Keynes",t:"The Economic Consequences of the Peace",y:1919,lv:4,cr:"PD",e:"앵커",m:"정독",n:"격정적이고 논쟁적인 웅변. 신랄한 인물 초상."},
+  {f:"경제",a:"John Kenneth Galbraith",t:"The Affluent Society",y:1958,lv:3,cr:"C",e:"정전",m:"다독",n:"위트, 우아함, 명료함. conventional wisdom 개념."},
+  {f:"경제",a:"Levitt & Dubner",t:"Freakonomics",y:2005,lv:2,cr:"C",e:"정전",m:"다독",n:"인센티브로 보는 세상. 일화 중심의 초대형 베스트셀러."},
+  {f:"경제",a:"Morgan Housel",t:"The Psychology of Money",y:2020,lv:1,cr:"C",e:"정전",m:"다독",n:"돈과 심리. 짧은 장 구성, 매우 평이. 글로벌 베스트셀러."},
+  {f:"경제",a:"Tim Harford",t:"The Undercover Economist",y:2005,lv:2,cr:"C",e:"정전",m:"다독",n:"일상 속 경제 원리를 가볍게 설명."},
+  {f:"경제",a:"Kenneth Rogoff",t:"Our Dollar, Your Problem",y:2025,lv:3,cr:"C",e:"최신",m:"다독",n:"명료한 정책 산문. Five Books 2025 경제서 선정."},
+
+  // 진화·생명
+  {f:"진화·생명",a:"Charles Darwin",t:"On the Origin of Species",y:1859,lv:4,cr:"PD",e:"앵커",m:"정독",n:"신중한 양보와 조건이 겹친 긴 문장. 후치수식 풍부."},
+  {f:"진화·생명",a:"Thomas Henry Huxley",t:"Evolution and Ethics",y:1893,lv:5,cr:"PD",e:"앵커",m:"정독",n:"Victorian 과학 웅변체. 도미문의 정점."},
+  {f:"진화·생명",a:"Stephen Jay Gould",t:"The Panda's Thumb",y:1980,lv:4,cr:"C",e:"정전",m:"정독",n:"바로크적 만연체. 다중 삽입, 라틴어 어휘, 유추. 현대 저자 중 통사 밀도 최상."},
+  {f:"진화·생명",a:"Loren Eiseley",t:"The Immense Journey",y:1957,lv:4,cr:"C",e:"정전",m:"정독",n:"concealed essay 양식. 일화에서 우주적 성찰로, 서정적 cadence."},
+  {f:"진화·생명",a:"Lewis Thomas",t:"The Lives of a Cell",y:1974,lv:3,cr:"C",e:"정전",m:"다독",n:"간결, 우아, 시적인 에세이. 생물학을 인문적 은유로 전환."},
+  {f:"진화·생명",a:"Richard Dawkins",t:"The Selfish Gene",y:1976,lv:3,cr:"C",e:"정전",m:"다독",n:"명료하지만 비유 확장 문장이 길다."},
+  {f:"진화·생명",a:"Bill Bryson",t:"The Body",y:2019,lv:2,cr:"C",e:"정전",m:"다독",n:"인체 백과를 유머러스한 서사로. 다독에 인기."},
+  {f:"진화·생명",a:"Rebecca Skloot",t:"The Immortal Life of Henrietta Lacks",y:2010,lv:2,cr:"C",e:"정전",m:"다독",n:"헬라 세포의 윤리와 인간 드라마. 강한 서사로 끝까지 읽힘."},
+  {f:"진화·생명",a:"Steve Brusatte",t:"The Rise and Fall of the Dinosaurs",y:2018,lv:2,cr:"C",e:"정전",m:"다독",n:"공룡 시대의 흥망을 흥미진진하게."},
+  {f:"진화·생명",a:"Ed Yong",t:"I Contain Multitudes",y:2016,lv:2,cr:"C",e:"정전",m:"다독",n:"미생물 세계를 명료한 과학 저널리즘으로."},
+  {f:"진화·생명",a:"Cat Bohannon",t:"Eve",y:2023,lv:2,cr:"C",e:"최신",m:"다독",n:"2024 Royal Society 숏리스트. 위트 있는 현대 서술체."},
+  {f:"진화·생명",a:"Zoë Schlanger",t:"The Light Eaters",y:2024,lv:2,cr:"C",e:"최신",m:"다독",n:"식물 지능. 서정적이나 접근 가능."},
+
+  // 물리·우주
+  {f:"물리·우주",a:"John Tyndall",t:"Fragments of Science",y:1871,lv:4,cr:"PD",e:"앵커",m:"정독",n:"Victorian 과학 강연체. 격식 있는 설명."},
+  {f:"물리·우주",a:"James Jeans",t:"The Mysterious Universe",y:1930,lv:4,cr:"PD",e:"앵커",m:"정독",n:"격식 있는 설명체. 비유 확장."},
+  {f:"물리·우주",a:"Arthur Eddington",t:"The Nature of the Physical World",y:1928,lv:4,cr:"PD",e:"앵커",m:"정독",n:"철학적 물리 산문. 비유와 긴 사변 문장. 물리 분야의 보기 드문 PD 고난도 앵커."},
+  {f:"물리·우주",a:"Carl Sagan",t:"Cosmos",y:1980,lv:3,cr:"C",e:"정전",m:"다독",n:"수사적으로 풍부, 누적적 문장이나 시적이라 읽힌다."},
+  {f:"물리·우주",a:"Neil deGrasse Tyson",t:"Astrophysics for People in a Hurry",y:2017,lv:2,cr:"C",e:"정전",m:"다독",n:"짧고 명쾌한 우주 입문. 미국 베스트셀러."},
+  {f:"물리·우주",a:"Carlo Rovelli",t:"Seven Brief Lessons on Physics",y:2014,lv:2,cr:"C",e:"정전",m:"다독",n:"짧고 서정적인 문장. 의도적으로 평이."},
+  {f:"물리·우주",a:"Katie Mack",t:"The End of Everything",y:2020,lv:1,cr:"C",e:"정전",m:"다독",n:"위트 있는 구어체에 가까운 단문 위주."},
+  {f:"물리·우주",a:"Afshordi & Halper",t:"Battle of the Big Bang",y:2025,lv:3,cr:"C",e:"최신",m:"다독",n:"경쟁하는 우주론 모델 서술. Smithsonian 2025 best."},
+  {f:"물리·우주",a:"Carl Zimmer",t:"Air-Borne",y:2025,lv:2,cr:"C",e:"최신",m:"다독",n:"명료한 과학 저널리즘. Smithsonian 2025 best."},
+
+  // 인류·문명사
+  {f:"인류·문명사",a:"Edward Gibbon",t:"The Decline and Fall of the Roman Empire",y:1776,lv:5,cr:"PD",e:"앵커",m:"정독",n:"영어 도미문의 절대 기준. 균형 도미문, 반어적 삽입, 각주의 위트."},
+  {f:"인류·문명사",a:"Thomas Macaulay",t:"The History of England",y:1849,lv:5,cr:"PD",e:"앵커",m:"정독",n:"ringing prose 웅변조. 병렬과 대조, 극적 서사."},
+  {f:"인류·문명사",a:"Thomas Carlyle",t:"The French Revolution",y:1837,lv:5,cr:"PD",e:"앵커",m:"정독",n:"폭발적이고 도치 빈번. 감탄, 삽입, 생략이 뒤섞인 난해체."},
+  {f:"인류·문명사",a:"Thomas De Quincey",t:"Confessions of an English Opium-Eater",y:1821,lv:5,cr:"PD",e:"앵커",m:"정독",n:"극단적 도미문. 한 문장이 한 페이지에 달하기도."},
+  {f:"인류·문명사",a:"Edmund Burke",t:"Reflections on the Revolution in France",y:1790,lv:5,cr:"PD",e:"앵커",m:"정독",n:"고도로 수사적인 서간체. pathos, 대조, 점층, 격정적 호소."},
+  {f:"인류·문명사",a:"Alexis de Tocqueville",t:"Democracy in America",y:1835,lv:4,cr:"PD",e:"앵커",m:"정독",n:"균형 잡힌 분석 산문(영역본). 긴 종속절."},
+  {f:"인류·문명사",a:"Clifford Geertz",t:"The Interpretation of Cultures",y:1973,lv:4,cr:"C",e:"정전",m:"정독",n:"thick description. 다층적 삽입절과 자기 수정적 문장."},
+  {f:"인류·문명사",a:"Jared Diamond",t:"Guns, Germs, and Steel",y:1997,lv:3,cr:"C",e:"정전",m:"다독",n:"긴 설명 문장, 인과 연결사 중첩이나 서사가 끌어준다."},
+  {f:"인류·문명사",a:"Peter Frankopan",t:"The Silk Roads",y:2015,lv:3,cr:"C",e:"정전",m:"다독",n:"비유럽 중심의 세계사. 서사적이고 시야가 넓다."},
+  {f:"인류·문명사",a:"Sadiah Qureshi",t:"Vanished",y:2025,lv:3,cr:"C",e:"최신",m:"다독",n:"멸종 개념의 식민주의사. Smithsonian 2025 best."},
+
+  // 언어·언어학
+  {f:"언어·언어학",a:"Otto Jespersen",t:"Growth and Structure of the English Language",y:1905,lv:4,cr:"PD",e:"앵커",m:"정독",n:"학술 문헌학 산문. 저작권은 경계선이므로 수록 전 개별 확인 권장."},
+  {f:"언어·언어학",a:"Steven Pinker",t:"The Sense of Style",y:2014,lv:3,cr:"C",e:"정전",m:"정독",n:"classic style의 모범. 명료하나 긴 문장과 대시 삽입."},
+  {f:"언어·언어학",a:"Guy Deutscher",t:"Through the Language Glass",y:2010,lv:3,cr:"C",e:"정전",m:"다독",n:"위트 있고 약간의 삽입."},
+  {f:"언어·언어학",a:"Bill Bryson",t:"The Mother Tongue",y:1990,lv:2,cr:"C",e:"정전",m:"다독",n:"영어의 역사를 유쾌하게. 영어교사·학습자에게 인기."},
+  {f:"언어·언어학",a:"David Crystal",t:"The Stories of English",y:2004,lv:2,cr:"C",e:"정전",m:"다독",n:"평이한 설명체."},
+  {f:"언어·언어학",a:"Gaston Dorren",t:"Babel",y:2018,lv:2,cr:"C",e:"정전",m:"다독",n:"세계 20개 언어 여행. 가볍고 흥미롭다."},
+  {f:"언어·언어학",a:"Laura Spinney",t:"Proto",y:2025,lv:3,cr:"C",e:"최신",m:"다독",n:"인도유럽어의 전파. 다수 2025 best 선정(사실 전거로는 주의)."},
+  {f:"언어·언어학",a:"John McWhorter",t:"Pronoun Trouble",y:2025,lv:2,cr:"C",e:"최신",m:"다독",n:"영어 대명사의 역사. 평이."},
+  {f:"언어·언어학",a:"Anne Curzan",t:"Says Who?",y:2024,lv:2,cr:"C",e:"최신",m:"다독",n:"descriptivist 용법 가이드. 영어교사에게 유용."},
+
+  // 예술·미학
+  {f:"예술·미학",a:"John Ruskin",t:"Modern Painters",y:1843,lv:5,cr:"PD",e:"앵커",m:"정독",n:"화려하고 누적적인 묘사 산문. 수사적 증폭의 대가."},
+  {f:"예술·미학",a:"Walter Pater",t:"Studies in the History of the Renaissance",y:1873,lv:5,cr:"PD",e:"앵커",m:"정독",n:"장식적이고 음악적인 문체. 유려한 cadence, 암시적 문장."},
+  {f:"예술·미학",a:"Matthew Arnold",t:"Culture and Anarchy",y:1869,lv:4,cr:"PD",e:"앵커",m:"정독",n:"균형 잡힌 도미문. 반복과 대조."},
+  {f:"예술·미학",a:"Northrop Frye",t:"Anatomy of Criticism",y:1957,lv:4,cr:"C",e:"정전",m:"정독",n:"체계적이고 건축적인 논증. archetype 분류의 수사적 도식."},
+  {f:"예술·미학",a:"William Empson",t:"Seven Types of Ambiguity",y:1930,lv:4,cr:"C",e:"정전",m:"정독",n:"치밀한 close reading. 위트와 역설, 압축된 분석."},
+  {f:"예술·미학",a:"Lionel Trilling",t:"The Liberal Imagination",y:1950,lv:4,cr:"C",e:"정전",m:"정독",n:"변증법적 균형. 대조와 단서의 미학."},
+  {f:"예술·미학",a:"Kenneth Clark",t:"Civilisation",y:1969,lv:3,cr:"C",e:"정전",m:"다독",n:"우아하고 명료한 교양 산문."},
+  {f:"예술·미학",a:"Will Gompertz",t:"What Are You Looking At?",y:2012,lv:2,cr:"C",e:"정전",m:"다독",n:"현대미술 100년을 유쾌하게. 입문 다독에 좋다."},
+  {f:"예술·미학",a:"John Berger",t:"Ways of Seeing",y:1972,lv:2,cr:"C",e:"정전",m:"다독",n:"간결하고 명료한 비평."},
+  {f:"예술·미학",a:"Katy Hessel",t:"The Story of Art Without Men",y:2023,lv:2,cr:"C",e:"최신",m:"다독",n:"접근 가능한 미술사 재서술. Waterstones 올해의 책."},
+
+  // 법·정치
+  {f:"법·정치",a:"Hamilton, Madison & Jay",t:"The Federalist Papers",y:1788,lv:4,cr:"PD",e:"앵커",m:"정독",n:"18세기 논증 산문. 전제-논거-결론의 엄정한 수사적 배열."},
+  {f:"법·정치",a:"Oliver Wendell Holmes Jr.",t:"The Common Law",y:1881,lv:4,cr:"PD",e:"앵커",m:"정독",n:"경구적이고 압축적인 산문. 단언적 리듬."},
+
+  // 기술·AI
+  {f:"기술·AI",a:"Samuel Butler",t:"Erewhon (The Book of the Machines)",y:1872,lv:4,cr:"PD",e:"앵커",m:"정독",n:"Victorian 풍자 산문. 가정과 조건의 중첩."},
+  {f:"기술·AI",a:"Norbert Wiener",t:"The Human Use of Human Beings",y:1950,lv:4,cr:"C",e:"정전",m:"정독",n:"학술적이고 추상적인 문장."},
+  {f:"기술·AI",a:"Nick Bostrom",t:"Superintelligence",y:2014,lv:4,cr:"C",e:"정전",m:"정독",n:"철학적 분석체. 조건과 한정절이 극도로 중첩."},
+  {f:"기술·AI",a:"Shoshana Zuboff",t:"The Age of Surveillance Capitalism",y:2019,lv:4,cr:"C",e:"정전",m:"정독",n:"길고 추상명사가 겹친 사회이론 산문."},
+  {f:"기술·AI",a:"Brian Christian",t:"The Alignment Problem",y:2020,lv:3,cr:"C",e:"정전",m:"정독",n:"AI 정렬 문제를 명료하게. 학술 레지스터."},
+  {f:"기술·AI",a:"Walter Isaacson",t:"The Innovators",y:2014,lv:2,cr:"C",e:"정전",m:"다독",n:"디지털 혁명의 인물사. 서사적이고 가독성 높다."},
+  {f:"기술·AI",a:"Karen Hao",t:"Empire of AI",y:2025,lv:3,cr:"C",e:"최신",m:"다독",n:"탐사 저널리즘, 명료. 2025 NBCC 논픽션 수상."},
+
+  // 내러티브·회고
+  {f:"내러티브·회고",a:"Tara Westover",t:"Educated",y:2018,lv:2,cr:"C",e:"정전",m:"다독",n:"교육과 가족의 회고록. 강한 서사, 영어권 초대형 베스트셀러."},
+  {f:"내러티브·회고",a:"Trevor Noah",t:"Born a Crime",y:2016,lv:2,cr:"C",e:"정전",m:"다독",n:"남아공 성장기. 유머와 통찰, 학습자에게 특히 인기."},
+  {f:"내러티브·회고",a:"David Grann",t:"Killers of the Flower Moon",y:2017,lv:2,cr:"C",e:"정전",m:"다독",n:"1920년대 오세이지족 연쇄살인. 추진력 강한 논픽션."},
+  {f:"내러티브·회고",a:"Patrick Radden Keefe",t:"Say Nothing",y:2018,lv:3,cr:"C",e:"정전",m:"다독",n:"북아일랜드 분쟁의 탐사 내러티브. 몰입감 강하다."},
+  {f:"내러티브·회고",a:"Michelle Obama",t:"Becoming",y:2018,lv:2,cr:"C",e:"정전",m:"다독",n:"회고록 초대형 베스트셀러. 평이하고 따뜻하다."},
+  {f:"내러티브·회고",a:"Vladimir Nabokov",t:"Speak, Memory",y:1966,lv:5,cr:"C",e:"정전",m:"정독",n:"기억의 회고록. 극도로 정교하고 장식적인 문체, 긴 도미문."},
+  {f:"내러티브·회고",a:"James Baldwin",t:"Notes of a Native Son",y:1955,lv:4,cr:"C",e:"정전",m:"정독",n:"수사적으로 강렬한 에세이. 긴 종속과 대조, pathos."},
+  {f:"내러티브·회고",a:"Joan Didion",t:"Slouching Towards Bethlehem",y:1968,lv:4,cr:"C",e:"정전",m:"정독",n:"절제되었으나 리듬과 병치가 정교한 에세이. 통제된 cadence."},
+  {f:"내러티브·회고",a:"Annie Dillard",t:"Pilgrim at Tinker Creek",y:1974,lv:4,cr:"C",e:"정전",m:"정독",n:"자연 관찰의 시적 산문. 밀도 높은 묘사와 사변. 퓰리처상."},
+
+  // 수사학·문체론 (강사용 교본)
+  {f:"예술·미학",a:"Aristotle",t:"Rhetoric",y:-335,lv:3,cr:"PD",e:"앵커",m:"정독",n:"ethos, pathos, logos와 enthymeme의 원천. 설득 이론의 고전. PD 번역 사용."},
+
+  // 그래디드 리더 (시리즈)
+
+  {f:"고전 인문·에세이",a:"Michel de Montaigne",t:"Essays",y:1580,lv:4,cr:"PD",e:"앵커",m:"정독",n:"근대 에세이의 창시. 자유로운 사색과 긴 문장. 영역본은 PD 판본(Florio, Cotton) 사용."},
+  {f:"고전 인문·에세이",a:"Francis Bacon",t:"Essays",y:1625,lv:4,cr:"PD",e:"앵커",m:"정독",n:"압축적 경구와 병렬. Of Studies, Of Truth 등 교과서적 표본."},
+  {f:"고전 인문·에세이",a:"Ralph Waldo Emerson",t:"Self-Reliance and Other Essays",y:1841,lv:4,cr:"PD",e:"앵커",m:"정독",n:"초월주의 산문. 경구와 병렬, 도약적 논리."},
+  {f:"고전 인문·에세이",a:"Henry David Thoreau",t:"Walden",y:1854,lv:4,cr:"PD",e:"앵커",m:"정독",n:"자연과 자급의 사상. 밀도 높은 묘사와 경구."},
+  {f:"고전 인문·에세이",a:"Charles Lamb",t:"Essays of Elia",y:1823,lv:4,cr:"PD",e:"앵커",m:"정독",n:"친근하면서 정교한 영국 수필. 만연하지만 따뜻하다."},
+  {f:"고전 인문·에세이",a:"William Hazlitt",t:"Table Talk",y:1821,lv:4,cr:"PD",e:"앵커",m:"정독",n:"활기차고 균형 잡힌 에세이. 대조와 인유."},
+  {f:"고전 인문·에세이",a:"Seneca",t:"Letters from a Stoic",y:65,lv:3,cr:"PD",e:"앵커",m:"다독",n:"스토아 철학 서간. 교훈적이고 단락이 짧다. PD 번역 사용."},
+  {f:"고전 인문·에세이",a:"Marcus Aurelius",t:"Meditations",y:180,lv:2,cr:"PD",e:"앵커",m:"다독",n:"자기성찰의 고전. 짧은 단상들. PD 번역 사용."},
+  {f:"고전 인문·에세이",a:"Plutarch",t:"Lives",y:100,lv:4,cr:"PD",e:"앵커",m:"정독",n:"전기문학의 원조. Dryden 번역 등 PD."},
+
+  {f:"수학·논리·과학사",a:"Euclid",t:"Elements",y:-300,lv:2,cr:"PD",e:"앵커",m:"정독",n:"기하 공리체계의 원전. 간결하고 형식적인 문장."},
+  {f:"수학·논리·과학사",a:"G. H. Hardy",t:"A Mathematician's Apology",y:1940,lv:3,cr:"PD",e:"앵커",m:"다독",n:"수학의 아름다움에 대한 에세이. 명료하고 우아. 1947년 사망, PD."},
+  {f:"수학·논리·과학사",a:"Albert Einstein",t:"Relativity: The Special and General Theory",y:1916,lv:3,cr:"PD",e:"앵커",m:"정독",n:"아인슈타인 자신의 대중 해설. 1955년 사망, Lawson 영역본 PD."},
+  {f:"수학·논리·과학사",a:"Bertrand Russell",t:"A History of Western Philosophy",y:1945,lv:3,cr:"C",e:"정전",m:"다독",n:"철학사 통사. 위트 있고 명료."},
+  {f:"수학·논리·과학사",a:"Thomas Kuhn",t:"The Structure of Scientific Revolutions",y:1962,lv:4,cr:"C",e:"정전",m:"정독",n:"패러다임 전환 개념. 학술적이고 추상적."},
+  {f:"수학·논리·과학사",a:"Karl Popper",t:"The Logic of Scientific Discovery",y:1959,lv:4,cr:"C",e:"정전",m:"정독",n:"반증주의. 조건과 한정절이 촘촘."},
+  {f:"수학·논리·과학사",a:"Douglas Hofstadter",t:"Gödel, Escher, Bach",y:1979,lv:4,cr:"C",e:"정전",m:"정독",n:"수학·예술·인지의 종합. 난도 높고 유희적."},
+  {f:"수학·논리·과학사",a:"James Gleick",t:"Chaos",y:1987,lv:3,cr:"C",e:"정전",m:"다독",n:"카오스 이론의 대중화. 서사적."},
+  {f:"수학·논리·과학사",a:"Simon Singh",t:"Fermat's Last Theorem",y:1997,lv:2,cr:"C",e:"정전",m:"다독",n:"수학 난제의 미스터리 내러티브. 쉽게 읽힌다."},
+
+  {f:"인지·심리",a:"Sigmund Freud",t:"Civilization and Its Discontents",y:1930,lv:4,cr:"PD",e:"앵커",m:"정독",n:"정신분석 사상. 추상적 논증. 1939년 사망, PD 번역 사용."},
+  {f:"인지·심리",a:"Carl Jung",t:"Modern Man in Search of a Soul",y:1933,lv:4,cr:"PD",e:"앵커",m:"정독",n:"분석심리학. 1961년 사망으로 PD."},
+  {f:"인지·심리",a:"Viktor Frankl",t:"Man's Search for Meaning",y:1946,lv:2,cr:"C",e:"정전",m:"다독",n:"의미치료. 회고와 사상이 평이하게 결합."},
+  {f:"인지·심리",a:"Dale Carnegie",t:"How to Win Friends and Influence People",y:1936,lv:2,cr:"PD",e:"앵커",m:"다독",n:"자기계발의 고전. 1955년 사망으로 PD."},
+  {f:"인지·심리",a:"Mihaly Csikszentmihalyi",t:"Flow",y:1990,lv:3,cr:"C",e:"정전",m:"다독",n:"몰입의 심리학."},
+
+  {f:"철학·인식론",a:"Plato",t:"The Republic",y:-380,lv:4,cr:"PD",e:"앵커",m:"정독",n:"철학 교육의 원전. Jowett 등 PD 번역."},
+  {f:"철학·인식론",a:"Aristotle",t:"Nicomachean Ethics",y:-340,lv:3,cr:"PD",e:"앵커",m:"정독",n:"덕 윤리의 기초. PD 번역 사용."},
+  {f:"철학·인식론",a:"René Descartes",t:"Meditations on First Philosophy",y:1641,lv:3,cr:"PD",e:"앵커",m:"정독",n:"근대 인식론의 출발. PD 번역 사용."},
+  {f:"철학·인식론",a:"Friedrich Nietzsche",t:"Beyond Good and Evil",y:1886,lv:4,cr:"PD",e:"앵커",m:"정독",n:"경구적·문학적 철학. 1900년 사망, PD 번역."},
+  {f:"철학·인식론",a:"Ludwig Wittgenstein",t:"Tractatus Logico-Philosophicus",y:1921,lv:4,cr:"PD",e:"앵커",m:"정독",n:"명제 논리의 압축. 1951년 사망, Ogden 영역본 PD."},
+  {f:"철학·인식론",a:"Hannah Arendt",t:"The Human Condition",y:1958,lv:4,cr:"C",e:"정전",m:"정독",n:"정치철학. 길고 추상적인 문장."},
+  {f:"철학·인식론",a:"John Rawls",t:"A Theory of Justice",y:1971,lv:4,cr:"C",e:"정전",m:"정독",n:"정의론. 분석적이고 조건이 촘촘."},
+
+  {f:"경제",a:"Karl Marx",t:"The Communist Manifesto",y:1848,lv:3,cr:"PD",e:"앵커",m:"정독",n:"정치경제의 고전. 수사적이고 강렬. PD 번역."},
+  {f:"경제",a:"Friedrich Hayek",t:"The Road to Serfdom",y:1944,lv:3,cr:"C",e:"정전",m:"정독",n:"자유주의 경제사상."},
+  {f:"경제",a:"Milton Friedman",t:"Capitalism and Freedom",y:1962,lv:3,cr:"C",e:"정전",m:"다독",n:"시장 자유주의. 명료."},
+  {f:"경제",a:"Michael Sandel",t:"Justice",y:2009,lv:3,cr:"C",e:"정전",m:"다독",n:"정의 강의. 한국에서 특히 인기, 명료하고 사례 풍부."},
+  {f:"경제",a:"Ha-Joon Chang",t:"23 Things They Don't Tell You About Capitalism",y:2010,lv:2,cr:"C",e:"정전",m:"다독",n:"경제학 통념 비판. 평이하고 흥미롭다."},
+  {f:"경제",a:"Thomas Piketty",t:"Capital in the Twenty-First Century",y:2013,lv:3,cr:"C",e:"정전",m:"다독",n:"부의 불평등. 데이터 중심."},
+
+  {f:"진화·생명",a:"Rachel Carson",t:"Silent Spring",y:1962,lv:3,cr:"C",e:"정전",m:"정독",n:"환경운동의 기폭제. 서정적이면서 논증적."},
+  {f:"진화·생명",a:"Siddhartha Mukherjee",t:"The Emperor of All Maladies",y:2010,lv:3,cr:"C",e:"정전",m:"다독",n:"암의 전기. 퓰리처상, 서사적."},
+  {f:"진화·생명",a:"E. O. Wilson",t:"Consilience",y:1998,lv:3,cr:"C",e:"정전",m:"정독",n:"지식의 통섭. 학술적."},
+  {f:"진화·생명",a:"Merlin Sheldrake",t:"Entangled Life",y:2020,lv:2,cr:"C",e:"정전",m:"다독",n:"균류의 세계. 경이롭고 가독성 높음."},
+  {f:"진화·생명",a:"Jane Goodall",t:"In the Shadow of Man",y:1971,lv:2,cr:"C",e:"정전",m:"다독",n:"침팬지 현장 연구 회고."},
+
+  {f:"물리·우주",a:"Galileo Galilei",t:"Sidereus Nuncius",y:1610,lv:3,cr:"PD",e:"앵커",m:"정독",n:"근대 천문 관측의 출발. PD 번역."},
+  {f:"물리·우주",a:"Richard Feynman",t:"Six Easy Pieces",y:1994,lv:2,cr:"C",e:"정전",m:"다독",n:"명료하고 활기찬 물리 강의."},
+  {f:"물리·우주",a:"Brian Greene",t:"The Elegant Universe",y:1999,lv:3,cr:"C",e:"정전",m:"다독",n:"끈 이론 대중화."},
+
+  {f:"인류·문명사",a:"Herodotus",t:"The Histories",y:-430,lv:3,cr:"PD",e:"앵커",m:"정독",n:"역사의 아버지. PD 번역."},
+  {f:"인류·문명사",a:"Thucydides",t:"History of the Peloponnesian War",y:-400,lv:4,cr:"PD",e:"앵커",m:"정독",n:"엄정한 분석적 서술. PD 번역."},
+  {f:"인류·문명사",a:"Niccolò Machiavelli",t:"The Prince",y:1532,lv:3,cr:"PD",e:"앵커",m:"정독",n:"근대 정치학의 출발. PD 번역."},
+  {f:"인류·문명사",a:"Barbara Tuchman",t:"The Guns of August",y:1962,lv:3,cr:"C",e:"정전",m:"다독",n:"1차대전 발발. 우아한 내러티브 역사, 퓰리처상."},
+  {f:"인류·문명사",a:"Eric Hobsbawm",t:"The Age of Revolution",y:1962,lv:3,cr:"C",e:"정전",m:"정독",n:"1789-1848 통사. 종합적이고 분석적."},
+  {f:"인류·문명사",a:"Charles C. Mann",t:"1491",y:2005,lv:3,cr:"C",e:"정전",m:"다독",n:"콜럼버스 이전 아메리카. 서사적."},
+  {f:"인류·문명사",a:"William H. McNeill",t:"The Rise of the West",y:1963,lv:3,cr:"C",e:"정전",m:"다독",n:"문명 상호작용의 세계사."},
+
+  {f:"언어·언어학",a:"Ferdinand de Saussure",t:"Course in General Linguistics",y:1916,lv:4,cr:"PD",e:"앵커",m:"정독",n:"구조주의 언어학의 기초. 1913년 사망, PD 번역 사용."},
+  {f:"언어·언어학",a:"Noam Chomsky",t:"Syntactic Structures",y:1957,lv:4,cr:"C",e:"정전",m:"정독",n:"생성문법의 출발점. 선생님 통사 프레임과 직결."},
+  {f:"언어·언어학",a:"Mark Forsyth",t:"The Etymologicon",y:2011,lv:2,cr:"C",e:"정전",m:"다독",n:"어원 잡학. 연쇄적이고 재미있다."},
+  {f:"언어·언어학",a:"Lynne Truss",t:"Eats, Shoots and Leaves",y:2003,lv:2,cr:"C",e:"정전",m:"다독",n:"구두점 유머. 영어교사에게 유용."},
+
+  {f:"예술·미학",a:"Aristotle",t:"Poetics",y:-335,lv:3,cr:"PD",e:"앵커",m:"정독",n:"비극론의 원전. PD 번역."},
+  {f:"예술·미학",a:"Giorgio Vasari",t:"Lives of the Artists",y:1550,lv:4,cr:"PD",e:"앵커",m:"정독",n:"미술 전기의 효시. PD 번역."},
+  {f:"예술·미학",a:"E. H. Gombrich",t:"The Story of Art",y:1950,lv:3,cr:"C",e:"정전",m:"다독",n:"미술사 입문의 고전. 명료."},
+  {f:"예술·미학",a:"Susan Sontag",t:"On Photography",y:1977,lv:4,cr:"C",e:"정전",m:"정독",n:"사진론. 경구적이고 밀도 높다."},
+  {f:"예술·미학",a:"Robert Hughes",t:"The Shock of the New",y:1980,lv:3,cr:"C",e:"정전",m:"다독",n:"현대미술사. 활기찬 비평."},
+
+  {f:"법·정치",a:"Thomas Hobbes",t:"Leviathan",y:1651,lv:5,cr:"PD",e:"앵커",m:"정독",n:"17세기 정치철학의 만연체. 긴 정의와 도미문."},
+  {f:"법·정치",a:"John Locke",t:"Two Treatises of Government",y:1689,lv:4,cr:"PD",e:"앵커",m:"정독",n:"자유주의 정치철학의 기초."},
+  {f:"법·정치",a:"Jean-Jacques Rousseau",t:"The Social Contract",y:1762,lv:3,cr:"PD",e:"앵커",m:"정독",n:"인민주권론. PD 번역."},
+  {f:"법·정치",a:"Martin Luther King Jr.",t:"Letter from Birmingham Jail",y:1963,lv:4,cr:"C",e:"정전",m:"정독",n:"수사적으로 강렬한 산문. 병렬, 점층, pathos."},
+
+  {f:"기술·AI",a:"Marshall McLuhan",t:"Understanding Media",y:1964,lv:4,cr:"C",e:"정전",m:"정독",n:"미디어가 메시지. 경구적이고 난해."},
+  {f:"기술·AI",a:"Neil Postman",t:"Amusing Ourselves to Death",y:1985,lv:3,cr:"C",e:"정전",m:"다독",n:"미디어 비평. 명료하고 통찰적."},
+  {f:"기술·AI",a:"Cathy O'Neil",t:"Weapons of Math Destruction",y:2016,lv:2,cr:"C",e:"정전",m:"다독",n:"알고리즘의 편향. 평이."},
+  {f:"기술·AI",a:"Yuval Noah Harari",t:"Nexus",y:2024,lv:2,cr:"C",e:"최신",m:"다독",n:"정보 네트워크의 역사. 최신, 평이."},
+
+  {f:"내러티브·회고",a:"Frederick Douglass",t:"Narrative of the Life of Frederick Douglass",y:1845,lv:4,cr:"PD",e:"앵커",m:"정독",n:"노예 서사의 고전. 수사적으로 강렬, PD라 수록 가능."},
+  {f:"내러티브·회고",a:"Benjamin Franklin",t:"The Autobiography of Benjamin Franklin",y:1791,lv:3,cr:"PD",e:"앵커",m:"정독",n:"미국 자서전의 효시. 명료한 18세기 산문."},
+  {f:"내러티브·회고",a:"Primo Levi",t:"If This Is a Man",y:1947,lv:3,cr:"C",e:"정전",m:"정독",n:"아우슈비츠 증언. 절제되고 정밀."},
+  {f:"내러티브·회고",a:"Maya Angelou",t:"I Know Why the Caged Bird Sings",y:1969,lv:3,cr:"C",e:"정전",m:"다독",n:"성장 회고록. 서정적."},
+  {f:"내러티브·회고",a:"Elie Wiesel",t:"Night",y:1956,lv:2,cr:"C",e:"정전",m:"다독",n:"홀로코스트 증언. 짧고 강렬."}
+];
+
+const AWARD = new Set(["The Emperor of All Maladies","Guns, Germs, and Steel","The Guns of August","Pilgrim at Tinker Creek","The Panda's Thumb","Empire of AI","Our Brains, Our Selves","The Immortal Life of Henrietta Lacks","The Story of Art Without Men","Killers of the Flower Moon","Say Nothing","Born a Crime","Becoming","Gödel, Escher, Bach","Educated"]);
+const MUSTREAD = new Set(["The Republic","Nicomachean Ethics","Meditations on First Philosophy","Beyond Good and Evil","Tractatus Logico-Philosophicus","Meditations","Letters from a Stoic","Lives","The Histories","History of the Peloponnesian War","The Prince","Leviathan","Two Treatises of Government","The Social Contract","The Wealth of Nations","The Communist Manifesto","On the Origin of Species","The Decline and Fall of the Roman Empire","Essays","Walden","Self-Reliance and Other Essays","Essays of Elia","Elements","Relativity: The Special and General Theory","On Liberty","Reflections on the Revolution in France","Democracy in America","Sapiens","A Short History of Nearly Everything","A Short History of Nearly Everything 2.0","Factfulness","Cosmos","A Brief History of Time","The Selfish Gene","Silent Spring","Thinking, Fast and Slow","The Interpretation of Cultures","Modern Painters","Studies in the History of the Renaissance","Civilization and Its Discontents","Course in General Linguistics","Syntactic Structures","Understanding Media","Narrative of the Life of Frederick Douglass","The Autobiography of Benjamin Franklin","The Story of Art","Poetics","Rhetoric","Ways of Seeing","On Photography","Man's Search for Meaning","Night","Notes of a Native Son","Speak, Memory","How to Win Friends and Influence People","A Mathematician's Apology","Letter from Birmingham Jail","The Common Law","The Federalist Papers","The Varieties of Religious Experience","The Principles of Psychology","An Enquiry Concerning Human Understanding","Religio Medici","The Rambler","A Study of History","The Lessons of History","The Road to Serfdom","Capitalism and Freedom","Justice","Capital in the Twenty-First Century","The Structure of Scientific Revolutions","A Theory of Justice","The Hedgehog and the Fox","The Logic of Scientific Discovery","A History of Western Philosophy","How the Mind Works","The Man Who Mistook His Wife for a Hat","Amusing Ourselves to Death","The Rise of the West","Lives of the Artists","The Human Condition"]);
+function rec(b){if(AWARD.has(b.t))return "수상";if(MUSTREAD.has(b.t))return "필독";return "";}
+
+const state={q:"",onlyTop:false,modes:new Set(),fields:new Set(),lvs:new Set(),crs:new Set(),sortDesc:true};
+const $=s=>document.querySelector(s);
+
+const fField=$("#fField");
+FIELDS.forEach(f=>{
+  const b=document.createElement("button");
+  b.className="chip";b.dataset.field=f;b.setAttribute("aria-pressed","false");b.textContent=f;
+  b.onclick=()=>{toggle(state.fields,f,b);render();};
+  fField.appendChild(b);
+});
+function toggle(set,v,btn){if(set.has(v)){set.delete(v);btn.setAttribute("aria-pressed","false");}else{set.add(v);btn.setAttribute("aria-pressed","true");}}
+
+$("#topChip").onclick=()=>{state.onlyTop=!state.onlyTop;$("#topChip").setAttribute("aria-pressed",state.onlyTop);render();};
+document.querySelectorAll("#fMode .chip").forEach(b=>b.onclick=()=>{toggle(state.modes,b.dataset.m,b);render();});
+document.querySelectorAll("#fLv .chip").forEach(b=>b.onclick=()=>{toggle(state.lvs,+b.dataset.lv,b);render();});
+document.querySelectorAll("#fCr .chip").forEach(b=>b.onclick=()=>{toggle(state.crs,b.dataset.cr,b);render();});
+$("#q").addEventListener("input",e=>{state.q=e.target.value.trim().toLowerCase();render();});
+$("#sortBtn").onclick=()=>{state.sortDesc=!state.sortDesc;$("#sortBtn").textContent=state.sortDesc?"난이도 높은순":"난이도 낮은순";render();};
+$("#resetBtn").onclick=()=>{
+  state.q="";state.onlyTop=false;state.modes.clear();state.fields.clear();state.lvs.clear();state.crs.clear();
+  $("#q").value="";
+  document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed","false"));
+  render();
+};
+
+function match(b){
+  if(state.onlyTop&&!rec(b))return false;
+  if(state.modes.size&&!state.modes.has(b.m))return false;
+  if(state.fields.size&&!state.fields.has(b.f))return false;
+  if(state.lvs.size&&!state.lvs.has(b.lv))return false;
+  if(state.crs.size&&!state.crs.has(b.cr))return false;
+  if(state.q){
+    const hay=(b.a+" "+b.t+" "+b.n+" "+b.f).toLowerCase();
+    if(!hay.includes(state.q))return false;
+  }
+  return true;
+}
+function yr(y){return y<0?(Math.abs(y)+" BC"):y;}
+
+function card(b){
+  const segs=[1,2,3,4,5].map(i=>`<i style="${i<=b.lv?'background:var(--lv'+b.lv+')':''}"></i>`).join("");
+  const crPill=b.cr==="PD"?`<span class="pill pd">수록가능</span>`:`<span class="pill c">인용제한</span>`;
+  const modePill=b.m==="다독"?`<span class="pill extensive">다독</span>`:`<span class="pill intensive">정독</span>`;
+  const r=rec(b);
+  const recPill=r==="수상"?`<span class="pill award">수상</span>`:(r==="필독"?`<span class="pill must">필독</span>`:"");
+  return `<div class="card lv${b.lv}">
+    <div class="top">
+      <div class="ti">
+        <div class="author">${b.a}</div>
+        <div class="title">${b.t}</div>
+      </div>
+      <div class="yr">${yr(b.y)}</div>
+    </div>
+    <p class="note">${b.n}</p>
+    <div class="tags">
+      ${recPill}
+      ${modePill}
+      ${crPill}
+      <span class="pill era">${b.e}</span>
+      <span class="lvmeter"><span class="segs">${segs}</span><span class="lab">Lv${b.lv}</span></span>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const list=$("#list");
+  const rows=BOOKS.filter(match);
+  $("#count").innerHTML=`<b>${rows.length}</b> / ${BOOKS.length}권`;
+  if(!rows.length){
+    list.innerHTML=`<div class="empty"><b>해당하는 책이 없습니다</b>필터나 검색어를 바꿔 보세요.</div>`;
+    return;
+  }
+  let html="";
+  FIELDS.forEach(f=>{
+    let g=rows.filter(b=>b.f===f);
+    if(!g.length)return;
+    g.sort((x,y)=>state.sortDesc?(y.lv-x.lv||x.y-y.y):(x.lv-y.lv||x.y-y.y));
+    html+=`<section class="group"><div class="ghead"><h2>${f}</h2><span class="gc">${g.length}</span></div>${g.map(card).join("")}</section>`;
+  });
+  list.innerHTML=html;
+}
+render();
+</script>
+</body>
+</html>

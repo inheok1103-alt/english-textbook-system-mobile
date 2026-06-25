@@ -103,7 +103,7 @@ const MASTER_DATA = englishOnly.map((m) => {
     tags: (m.situations || []).slice(0, 3).map((s) => "#" + s),
     situations: m.situations || [],
     weaknesses: m.weaknesses || [],
-    cover: hasCover ? `covers/${uid}.jpg` : "",
+    cover: m.coverInline || (hasCover ? `covers/${uid}.jpg` : ""),
     age: m.ageLabel || "",
     comment: shortComment(m.pickComment),
     fullComment: m.pickComment || "",
