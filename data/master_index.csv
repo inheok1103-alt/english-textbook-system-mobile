@@ -6621,7 +6621,6 @@ isbn,titleNorm,uid,title
 9791188015252,김태연아이작초등영단어모바일애니메이션level4,IH-ENG-6782,김태연 아이작 초등 영단어 모바일 애니메이션 Level 4
 9788993688542,이미지로배우는영단어트레이닝,IH-ENG-6783,이미지로 배우는 영단어 트레이닝
 9788971728376,초등영단어완전정복,IH-ENG-6784,초등 영단어 완전정복
-9791185152622,단어의배신,IH-ENG-6785,단어의 배신
 9791195780846,핵심영한단어,IH-ENG-6786,핵심 영한단어
 9788973183999,큰글씨영단어,IH-ENG-6787,큰글씨 영단어
 9788972441380,왕초보필수영단어,IH-ENG-6788,왕초보 필수 영단어
@@ -8077,7 +8076,6 @@ isbn,titleNorm,uid,title
 9788993437140,가장쉽게시작해서자신있게끝내는초등영어첫걸음,IH-ENG-8242,가장 쉽게 시작해서 자신있게 끝내는 초등영어 첫걸음
 9788993908305,학생중심의제7차초등영어교육과정심층분석,IH-ENG-8243,학생 중심의 제7차 초등영어 교육과정 심층분석
 9788976776464,초등영어,IH-ENG-8244,초등영어
-9788994044217,얽힌실타래풀기,IH-ENG-8245,얽힌 실타래 풀기
 9788925404554,초등영어읽기쓰기지도,IH-ENG-8246,초등영어 읽기 쓰기 지도
 9788909046886,현대초등영어사전,IH-ENG-8247,현대 초등 영어사전
 9788976776433,오바마대통령에게배우는초등영어,IH-ENG-8248,오바마 대통령에게 배우는 초등영어
@@ -9289,12 +9287,189 @@ isbn,titleNorm,uid,title
 9788956356129,readingworld2,IH-ENG-9455,READING WORLD. 2(STUDENT BOOK)
 9788956356112,readingworld1,IH-ENG-9456,READING WORLD. 1(STUDENT BOOK)
 9791195299911,toeflpatternreading1,IH-ENG-9457,TOEFL Pattern Reading 1
-9788932374741,가난한사람은왜생길까요,IH-ENG-9458,가난한 사람은 왜 생길까요?
-9791187991311,세상은무슨색일까요,IH-ENG-9459,세상은 무슨 색일까요?
 9791196789039,worldhoteltourismenglish,IH-ENG-9460,World Hotel & Tourism English
-9788993928266,단한번도비행기를타지않은150일간의세계일주,IH-ENG-9461,단 한 번도 비행기를 타지 않은 150일간의 세계일주
-9788952757456,북극곰의집이녹고있어요,IH-ENG-9462,북극곰의 집이 녹고 있어요
-9788989315490,너는특별하단다전6권통합본,IH-ENG-9463,너는 특별하단다 전 6권 통합본
 9791160576481,wonderfulworldprime5sbwithappqr,IH-ENG-9464,Wonderful WORLD PRIME 5 SB with App QR
-9791155813928,오즈의마법사,IH-ENG-9465,오즈의 마법사
 9788967494605,정말멋진세상,IH-ENG-9466,정말 멋진 세상(What a Wonderful World)
+,ashorthistoryofnearlyeverything,IH-CLS-0001,A Short History of Nearly Everything
+,ashorthistoryofnearlyeverything20,IH-CLS-0002,A Short History of Nearly Everything 2.0
+,sapiens,IH-CLS-0003,Sapiens
+,factfulness,IH-CLS-0004,Factfulness
+,abriefhistoryoftime,IH-CLS-0005,A Brief History of Time
+,thepenguinhistoryoftheworld,IH-CLS-0006,The Penguin History of the World
+,alittlehistoryoftheworld,IH-CLS-0007,A Little History of the World
+,theknowledge,IH-CLS-0008,The Knowledge
+,whatif,IH-CLS-0009,What If?
+,thebookofgeneralignorance,IH-CLS-0010,The Book of General Ignorance (QI)
+,thelessonsofhistory,IH-CLS-0011,The Lessons of History
+,fromdawntodecadence,IH-CLS-0012,From Dawn to Decadence
+,astudyofhistory,IH-CLS-0013,A Study of History
+,theprinciplesofpsychology,IH-CLS-0014,The Principles of Psychology
+,thevarietiesofreligiousexperience,IH-CLS-0015,The Varieties of Religious Experience
+,thinkingfastandslow,IH-CLS-0016,"Thinking, Fast and Slow"
+,howthemindworks,IH-CLS-0017,How the Mind Works
+,themanwhomistookhiswifeforahat,IH-CLS-0018,The Man Who Mistook His Wife for a Hat
+,thepowerofhabit,IH-CLS-0019,The Power of Habit
+,outliers,IH-CLS-0020,Outliers
+,thinkagain,IH-CLS-0021,Think Again
+,ourbrainsourselves,IH-CLS-0022,"Our Brains, Our Selves"
+,themindelectric,IH-CLS-0023,The Mind Electric
+,anenquiryconcerninghumanunderstanding,IH-CLS-0024,An Enquiry Concerning Human Understanding
+,religiomedici,IH-CLS-0025,Religio Medici
+,therambler,IH-CLS-0026,The Rambler
+,onliberty,IH-CLS-0027,On Liberty
+,theideaofauniversity,IH-CLS-0028,The Idea of a University
+,scienceandthemodernworld,IH-CLS-0029,Science and the Modern World
+,thehedgehogandthefox,IH-CLS-0030,The Hedgehog and the Fox
+,theproblemsofphilosophy,IH-CLS-0031,The Problems of Philosophy
+,whatdoesitallmean,IH-CLS-0032,What Does It All Mean?
+,whyplatomattersnow,IH-CLS-0033,Why Plato Matters Now
+,thewealthofnations,IH-CLS-0034,The Wealth of Nations
+,thetheoryoftheleisureclass,IH-CLS-0035,The Theory of the Leisure Class
+,theeconomicconsequencesofthepeace,IH-CLS-0036,The Economic Consequences of the Peace
+,theaffluentsociety,IH-CLS-0037,The Affluent Society
+,freakonomics,IH-CLS-0038,Freakonomics
+,thepsychologyofmoney,IH-CLS-0039,The Psychology of Money
+,theundercovereconomist,IH-CLS-0040,The Undercover Economist
+,ourdollaryourproblem,IH-CLS-0041,"Our Dollar, Your Problem"
+,ontheoriginofspecies,IH-CLS-0042,On the Origin of Species
+,evolutionandethics,IH-CLS-0043,Evolution and Ethics
+,thepandasthumb,IH-CLS-0044,The Panda's Thumb
+,theimmensejourney,IH-CLS-0045,The Immense Journey
+,thelivesofacell,IH-CLS-0046,The Lives of a Cell
+,theselfishgene,IH-CLS-0047,The Selfish Gene
+,thebody,IH-CLS-0048,The Body
+,theimmortallifeofhenriettalacks,IH-CLS-0049,The Immortal Life of Henrietta Lacks
+,theriseandfallofthedinosaurs,IH-CLS-0050,The Rise and Fall of the Dinosaurs
+,icontainmultitudes,IH-CLS-0051,I Contain Multitudes
+,eve,IH-CLS-0052,Eve
+,thelighteaters,IH-CLS-0053,The Light Eaters
+,fragmentsofscience,IH-CLS-0054,Fragments of Science
+,themysteriousuniverse,IH-CLS-0055,The Mysterious Universe
+,thenatureofthephysicalworld,IH-CLS-0056,The Nature of the Physical World
+,cosmos,IH-CLS-0057,Cosmos
+,astrophysicsforpeopleinahurry,IH-CLS-0058,Astrophysics for People in a Hurry
+,sevenbrieflessonsonphysics,IH-CLS-0059,Seven Brief Lessons on Physics
+,theendofeverything,IH-CLS-0060,The End of Everything
+,battleofthebigbang,IH-CLS-0061,Battle of the Big Bang
+,airborne,IH-CLS-0062,Air-Borne
+,thedeclineandfalloftheromanempire,IH-CLS-0063,The Decline and Fall of the Roman Empire
+,thehistoryofengland,IH-CLS-0064,The History of England
+,thefrenchrevolution,IH-CLS-0065,The French Revolution
+,confessionsofanenglishopiumeater,IH-CLS-0066,Confessions of an English Opium-Eater
+,reflectionsontherevolutioninfrance,IH-CLS-0067,Reflections on the Revolution in France
+,democracyinamerica,IH-CLS-0068,Democracy in America
+,theinterpretationofcultures,IH-CLS-0069,The Interpretation of Cultures
+,gunsgermsandsteel,IH-CLS-0070,"Guns, Germs, and Steel"
+,thesilkroads,IH-CLS-0071,The Silk Roads
+,vanished,IH-CLS-0072,Vanished
+,growthandstructureoftheenglishlanguage,IH-CLS-0073,Growth and Structure of the English Language
+,thesenseofstyle,IH-CLS-0074,The Sense of Style
+,throughthelanguageglass,IH-CLS-0075,Through the Language Glass
+,themothertongue,IH-CLS-0076,The Mother Tongue
+,thestoriesofenglish,IH-CLS-0077,The Stories of English
+,babel,IH-CLS-0078,Babel
+,proto,IH-CLS-0079,Proto
+,pronountrouble,IH-CLS-0080,Pronoun Trouble
+,sayswho,IH-CLS-0081,Says Who?
+,modernpainters,IH-CLS-0082,Modern Painters
+,studiesinthehistoryoftherenaissance,IH-CLS-0083,Studies in the History of the Renaissance
+,cultureandanarchy,IH-CLS-0084,Culture and Anarchy
+,anatomyofcriticism,IH-CLS-0085,Anatomy of Criticism
+,seventypesofambiguity,IH-CLS-0086,Seven Types of Ambiguity
+,theliberalimagination,IH-CLS-0087,The Liberal Imagination
+,civilisation,IH-CLS-0088,Civilisation
+,whatareyoulookingat,IH-CLS-0089,What Are You Looking At?
+,waysofseeing,IH-CLS-0090,Ways of Seeing
+,thestoryofartwithoutmen,IH-CLS-0091,The Story of Art Without Men
+,thefederalistpapers,IH-CLS-0092,The Federalist Papers
+,thecommonlaw,IH-CLS-0093,The Common Law
+,erewhon,IH-CLS-0094,Erewhon (The Book of the Machines)
+,thehumanuseofhumanbeings,IH-CLS-0095,The Human Use of Human Beings
+,superintelligence,IH-CLS-0096,Superintelligence
+,theageofsurveillancecapitalism,IH-CLS-0097,The Age of Surveillance Capitalism
+,thealignmentproblem,IH-CLS-0098,The Alignment Problem
+,theinnovators,IH-CLS-0099,The Innovators
+,empireofai,IH-CLS-0100,Empire of AI
+,educated,IH-CLS-0101,Educated
+,bornacrime,IH-CLS-0102,Born a Crime
+,killersoftheflowermoon,IH-CLS-0103,Killers of the Flower Moon
+,saynothing,IH-CLS-0104,Say Nothing
+,becoming,IH-CLS-0105,Becoming
+,speakmemory,IH-CLS-0106,"Speak, Memory"
+,notesofanativeson,IH-CLS-0107,Notes of a Native Son
+,slouchingtowardsbethlehem,IH-CLS-0108,Slouching Towards Bethlehem
+,pilgrimattinkercreek,IH-CLS-0109,Pilgrim at Tinker Creek
+,rhetoric,IH-CLS-0110,Rhetoric
+,essays,IH-CLS-0111,Essays
+,essays,IH-CLS-0112,Essays
+,selfrelianceandotheressays,IH-CLS-0113,Self-Reliance and Other Essays
+,walden,IH-CLS-0114,Walden
+,essaysofelia,IH-CLS-0115,Essays of Elia
+,tabletalk,IH-CLS-0116,Table Talk
+,lettersfromastoic,IH-CLS-0117,Letters from a Stoic
+,meditations,IH-CLS-0118,Meditations
+,lives,IH-CLS-0119,Lives
+,elements,IH-CLS-0120,Elements
+,amathematiciansapology,IH-CLS-0121,A Mathematician's Apology
+,relativitythespecialandgeneraltheory,IH-CLS-0122,Relativity: The Special and General Theory
+,ahistoryofwesternphilosophy,IH-CLS-0123,A History of Western Philosophy
+,thestructureofscientificrevolutions,IH-CLS-0124,The Structure of Scientific Revolutions
+,thelogicofscientificdiscovery,IH-CLS-0125,The Logic of Scientific Discovery
+,gdelescherbach,IH-CLS-0126,"Gödel, Escher, Bach"
+,chaos,IH-CLS-0127,Chaos
+,fermatslasttheorem,IH-CLS-0128,Fermat's Last Theorem
+,civilizationanditsdiscontents,IH-CLS-0129,Civilization and Its Discontents
+,modernmaninsearchofasoul,IH-CLS-0130,Modern Man in Search of a Soul
+,manssearchformeaning,IH-CLS-0131,Man's Search for Meaning
+,howtowinfriendsandinfluencepeople,IH-CLS-0132,How to Win Friends and Influence People
+,flow,IH-CLS-0133,Flow
+,therepublic,IH-CLS-0134,The Republic
+,nicomacheanethics,IH-CLS-0135,Nicomachean Ethics
+,meditationsonfirstphilosophy,IH-CLS-0136,Meditations on First Philosophy
+,beyondgoodandevil,IH-CLS-0137,Beyond Good and Evil
+,tractatuslogicophilosophicus,IH-CLS-0138,Tractatus Logico-Philosophicus
+,thehumancondition,IH-CLS-0139,The Human Condition
+,atheoryofjustice,IH-CLS-0140,A Theory of Justice
+,thecommunistmanifesto,IH-CLS-0141,The Communist Manifesto
+,theroadtoserfdom,IH-CLS-0142,The Road to Serfdom
+,capitalismandfreedom,IH-CLS-0143,Capitalism and Freedom
+,justice,IH-CLS-0144,Justice
+,23thingstheydonttellyouaboutcapitalism,IH-CLS-0145,23 Things They Don't Tell You About Capitalism
+,capitalinthetwentyfirstcentury,IH-CLS-0146,Capital in the Twenty-First Century
+,silentspring,IH-CLS-0147,Silent Spring
+,theemperorofallmaladies,IH-CLS-0148,The Emperor of All Maladies
+,consilience,IH-CLS-0149,Consilience
+,entangledlife,IH-CLS-0150,Entangled Life
+,intheshadowofman,IH-CLS-0151,In the Shadow of Man
+,sidereusnuncius,IH-CLS-0152,Sidereus Nuncius
+,sixeasypieces,IH-CLS-0153,Six Easy Pieces
+,theelegantuniverse,IH-CLS-0154,The Elegant Universe
+,thehistories,IH-CLS-0155,The Histories
+,historyofthepeloponnesianwar,IH-CLS-0156,History of the Peloponnesian War
+,theprince,IH-CLS-0157,The Prince
+,thegunsofaugust,IH-CLS-0158,The Guns of August
+,theageofrevolution,IH-CLS-0159,The Age of Revolution
+,1491,IH-CLS-0160,1491
+,theriseofthewest,IH-CLS-0161,The Rise of the West
+,courseingenerallinguistics,IH-CLS-0162,Course in General Linguistics
+,syntacticstructures,IH-CLS-0163,Syntactic Structures
+,theetymologicon,IH-CLS-0164,The Etymologicon
+,eatsshootsandleaves,IH-CLS-0165,"Eats, Shoots and Leaves"
+,poetics,IH-CLS-0166,Poetics
+,livesoftheartists,IH-CLS-0167,Lives of the Artists
+,thestoryofart,IH-CLS-0168,The Story of Art
+,onphotography,IH-CLS-0169,On Photography
+,theshockofthenew,IH-CLS-0170,The Shock of the New
+,leviathan,IH-CLS-0171,Leviathan
+,twotreatisesofgovernment,IH-CLS-0172,Two Treatises of Government
+,thesocialcontract,IH-CLS-0173,The Social Contract
+,letterfrombirminghamjail,IH-CLS-0174,Letter from Birmingham Jail
+,understandingmedia,IH-CLS-0175,Understanding Media
+,amusingourselvestodeath,IH-CLS-0176,Amusing Ourselves to Death
+,weaponsofmathdestruction,IH-CLS-0177,Weapons of Math Destruction
+,nexus,IH-CLS-0178,Nexus
+,narrativeofthelifeoffrederickdouglass,IH-CLS-0179,Narrative of the Life of Frederick Douglass
+,theautobiographyofbenjaminfranklin,IH-CLS-0180,The Autobiography of Benjamin Franklin
+,ifthisisaman,IH-CLS-0181,If This Is a Man
+,iknowwhythecagedbirdsings,IH-CLS-0182,I Know Why the Caged Bird Sings
+,night,IH-CLS-0183,Night

@@ -69701,16 +69701,6 @@
       "publisher": "반석출판사",
       "bytes": 106782
     },
-    "IH-ENG-6785": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-6785.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202410/9791185152622C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791185152622",
-      "materialTitle": "단어의 배신",
-      "publisher": "유유",
-      "bytes": 33077
-    },
     "IH-ENG-6786": {
       "status": "found",
       "localPath": "covers/IH-ENG-6786.jpg",
@@ -82641,16 +82631,6 @@
       "publisher": "명진출판사",
       "bytes": 79481
     },
-    "IH-ENG-8245": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-8245.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202409/9788994044217C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788994044217",
-      "materialTitle": "얽힌 실타래 풀기",
-      "publisher": "서현사",
-      "bytes": 65844
-    },
     "IH-ENG-8246": {
       "status": "found",
       "localPath": "covers/IH-ENG-8246.jpg",
@@ -94304,26 +94284,6 @@
       "publisher": "키북스",
       "bytes": 66821
     },
-    "IH-ENG-9458": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-9458.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202409/9788932374741C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788932374741",
-      "materialTitle": "가난한 사람은 왜 생길까요?",
-      "publisher": "현암주니어",
-      "bytes": 62599
-    },
-    "IH-ENG-9459": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-9459.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202406/9791187991311C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791187991311",
-      "materialTitle": "세상은 무슨 색일까요?",
-      "publisher": "브와포레",
-      "bytes": 73348
-    },
     "IH-ENG-9460": {
       "status": "found",
       "localPath": "covers/IH-ENG-9460.jpg",
@@ -94334,36 +94294,6 @@
       "publisher": "코스모미디어",
       "bytes": 51653
     },
-    "IH-ENG-9461": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-9461.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202408/9788993928266C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788993928266",
-      "materialTitle": "단 한 번도 비행기를 타지 않은 150일간의 세계일주",
-      "publisher": "달",
-      "bytes": 46194
-    },
-    "IH-ENG-9462": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-9462.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202408/9788952757456C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788952757456",
-      "materialTitle": "북극곰의 집이 녹고 있어요",
-      "publisher": "시공주니어",
-      "bytes": 39261
-    },
-    "IH-ENG-9463": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-9463.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202603/9788989315490C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9788989315490",
-      "materialTitle": "너는 특별하단다 전 6권 통합본",
-      "publisher": "고슴도치",
-      "bytes": 63743
-    },
     "IH-ENG-9464": {
       "status": "found",
       "localPath": "covers/IH-ENG-9464.jpg",
@@ -94373,16 +94303,6 @@
       "materialTitle": "Wonderful WORLD PRIME 5 SB with App QR",
       "publisher": "A List",
       "bytes": 69817
-    },
-    "IH-ENG-9465": {
-      "status": "found",
-      "localPath": "covers/IH-ENG-9465.jpg",
-      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202406/9791155813928C001.jpg",
-      "source": "KOBIC",
-      "isbn": "9791155813928",
-      "materialTitle": "오즈의 마법사",
-      "publisher": "윌북",
-      "bytes": 65514
     },
     "IH-ENG-9466": {
       "status": "found",

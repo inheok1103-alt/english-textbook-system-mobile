@@ -116,7 +116,6 @@ const MASTER_DATA = englishOnly.map((m) => {
     status: m.status || "정상",                    // 정상 / 절판
     foreign: !!m.foreign,                           // 원서(수입 ELT) 여부
     isbn: m.isbn || "",
-    toc: m.toc || "",                               // 목차(심층 DB)
     kdc: m.kdc || "",
     pubDate: m.pubDate || "",
     source: m.source || "",
@@ -150,6 +149,10 @@ MASTER_DATA.sort((a, b) => {
 // 데이터는 외부 books.js로 분리 → index.html 경량화·모바일 캐시
 const out = fs.readFileSync(BASE, "utf8");
 fs.writeFileSync(path.join(ROOT, "books.js"), `window.__BOOKS__=${JSON.stringify(MASTER_DATA)};\nwindow.__TABS__=${JSON.stringify(TABS)};\n`, "utf8");
+// 목차(toc)는 용량 절반 이상 → 별도 toc.js(지연 로딩)로 분리해 첫 로딩 가속
+const tocMap = {};
+englishOnly.forEach((m) => { if (m.toc) tocMap[m.materialUid] = m.toc; });
+fs.writeFileSync(path.join(ROOT, "toc.js"), `window.__TOC__=${JSON.stringify(tocMap)};\n`, "utf8");
 fs.writeFileSync(OUT, out, "utf8");
 
 // 참고용 데이터 산출

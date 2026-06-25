@@ -16,14 +16,19 @@ const master = JSON.parse(mm[1]);
 const imgData = JSON.parse(fs.readFileSync(IMG, "utf8"));
 const img = imgData.images || {};
 
-// 영어 ELT 신호(이게 있으면 영어책 → 제거 제외)
-const ENG_OK = /영어|english|영문|영작|영단어|영숙어|tesol|toeic|toefl|teps|미국|영국|reading|phonics|grammar|vocabulary|writing|listening|speaking|longman|oxford|cambridge|pearson|bricks|scholastic|reader|cefr|ielts|\bsat\b|구문|독해|어법/i;
+// 영어 학습 신호(라틴문자 또는 학습 키워드 또는 전공). 단 '영미문학/영미소설' 같은 '주제 분류'는 신호로 안 봄(번역서일 수 있음)
+const ENG_LEARN = /영어|english|영문법|영작|영단어|영숙어|영어단어|문법|grammar|그래머|독해|리딩|reading|리더스|어휘|보카|voca|vocab|phonics|파닉스|듣기|listening|회화|speaking|쓰기|writing|구문|어법|토익|toeic|토플|toefl|텝스|teps|수능|모의고사|내신|서술형|매3영|천일문|미국교과서|reader|sight\s*word|사이트워드|cefr|편입|ielts|\bsat\b|gre|gmat|esl|efl|tesol|토셀|tosel|오픽|opic|지텔프|첨삭|해석|빈칸|어원|spelling|영검|longman|oxford|cambridge|pearson|bricks|scholastic/i;
+const MAJOR = /영문학|영어학|언어학|영미문학|통번역|번역학|영어교육|응용언어학|linguistic|literature|phonetic|syntax|semantic|morpholog/i;
 function isNonEnglish(b) {
   const t = (b.title || ""), cat = (b.kobicCategory || ""), kdc = (b.kdc || ""), s = t + " " + cat;
-  if (ENG_OK.test(s)) return false;                                  // 영어 ELT 신호 → 보호
+  const latin = (t.match(/[A-Za-z]/g) || []).length;
+  const engKw = ENG_LEARN.test(s), major = MAJOR.test(s);
+  // 규칙1: 명시적 비영어 언어/분야 (영어 학습키워드 없을 때)
   const kn = (kdc.match(/\b(\d{3})\b/) || [])[1];
-  if (kn && /^(71|72|73|00|05|09)/.test(kn)) return true;            // 710한국어 720중국어 730일본어 000총류 등
-  if (/일본어|중국어|광둥어|불어|독일어|스페인어|러시아어|베트남어|아랍어|태국어|한글|한국어\s*학습|한자|한문|프로그래밍|컴퓨터|코딩|파이썬|자바|엑셀|VBA|일본어능력시험|JLPT|JPT|HSK|TOPIK|토픽/i.test(s)) return true;
+  if (!engKw && kn && /^(71|72|73|00|05|09)/.test(kn)) return true;  // 710한국어 720중국어 730일본어 000총류 등
+  if (!engKw && /일본어|중국어|광둥어|불어|독일어|스페인어|러시아어|베트남어|아랍어|태국어|한글|한국어\s*학습|한자|한문|프로그래밍|컴퓨터|코딩|파이썬|자바|엑셀|VBA|일본어능력시험|JLPT|JPT|HSK|TOPIK|토픽/i.test(s)) return true;
+  // 규칙2: KOBIC 책인데 영어 신호 0 (라틴<3 + 학습키워드無 + 전공無) → 비영어(KDC 840 오태깅 한국책·번역서 등)
+  if (b.source === "KOBIC" && latin < 3 && !engKw && !major) return true;
   return false;
 }
 

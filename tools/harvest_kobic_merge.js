@@ -99,7 +99,9 @@ function isEnglish(d, title) {
     if (kn && /^(71|72|73|00|05|09)/.test(kn)) return false;                // 710한국어 720중국어 730일본어 000총류
     if (/일본어|중국어|광둥어|불어|독일어|스페인어|러시아어|베트남어|아랍어|태국어|한글|한국어\s*학습|한자|한문|프로그래밍|컴퓨터|코딩|파이썬|자바|엑셀|vba|일본어능력시험|jlpt|jpt|hsk|topik|토픽/i.test(s)) return false;
   }
-  if (/\b740\b|\b840\b|영어|english|외국어/.test(s)) return true;          // 분류/KDC 우선(740 영어, 840 영미문학)
+  const hasEngSig = engOk || /[a-z]{3}/.test(String(title).toLowerCase());   // 영어 학습키워드 또는 라틴문자
+  if (/\b740\b|영어|english/.test(s)) return true;                         // 740 영어는 확실
+  if (/\b840\b|외국어/.test(s) && hasEngSig) return true;                  // 840 영미문학/외국어는 영어 신호 있을 때만(번역서·오태깅 차단)
   // 제목 영어학습 키워드(분류 추출 실패 대비). 단 비영어 학습서 오인 방지 위해 영역 키워드 한정
   if (/영문법|영단어|영작|영어회화|영어듣기|영어독해|영어쓰기|리딩|reading|grammar|그래머|phonics|파닉스|보카|voca|토익|toeic|토플|toefl|텝스|teps|리스닝|listening|스피킹|speaking|라이팅|writing/.test(s)) return true;
   if (isMajorText(title, d.cat, d.kdc)) return true;                      // 영어 전공(영어학/영문학/언어학/통번역/영어교육)
