@@ -112,7 +112,8 @@
       "score": 55,
       "bytes": 53829,
       "materialTitle": "기적의 파닉스",
-      "publisher": "길벗스쿨"
+      "publisher": "길벗스쿨",
+      "verifiedAt": "2026-06-24T20:21:05.922Z"
     },
     "IH-ENG-0013": {
       "status": "found",
@@ -10670,7 +10671,8 @@
       "score": 89,
       "bytes": 11908,
       "materialTitle": "리딩 와이즈 Lv.1",
-      "publisher": "좋은책신사고"
+      "publisher": "좋은책신사고",
+      "verifiedAt": "2026-06-24T20:21:10.739Z"
     },
     "IH-ENG-0040": {
       "status": "found",
@@ -10874,14 +10876,15 @@
       "score": 65,
       "bytes": 53610,
       "materialTitle": "초등 영어 파닉스가 스타트다",
-      "publisher": "키출판사"
+      "publisher": "키출판사",
+      "verifiedAt": "2026-06-24T20:21:14.806Z"
     },
     "IH-ENG-0070": {
       "status": "found",
       "localPath": "covers/IH-ENG-0070.jpg",
-      "imageUrl": "https://contents.kyobobook.co.kr/sih/fit-in/458x0/pdt/9788974574543.jpg",
+      "imageUrl": "https://www.kobic.net/bookImage/book/coverImg/202408/9788974574543C001.jpg",
       "sourcePage": "https://product.kyobobook.co.kr/detail/9788974574543",
-      "source": "Kyobo",
+      "source": "KOBIC",
       "sourceTitle": "초등 영어, 파닉스가 스타트다 1",
       "sourceAuthor": "저",
       "score": 104,
@@ -10890,7 +10893,8 @@
       "materialTitle": "초등 영어 파닉스가 스타트다 1",
       "publisher": "키출판사",
       "searchQuery": "초등 영어 파닉스가 스타트다 1",
-      "isbn": "9788974574543"
+      "isbn": "9788974574543",
+      "verifiedAt": "2026-06-24T20:21:18.264Z"
     },
     "IH-ENG-0072": {
       "status": "found",
@@ -11046,7 +11050,8 @@
       "score": 29,
       "bytes": 8555,
       "materialTitle": "라이팅 와이즈 Lv.2-2",
-      "publisher": "좋은책신사고"
+      "publisher": "좋은책신사고",
+      "verifiedAt": "2026-06-24T20:21:52.969Z"
     },
     "IH-ENG-0105": {
       "status": "no_cover_real",
@@ -14936,7 +14941,8 @@
       "isbn": "9788954787291",
       "materialTitle": "EBS Step by Step 초등 영문법, 독해의 힘! LEVEL 1",
       "publisher": "EBS한국교육방송공사",
-      "bytes": 44033
+      "bytes": 44033,
+      "verifiedAt": "2026-06-24T20:22:17.782Z"
     },
     "IH-ENG-1067": {
       "status": "found",
@@ -15626,7 +15632,8 @@
       "isbn": "9788927741480",
       "materialTitle": "시험에 강한 중학영문법 1",
       "publisher": "다락원",
-      "bytes": 31630
+      "bytes": 31630,
+      "verifiedAt": "2026-06-24T20:22:24.281Z"
     },
     "IH-ENG-1137": {
       "status": "found",
@@ -15976,7 +15983,8 @@
       "isbn": "9788927708919",
       "materialTitle": "내신공략 중학영문법 2: 개념이해책",
       "publisher": "다락원",
-      "bytes": 31211
+      "bytes": 31211,
+      "verifiedAt": "2026-06-24T20:22:21.039Z"
     },
     "IH-ENG-1172": {
       "status": "found",
@@ -17546,7 +17554,8 @@
       "isbn": "9788974577087",
       "materialTitle": "초등 첫 영문법 문법이 쓰기다 Starter 2",
       "publisher": "키출판사",
-      "bytes": 54445
+      "bytes": 54445,
+      "verifiedAt": "2026-06-24T20:22:07.790Z"
     },
     "IH-ENG-1331": {
       "status": "found",
@@ -17556,7 +17565,8 @@
       "isbn": "9788974577070",
       "materialTitle": "초등 첫 영문법 문법이 쓰기다 Starter 1",
       "publisher": "키출판사",
-      "bytes": 54150
+      "bytes": 54150,
+      "verifiedAt": "2026-06-24T20:22:04.305Z"
     },
     "IH-ENG-1332": {
       "status": "found",
@@ -18696,7 +18706,8 @@
       "isbn": "9791162403969",
       "materialTitle": "자이스토리 중등 영어 독해 기본 2",
       "publisher": "수경출판사",
-      "bytes": 36775
+      "bytes": 36775,
+      "verifiedAt": "2026-06-24T20:21:45.321Z"
     },
     "IH-ENG-1447": {
       "status": "found",
@@ -18946,7 +18957,8 @@
       "isbn": "9791162403259",
       "materialTitle": "자이스토리 예비 중등 영어 독해 Level 1",
       "publisher": "수경출판사",
-      "bytes": 46523
+      "bytes": 46523,
+      "verifiedAt": "2026-06-24T20:21:42.076Z"
     },
     "IH-ENG-1472": {
       "status": "found",
@@ -19966,7 +19978,8 @@
       "isbn": "9788927707882",
       "materialTitle": "내공 중학영어독해 실력 1",
       "publisher": "다락원",
-      "bytes": 39571
+      "bytes": 39571,
+      "verifiedAt": "2026-06-24T20:21:38.658Z"
     },
     "IH-ENG-1575": {
       "status": "found",
@@ -21236,7 +21249,8 @@
       "isbn": "9788954778664",
       "materialTitle": "EBS 초등 영어듣기평가 완벽대비 4-2(2024)",
       "publisher": "한국교육방송공사(EBSi)",
-      "bytes": 46953
+      "bytes": 46953,
+      "verifiedAt": "2026-06-24T20:21:21.717Z"
     },
     "IH-ENG-1702": {
       "status": "found",
@@ -26396,7 +26410,8 @@
       "isbn": "9791174670151",
       "materialTitle": "기적의 영단어 Quick & Easy 기본 2",
       "publisher": "길벗스쿨",
-      "bytes": 48434
+      "bytes": 48434,
+      "verifiedAt": "2026-06-24T20:21:35.415Z"
     },
     "IH-ENG-2260": {
       "status": "found",
@@ -27496,7 +27511,8 @@
       "isbn": "9788928328758",
       "materialTitle": "빈출도순으로 빠르게 마스터하는 초빈출 영단어 중학 발전",
       "publisher": "좋은책신사고",
-      "bytes": 56181
+      "bytes": 56181,
+      "verifiedAt": "2026-06-24T20:21:56.402Z"
     },
     "IH-ENG-2371": {
       "status": "found",
@@ -27516,7 +27532,8 @@
       "isbn": "9788928328765",
       "materialTitle": "빈출도순으로 빠르게 마스터하는 초빈출 영단어 중학 고난도",
       "publisher": "좋은책신사고",
-      "bytes": 58089
+      "bytes": 58089,
+      "verifiedAt": "2026-06-24T20:22:31.119Z"
     },
     "IH-ENG-2373": {
       "status": "found",
@@ -29256,7 +29273,8 @@
       "isbn": "9791174670458",
       "materialTitle": "기적의 영어리딩 1B with 파닉스",
       "publisher": "길벗스쿨",
-      "bytes": 51361
+      "bytes": 51361,
+      "verifiedAt": "2026-06-24T20:21:25.141Z"
     },
     "IH-ENG-2550": {
       "status": "found",
@@ -30606,7 +30624,8 @@
       "isbn": "9791189719463",
       "materialTitle": "중학 영어 구문이 독해다 Starter",
       "publisher": "키출판사",
-      "bytes": 70307
+      "bytes": 70307,
+      "verifiedAt": "2026-06-24T20:21:59.827Z"
     },
     "IH-ENG-2690": {
       "status": "found",
@@ -30716,7 +30735,8 @@
       "isbn": "9788917224214",
       "materialTitle": "연타 중학 영어 구문+독해 Level 1",
       "publisher": "YBM",
-      "bytes": 21370
+      "bytes": 21370,
+      "verifiedAt": "2026-06-24T20:22:11.037Z"
     },
     "IH-ENG-2701": {
       "status": "found",
@@ -30996,7 +31016,8 @@
       "isbn": "9791164067527",
       "materialTitle": "기적의 영어문장 쓰기 1",
       "publisher": "길벗스쿨",
-      "bytes": 44761
+      "bytes": 44761,
+      "verifiedAt": "2026-06-24T20:21:31.991Z"
     },
     "IH-ENG-2729": {
       "status": "found",
@@ -33146,7 +33167,8 @@
       "isbn": "9788917224245",
       "materialTitle": "연타 중학 영어 문법+쓰기 Level 1",
       "publisher": "YBM",
-      "bytes": 20263
+      "bytes": 20263,
+      "verifiedAt": "2026-06-24T20:22:14.325Z"
     },
     "IH-ENG-2955": {
       "status": "found",
@@ -43206,7 +43228,8 @@
       "isbn": "9788928349692",
       "materialTitle": "Grammar Wise 그래머 와이즈 Level 1(2024)",
       "publisher": "좋은책신사고",
-      "bytes": 28177
+      "bytes": 28177,
+      "verifiedAt": "2026-06-24T20:21:48.576Z"
     },
     "IH-ENG-3987": {
       "status": "found",
@@ -56516,7 +56539,8 @@
       "isbn": "9791129700384",
       "materialTitle": "메가스터디 중학영어듣기 모의고사 24회 Level 1",
       "publisher": "메가북스",
-      "bytes": 63923
+      "bytes": 63923,
+      "verifiedAt": "2026-06-24T20:22:27.683Z"
     },
     "IH-ENG-5389": {
       "status": "found",
@@ -81654,7 +81678,8 @@
       "isbn": "9791157686544",
       "materialTitle": "가장 쉬운 초등 영어일기 따라쓰기 30일 완성",
       "publisher": "동양북스",
-      "bytes": 61284
+      "bytes": 61284,
+      "verifiedAt": "2026-06-24T20:21:28.571Z"
     },
     "IH-ENG-8124": {
       "status": "found",
