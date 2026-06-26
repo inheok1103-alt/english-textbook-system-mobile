@@ -80,10 +80,74 @@ function extractLexile(t) {
 const sitCount = {};
 const weakCount = {};
 const skillSet = new Set();
+const goalSet = new Set();
+const timingSet = new Set();
 // 성인(시험/실용) 재분류 — 토익/토플/텝스/공무원/편입/비즈니스 등
 function isAdultTitle(m) { return /토익|toeic|토플|toefl|텝스|teps|오픽|opic|아이엘츠|ielts|공무원|편입|비즈니스|business|gre|gmat|\bsat\b|성인/i.test((m.title || "") + " " + (m.kobicCategory || "")); }
 function gradeBandAdj(m) { if (isMajor(m)) return "대학/전공"; return isAdultTitle(m) ? "성인" : gradeBand(m); }
 function ageBandAdj(m) { if (isMajor(m)) return "대학(20+)"; return isAdultTitle(m) ? "성인(19+)" : ageBandOf(m); }
+
+// ====== 학부모 언어 "목표(상황) × 시기" 자동 태깅 ======
+// 9,474권 전부에 부여 → 추천이 동점/가나다순으로 무너지는 '무지성' 현상 제거.
+// 교재 잘 모르는 학부모가 떠올리는 말로 축을 다시 깔고, 빌드 시점에 전부 채운다.
+const GOAL_ORDER = ["영어 첫걸음", "학교영어 따라가기", "독해 늘리기", "문법 잡기", "말하기·회화", "듣기", "어휘 늘리기", "쓰기·서술형", "원서 읽기", "내신 대비", "수능·모의고사", "시험영어(토익·토플)"];
+const TIMING_ORDER = ["기초 입문", "학기중 꾸준히", "방학 단기집중", "시험 직전"];
+function deriveGoals(m, skill, level, band) {
+  const t = (m.title || "") + " " + (m.kobicCategory || "") + " " + (m.category || "");
+  const has = (re) => re.test(t);
+  const g = new Set();
+  // ① 스킬 기반(신뢰도 최상)
+  if (skill === "파닉스") g.add("영어 첫걸음");
+  if (skill === "독해") g.add("독해 늘리기");
+  if (skill === "문법" || skill === "구문") g.add("문법 잡기");
+  if (skill === "말하기") g.add("말하기·회화");
+  if (skill === "듣기") g.add("듣기");
+  if (skill === "어휘") g.add("어휘 늘리기");
+  if (skill === "쓰기") g.add("쓰기·서술형");
+  if (skill === "모의/기출") g.add("수능·모의고사");
+  // ② 제목/분류 기반 보강(한 책이 여러 목표를 가질 수 있음)
+  if (has(/파닉스|phonics|알파벳|사이트\s*워드|sight\s*word|첫\s*걸음|왕초보|쌩초보|기초\s*영어|입문/i)) g.add("영어 첫걸음");
+  if ((band === "초등" || band === "중등") && has(/교과서|학교\s*영어|내신\s*기초|초등\s*영어|예비\s*중|중학\s*기초|기초\s*튼튼/i)) g.add("학교영어 따라가기");
+  if (has(/독해|리딩|reading|리더스|reader|장문|구문\s*독해|지문/i)) g.add("독해 늘리기");
+  if (has(/문법|어법|grammar|그래머|영문법/i)) g.add("문법 잡기");
+  if (has(/회화|스피킹|speaking|conversation|말하기|spoken|패턴\s*영어/i)) g.add("말하기·회화");
+  if (has(/듣기|리스닝|listening|받아쓰기|dictation/i)) g.add("듣기");
+  if (has(/어휘|단어|보카|voca|vocab|어원|숙어|word\s*master|영단어/i)) g.add("어휘 늘리기");
+  if (has(/영작|쓰기|writing|서술형|작문|에세이|essay|영어\s*일기/i)) g.add("쓰기·서술형");
+  if (m.foreign || has(/원서|리더스|챕터북|chapter\s*book|오알티|\bort\b|리딩북|graded\s*reader|뉴베리|newbery|classic|명작/i)) g.add("원서 읽기");
+  if (has(/내신|중간고사|기말고사|학교\s*시험|서술형\s*대비|학교별/i)) g.add("내신 대비");
+  if (has(/수능|모의고사|모평|수능특강|수능완성|\bebs\b|평가원|빈칸\s*추론|고난도\s*독해/i)) g.add("수능·모의고사");
+  if (/토익|toeic|토플|toefl|텝스|teps|오픽|opic|아이엘츠|ielts|공무원|편입|비즈니스|business|\bgre\b|\bgmat\b|\bsat\b/i.test(t)) g.add("시험영어(토익·토플)");
+  // ③ 폴백 — 그래도 비면 레벨로 기본값(절대 빈 채로 두지 않음)
+  if (!g.size) g.add(level <= 2 ? "영어 첫걸음" : "독해 늘리기");
+  return Array.from(g);
+}
+function deriveTiming(m, skill, level) {
+  const t = (m.title || "") + " " + (m.kobicCategory || "") + " " + (m.category || "");
+  const has = (re) => re.test(t);
+  const ti = new Set();
+  if (skill === "모의/기출" || has(/기출|모의고사|모평|실전|파이널|\bfinal\b|적중|봉투|봉모|직전|마무리|총정리|단기\s*특강|벼락/i)) ti.add("시험 직전");
+  if (has(/하루\s*\d|\d+\s*일\s*완성|\d+\s*주\s*완성|단기|속성|집중|특강|방학|초단기|단숨|벼락치기/i)) ti.add("방학 단기집중");
+  if (skill === "파닉스" || level <= 1 || has(/입문|첫\s*걸음|왕초보|쌩초보|기초|starter|스타터|begin|예비|preschool|유아|병아리/i)) ti.add("기초 입문");
+  // 정규 코스북/시리즈 또는 위 셋 중 어디에도 안 걸리면 → 학기중 꾸준히(가장 흔한 실제 모드)
+  if (!ti.size || has(/코스북|시리즈|series|course|레벨|level\s*\d|book\s*\d|단계|grade\s*\d|주교재|정규/i)) ti.add("학기중 꾸준히");
+  return Array.from(ti);
+}
+// 학부모 대상이 아닌 교사용·교육학 이론서(추천에서 제외) — 학생 학습교재가 아님
+const TEACHER_RE = /교수법|교육학|영어교육론|교육론|교재론|교사를\s*위한|교사용|\(교사\)|지도서|학습지도안|수업의\s*모든\s*것|심층분석|평가의\s*이해|원리와\s*실제|교실기반|과제기반|페다고지|교직과정|교생실습|teacher.?s?\s*(guide|book|edition|manual)/i;
+// 내재 품질점수 q(0~100 근방) — 최신성 + 상품성. popMap이 비어도 추천이 가나다순으로 무너지지 않게 하는 결정적 타이브레이커
+function qualityScore(m, hasCover, teacherRef) {
+  let q = 50;
+  const t = (m.title || "") + " " + (m.kobicCategory || "");
+  const y = +(String(m.pubDate || "").match(/(19|20)\d\d/) || [])[0] || 0;
+  if (y >= 2024) q += 24; else if (y >= 2021) q += 18; else if (y >= 2018) q += 11; else if (y >= 2014) q += 4;
+  else if (y && y < 2008) q -= 26; else if (y && y < 2012) q -= 14;       // 2007 PELT 등 구버전 침몰
+  if (hasCover) q += 6;                                                    // 실제 유통 상품성
+  if (teacherRef) q -= 60;                                                 // 교사·이론서 강한 감점
+  if (/\bPELT\b|초등.*\bJET\b|중등.*\bJET\b|구\s*수능|구버전/i.test(t)) q -= 22;  // 폐지·구 시험
+  if (/level\s*\d|book\s*\d|step\s*\d|\b\d\s*급|stage\s*\d/i.test(t)) q += 5;     // 정규 코스북 신뢰
+  return Math.max(0, Math.min(100, q));
+}
 // 영어 교재만 — 비영어(북트리거 인문/과학/문학 등) domain 제외
 const englishOnly = master.materials.filter((m) => m.domain === "영어");
 const MASTER_DATA = englishOnly.map((m) => {
@@ -91,15 +155,27 @@ const MASTER_DATA = englishOnly.map((m) => {
   const info = images[uid] || {};
   const hasCover = !!info.localPath;
   const skill = normSkill(m.skill);
+  const level = toLevel(m.tftNums);
+  const band = gradeBandAdj(m);
   skillSet.add(skill);
   (m.situations || []).forEach((s) => { sitCount[s] = (sitCount[s] || 0) + 1; });
   (m.weaknesses || []).forEach((s) => { weakCount[s] = (weakCount[s] || 0) + 1; });
+  const goals = deriveGoals(m, skill, level, band);
+  const timing = deriveTiming(m, skill, level);
+  goals.forEach((x) => goalSet.add(x));
+  timing.forEach((x) => timingSet.add(x));
+  const teacherRef = TEACHER_RE.test((m.title || "") + " " + (m.kobicCategory || ""));
+  const q = qualityScore(m, hasCover, teacherRef);
   return {
     id: uid,
     pub: m.publisher || "",
     title: m.title || "",
     skill,
-    level: toLevel(m.tftNums),
+    level,
+    goals,                                          // 학부모 언어 목표(상황) 태그 — 전 카탈로그
+    timing,                                         // 학습 시기 태그 — 전 카탈로그
+    q,                                              // 내재 품질점수(최신성+상품성) — 추천 타이브레이커
+    teacherRef,                                     // 교사용/이론서 → 학부모 추천 제외
     tags: (m.situations || []).slice(0, 3).map((s) => "#" + s),
     situations: m.situations || [],
     weaknesses: m.weaknesses || [],
@@ -136,6 +212,8 @@ const TABS = {
   weakness: ["전체"].concat(topWeak),
   grade: ["전체", "유아/예비초", "초등", "중등", "고등", "성인", "대학/전공"],
   age: ["전체", "유아(5-7)", "초등저(8-10)", "초등고(11-13)", "중등(13-16)", "고등(16-19)", "성인(19+)", "대학(20+)"],
+  goal: ["전체"].concat(GOAL_ORDER.filter((x) => goalSet.has(x))),
+  timing: ["전체"].concat(TIMING_ORDER.filter((x) => timingSet.has(x))),
 };
 
 // 정렬: 한글 가나다 → 영어 ABC → 기타
@@ -159,6 +237,11 @@ fs.writeFileSync(OUT, out, "utf8");
 fs.writeFileSync(path.join(DATA, "materials_app.json"), JSON.stringify(MASTER_DATA, null, 1), "utf8");
 
 const withCover = MASTER_DATA.filter((b) => b.cover).length;
+const withGoal = MASTER_DATA.filter((b) => b.goals && b.goals.length).length;
+const withTiming = MASTER_DATA.filter((b) => b.timing && b.timing.length).length;
 console.log(`생성: ${OUT}`);
 console.log(`교재 ${MASTER_DATA.length}종 / 실표지 ${withCover}종 / 스킬 ${orderedSkills.length}종`);
 console.log(`스킬: ${orderedSkills.join(", ")}`);
+console.log(`목표 태그: ${withGoal}종(${(100 * withGoal / MASTER_DATA.length).toFixed(1)}%) / 시기 태그: ${withTiming}종(${(100 * withTiming / MASTER_DATA.length).toFixed(1)}%)`);
+console.log(`목표축: ${TABS.goal.slice(1).join(", ")}`);
+console.log(`시기축: ${TABS.timing.slice(1).join(", ")}`);
