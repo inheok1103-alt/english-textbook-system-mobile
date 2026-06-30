@@ -1242,7 +1242,7 @@
         function popOf(b){ return (window.__popMap&&window.__popMap[b.id])||(b.pop?Math.min(40,b.pop/2500):0); }   // 서버 없을 때 알라딘 판매지수로 폴백
         // 알라딘 판매지수(SalesPoint) → 로그 스케일 인기점수(0~32). 베스트셀러일수록 높게(추천 인기반영의 핵심)
         function popScore(b){ const srv=window.__popMap&&window.__popMap[b.id]; if(srv) return Math.min(38, srv*0.6); const sp=b.pop||0; return sp>0? Math.min(32, Math.log10(sp+1)*6.5) : 0; }
-        function popMult(){ return state.recSort==='pop' ? 2.6 : 1; }   // '인기 우선'이면 판매량이 정렬을 지배
+        function popMult(){ return state.recSort==='pop' ? 3 : 1.7; }   // 판매량·인기를 철저히 반영(맞춤순에서도 큰 가중)
         function priceStr(b){ return b.price? ('₩'+Number(b.price).toLocaleString('ko-KR')) : ''; }
         function isNew(b){ const m=String(b.pubDate||'').match(/(20\d\d)\D*(\d{1,2})?/); if(!m) return false; const y=+m[1], mo=+(m[2]||1); const d=new Date(); const months=(d.getFullYear()-y)*12+(d.getMonth()+1-mo); return months>=0 && months<=6; }
         function ratingOf(b){ return (window.__ratingMap&&window.__ratingMap[b.id])||null; }
@@ -1327,7 +1327,7 @@
                 if(!audienceOk(b)) return null;                                   // 트랙(학생/학부모/임용) 오디언스 필터
                 if(ctx.grade && b.gradeBand!==ctx.grade && gradeAdj(b.gradeBand,ctx.grade)>=2) return null;  // 학년 크게 벗어나면 제외
                 const cs=ctxScore(b,ctx); let s=cs.s;
-                const ld=Math.abs((b.level||3)-wantLv); s+=(ld===0?16:ld===1?8:ld===2?0:-10);
+                const ld=Math.abs((b.level||3)-wantLv); s+=(ld===0?24:ld===1?13:ld===2?-2:-16);   // 난이도 적합 강하게
                 s+=((b.q!=null?b.q:50)-50)*0.45;                                  // 내재 품질(최신성+상품성) → 가나다 동점 해소
                 s+=popScore(b)*popMult();                                         // 알라딘 판매지수 인기 가산('인기 우선'이면 ×2.6)
                 const rg=ratingOf(b); if(rg&&rg.count){ s+=(rg.grade==='A'?10:rg.grade==='B'?6:rg.grade==='C'?2:0); }
@@ -1349,11 +1349,11 @@
         // ── 오디언스 트랙(학생용/학부모용/임용준비) ──
         function renderTrackToggle(){
             const box=document.getElementById('trackToggle'); if(!box) return;
-            const TR=[['student','🧒 학생용','학생이 풀 교재'],['parent','👩‍🏫 학부모용','부모가 보는 책(엄마표·공부법)'],['exam','🎓 임용준비','교원임용 영어 전공·교육론']];
+            const TR=[['student','🧒 학생용','학생이 풀 교재'],['parent','👩‍🏫 학부모용','부모가 보는 책(엄마표·공부법)'],['exam','🎓 임용·공무원','임용·공무원·전공 시험 영어']];
             const sortBtn=(v,lab)=>`<button onclick="setRecSort('${v}')" title="${v==='pop'?'알라딘 판매량 많은 순':'우리 아이 맞춤 적합도 순'}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${state.recSort===v?'bg-accent text-slate-900':'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'}">${lab}</button>`;
             box.innerHTML=TR.map(([t,lab,desc])=>`<button onclick="setTrack('${t}')" title="${desc}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${state.track===t?'bg-brand text-slate-900':'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'}">${lab}</button>`).join('')
                +`<span class="w-px h-5 bg-slate-700 mx-1 self-center inline-block"></span>`+sortBtn('fit','🎯 맞춤순')+sortBtn('pop','🔥 인기순')
-               +`<span class="text-[10px] text-slate-500 ml-1 self-center">${state.recSort==='pop'?'← 판매량 많은 순':'← 우리 아이 맞춤'}</span>`;
+               +`<span class="text-[10px] text-slate-500 ml-1 self-center">${state.recSort==='pop'?'← 판매량·인기 순':'← 난이도·맞춤'}</span>`;
         }
         function setTrack(t){ state.track=t; state.recCurrent=null; renderRecView(); }
         function setRecSort(v){ state.recSort=v; renderRecView(); showToast(v==='pop'?'🔥 인기(판매량) 우선으로':'🎯 맞춤(적합도) 우선으로'); }
@@ -1379,7 +1379,7 @@
                 const recs=trackPoolRec();
                 const head = state.track==='parent'
                     ? {t:'👩‍🏫 학부모 공부용', d:'아이를 가르치려 부모가 읽는 책 — 엄마표 영어·학습법·코칭'}
-                    : {t:'🎓 임용준비(영어)', d:'교원임용 영어 — 전공영어·영어교육론·영미문학·기출 (최신순)'};
+                    : {t:'🎓 임용·공무원 시험영어', d:'교원임용·공무원·전공 시험 영어 — 일반 학습 추천에서 분리 (인기·최신순)'};
                 wrap.innerHTML=bb+`<div class="mb-2"><div class="text-sm font-bold text-white">${head.t} <span class="text-[11px] text-brand font-normal">${recs.length}종</span></div><div class="text-[11px] text-slate-400">${head.d}</div></div>`+
                     `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">${recs.map(x=>recCard(x.b,x.why)).join('')||'<div class="text-xs text-slate-500 col-span-full">해당 트랙 교재가 아직 없습니다.</div>'}</div>`;
                 if(typeof lucide!=='undefined') lucide.createIcons();

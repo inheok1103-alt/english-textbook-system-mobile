@@ -146,9 +146,10 @@ function deriveTiming(m, skill, level) {
 // 원서(수입 영어책) 제목 시그널 — KOBIC foreign 플래그가 누락한 유명 원서 시리즈를 제목으로 재산정
 const FOREIGN_TITLE_RE = /bookworms|penguin\s*readers|oxford\s*reading\s*tree|뉴베리|newbery|usborne|scholastic|step\s*into\s*reading|i\s*can\s*read|ready[-\s]*to[-\s]*read|magic\s*tree\s*house|graded\s*reader|chapter\s*book|caldecott|dr\.?\s*seuss|cambridge\s*english\s*readers|macmillan\s*readers|compass\s*classic|little\s*fox|raz[-\s]*kids|reading\s*a-?z/i;
 // 오디언스 분류(학생용 추천에서 제외, 각자 트랙으로 분리)
-// ① 교사용·교육학 이론서  ② 임용고시(교원임용) 준비서  ③ 학부모 공부용(부모가 읽는 책)
+// ① 교사용·교육학 이론서  ② 임용·공무원 등 전문시험 준비서  ③ 학부모 공부용(부모가 읽는 책)
 const TEACHER_RE = /교수법|교육학|교육론|교재론|교사를\s*위한|교사용|\(교사\)|지도서|학습지도안|수업의\s*모든\s*것|심층분석|평가의\s*이해|원리와\s*실제|교실기반|과제기반|페다고지|교직과정|교생실습|teacher.?s?\s*(guide|book|edition|manual)/i;
-const EXAM_PREP_RE = /임용고시|임용\s*시험|임용\s*기출|교원\s*임용|[중초]등\s*임용|영어\s*임용|임용\s*영어|\b임용\b|임고|영어교육론|영어과\s*교육과정|교과교육론|전공영어|일반영어\s*영미문학/i;
+// 임용(교원) + 공무원·군무원·경찰·소방 등 전문직 시험 영어 — 일반 학습자/학부모 추천에서 제외
+const EXAM_PREP_RE = /임용고시|임용\s*시험|임용\s*기출|교원\s*임용|[중초]등\s*임용|영어\s*임용|임용\s*영어|\b임용\b|임고|영어교육론|영어과\s*교육과정|교과교육론|전공영어|일반영어\s*영미문학|공무원|군무원|\b[79]급\b|경찰\s*공무원|소방\s*공무원|순경|경찰직|소방직|국가직|지방직|교정직|세무직|공시\s*영어|공단기|공도리/i;
 const PARENT_RE = /공부법|학습법|교육법|영어\s*육아|입시\s*설명회?|학습\s*코칭|영어\s*코칭|영어\s*멘토링|학습\s*노하우|암기\s*노하우|가르치는\s*법|미래형\s*엄마표|엄마표\s*영어|엄마가\s*(가르치는|알려주는|먼저|알아야)|아빠표\s*영어로|강남\s*엄마|따라잡는\s*초등영어|부모를?\s*위한|학부모|자녀\s*영어\s*교육/i;
 // 내재 품질점수 q(0~100 근방) — 최신성 + 상품성. popMap이 비어도 추천이 가나다순으로 무너지지 않게 하는 결정적 타이브레이커
 function qualityScore(m, hasCover) {
