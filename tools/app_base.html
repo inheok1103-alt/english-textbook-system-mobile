@@ -353,6 +353,13 @@
         let GRID_COLS = TIME_UNITS.year.cols;   // 기본 = 1년(4분기)
         const PHASE_NAME = { 1:'기반', 2:'체화', 3:'실전' };
         const PHASE_LV   = { 1:[1,2,2], 2:[2,3,3], 3:[3,4,5] };
+        // 계획 기간별 목표 난이도 — 1달은 점프 금지(같은 수준 유지), 1분기는 완만(+0/+1/+2), 1년은 3단계 상승
+        function planMidLv(phase){
+            const base = state.curLevel ? +state.curLevel : 2;
+            if(TIME_UNIT==='month')   return base;                                  // 4주에 입문→실전 점프는 비현실적
+            if(TIME_UNIT==='quarter') return Math.min(5, Math.max(1, base + (phase-1)));
+            return state.curLevel ? Math.min(5, base + (phase-1)) : PHASE_LV[phase][1];
+        }
         // 컬럼 메타: 단계는 위치비율(전체의 1/3씩)로 추정 → PHASE_LV 매핑. 라벨은 단위별.
         function colMeta(c){
             const phase = Math.min(3, Math.floor((GRID_COLS>1 ? c/GRID_COLS : 0)*3)+1);
@@ -366,9 +373,12 @@
             if(!TIME_UNITS[unit]) return;
             const oldCols=GRID_COLS, newCols=TIME_UNITS[unit].cols;
             if(unit!==TIME_UNIT){
+                const placedBefore=gridPlaced().length;
                 const ng={}; GRID_ROWS.forEach(s=>ng[s]=new Array(newCols).fill(null));
                 GRID_ROWS.forEach(s=>{ (state.grid[s]||[]).forEach((uid,c)=>{ if(!uid) return; let nc=oldCols>1?Math.round(c/(oldCols-1)*(newCols-1)):0; nc=Math.max(0,Math.min(newCols-1,nc)); while(nc<newCols && ng[s][nc]) nc++; if(nc<newCols) ng[s][nc]=uid; }); });
                 state.grid=ng; GRID_COLS=newCols; TIME_UNIT=unit;
+                const dropped=placedBefore-gridPlaced().length;
+                if(dropped>0) showToast(`⚠ 칸이 줄어 ${dropped}권이 빠졌어요. 더 긴 기간으로 바꾸면 유지됩니다.`, true);
             }
             const sel=document.getElementById('timeUnitSel'); if(sel) sel.value=unit;
             renderPipeline(); renderDB();
@@ -819,11 +829,12 @@
             let filled=0;
             GRID_CORE.forEach(skill=>{
                 for(let phase=1; phase<=3; phase++){
-                    const colStart=(phase-1)*4;
-                    if(state.grid[skill].slice(colStart,colStart+4).some(x=>x)) continue;  // 이 단계에 이미 있음
-                    let targetCol=-1; for(let c=colStart;c<colStart+4;c++){ if(!state.grid[skill][c]){ targetCol=c; break; } }
-                    if(targetCol<0) continue;
-                    const lv=PHASE_LV[phase], midLv=lv[1];
+                    const pcols=[]; for(let c=0;c<GRID_COLS;c++) if(colMeta(c).phase===phase) pcols.push(c);  // 단계에 속한 실제 칸(동적)
+                    if(!pcols.length) continue;
+                    if(pcols.some(c=>state.grid[skill][c])) continue;  // 이 단계에 이미 있음
+                    const targetCol=pcols.find(c=>!state.grid[skill][c]);
+                    if(targetCol==null) continue;
+                    const midLv=planMidLv(phase), lv=PHASE_LV[phase];
                     const rs=gridRowSeq(skill).filter(x=>x.col<targetCol); const prev=rs.length?rs[rs.length-1].book:null;
                     const cands=MASTER_DATA.filter(b=>b.skill===skill && audienceOk(b) && !gridIsPlaced(b.id) && b.status!=='절판'
                             && (!state.curGrade || b.gradeBand===state.curGrade || gradeAdj(b.gradeBand,state.curGrade)<=1)).map(b=>{
@@ -860,8 +871,8 @@
         // 빈 셀(영역×시점) 클릭 → 학생(학년·수준)에 맞는 교재 추천. 교사용·이론서 제외 + 최신성 + 시리즈 중복 제거
         function recommendForCell(skill, col){
             if(!state.curGrade){ openModal('학년을 먼저 골라주세요', studentPickerHtml(skill, col)); if(typeof lucide!=='undefined') lucide.createIcons(); return; }
-            const m=colMeta(col), lv=PHASE_LV[m.phase], midLv=lv[1];
-            const wantLv = state.curLevel ? Math.round((+state.curLevel + midLv)/2) : midLv;   // 학생 수준 ⊕ 칸 단계
+            const m=colMeta(col), lv=PHASE_LV[m.phase];
+            const wantLv = planMidLv(m.phase);   // 계획기간·학생수준 반영(1달=점프금지)
             const rs=gridRowSeq(skill).filter(x=>x.col<col); const prev=rs.length?rs[rs.length-1].book:null;
             const cands=MASTER_DATA.filter(b=>b.skill===skill && audienceOk(b) && !gridIsPlaced(b.id) && b.status!=='절판'
                     && (b.gradeBand===state.curGrade || gradeAdj(b.gradeBand,state.curGrade)<=1)).map(b=>{
