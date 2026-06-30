@@ -138,9 +138,9 @@
                 <div class="flex justify-between items-end border-b border-slate-700 pb-3 mb-4 flex-shrink-0">
                     <div>
                         <h2 class="font-bold text-lg sm:text-xl mb-1 flex items-center gap-2 text-white">
-                            <i data-lucide="network" class="text-brand w-5 h-5"></i> 인지 커리큘럼 (영역×시간)
+                            <i data-lucide="network" class="text-brand w-5 h-5"></i> 우리 아이 영어 계획표 (영역 × 시간)
                         </h2>
-                        <p class="text-[11px] sm:text-xs text-slate-400">가로=시간 진행 / 세로=4대영역. 빈 칸을 누르면 그 자리에 맞는 교재를 추천합니다.</p>
+                        <p class="text-[11px] sm:text-xs text-slate-400">가로=시간 흐름 / 세로=영어 영역. 빈 칸을 누르면 그 자리에 맞는 교재를 추천해요.</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <select id="timeUnitSel" onchange="setTimeUnit(this.value)" title="계획 기간" class="bg-slate-900 border border-slate-600 text-white text-[11px] rounded-lg px-2 py-1.5 font-bold"><option value="month">📅 1달 계획(4주)</option><option value="quarter">📅 1분기 계획(3개월)</option><option value="year" selected>📅 1년 계획(4분기)</option></select>
@@ -193,7 +193,7 @@
                     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-white"></span> 정상 흐름</div>
                     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_red]"></span> 난이도 급상승 (과부하 위험)</div>
                     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-warn shadow-[0_0_8px_orange]"></span> 난이도 역행</div>
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-accent animate-pulse"></span> 스킬 병목 (한 분기 내 중복)</div>
+                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-accent animate-pulse"></span> 같은 영역 겹침 (한 시기에 중복)</div>
                     <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border-2 border-red-500"></span> 빈 4대영역</div>
                 </div>
             </div>
@@ -351,7 +351,7 @@
             year:    { cols:4, ko:'1년',  desc:'1년 계획 — 4분기(1칸=1분기)' },
         };
         let GRID_COLS = TIME_UNITS.year.cols;   // 기본 = 1년(4분기)
-        const PHASE_NAME = { 1:'기반', 2:'체화', 3:'실전' };
+        const PHASE_NAME = { 1:'시작', 2:'다지기', 3:'실전' };
         const PHASE_LV   = { 1:[1,2,2], 2:[2,3,3], 3:[3,4,5] };
         // 계획 기간별 목표 난이도 — 1달은 점프 금지(같은 수준 유지), 1분기는 완만(+0/+1/+2), 1년은 3단계 상승
         function planMidLv(phase){
@@ -452,13 +452,13 @@
             let base=_CHEM.FLOW[p+'>'+c];
             if(base===undefined) return {score:0,reason:''};
             if(base>0 && !(dl>=0&&dl<=1)) base=Math.round(base*0.5);
-            return {score:base, reason: base>=50?(p+'→'+c+' 정석 연계'):(base<=-50?(p+'→'+c+' 처리위계 위반'):'')};
+            return {score:base, reason: base>=50?(p+'→'+c+' 자연스러운 순서'):(base<=-50?(p+'→'+c+' 순서가 거꾸로'):'')};
         }
         function _levelDelta(dl,same,flowPos){
             let s,r;
-            if(dl>=3){s=-85;r='i+3↑ 좌절(이해 붕괴)';} else if(dl===2){s=-30;r='+2 병목';}
-            else if(dl===1){s=28;r='i+1 최적 도전';} else if(dl===0){s=10;r='자동화 굳히기';}
-            else if(dl===-1){s=-18;r='역행 1단계';} else {s=-55;r='역행 2단계↑ 단절';}
+            if(dl>=3){s=-85;r='너무 어려움(3단계+ 점프)';} else if(dl===2){s=-30;r='두 단계 점프(버거움)';}
+            else if(dl===1){s=28;r='딱 한 단계 위(적정 도전)';} else if(dl===0){s=10;r='같은 수준 굳히기';}
+            else if(dl===-1){s=-18;r='한 단계 쉬워짐';} else {s=-55;r='두 단계+ 쉬워짐(되돌이)';}
             if(dl===1&&flowPos) s=12;
             if(dl===0&&same) s=0;
             return {score:s,reason:r};
@@ -485,7 +485,7 @@
                 else if(dl===0&&cl>=4){score-=30;reasons.push('고레벨 제자리 정체');}
                 else if(dl===0){score+=10;}
             }
-            if(_CHEM.RECEPTIVE.includes(prev.skill)&&_CHEM.PRODUCTIVE.includes(cur.skill)&&Math.abs(dl)<=1){score+=15;reasons.push('수용→생산 전이');}
+            if(_CHEM.RECEPTIVE.includes(prev.skill)&&_CHEM.PRODUCTIVE.includes(cur.skill)&&Math.abs(dl)<=1){score+=15;reasons.push('읽기·듣기 → 말하기·쓰기 연결');}
             if(_CHEM.RECEPTIVE.includes(prev.skill)&&_CHEM.RECEPTIVE.includes(cur.skill)&&!same&&Math.abs(dl)<=1){score+=12;}
             if(Math.abs(gd)>=2){score-=55;reasons.push('학년대 2단계 점프');}
             else if(gd===1&&dl>=2){score-=25;reasons.push('학년대+레벨 이중점프');}
@@ -498,7 +498,7 @@
             else if(sameSeries&&!same&&Math.abs(dl)<=1){score+=12;}
             else if(samePub&&Math.abs(dl)<=1){score+=8;}
             if(prev.cefr&&cur.cefr){ const pi=_CHEM.CEFR_IDX[String(prev.cefr).toUpperCase()], ci=_CHEM.CEFR_IDX[String(cur.cefr).toUpperCase()]; if(pi!=null&&ci!=null){ const cd=ci-pi; if(cd>=2){score-=25;reasons.push('CEFR 2단계↑ 도약');} else if(cd<=-2){score-=20;} } }
-            if(highMode&&!same&&Math.abs(dl)<=1&&_CHEM.ELEMENT.includes(prev.skill)&&_CHEM.ELEMENT.includes(cur.skill)){score+=10;reasons.push('요소스킬 인터리빙');}
+            if(highMode&&!same&&Math.abs(dl)<=1&&_CHEM.ELEMENT.includes(prev.skill)&&_CHEM.ELEMENT.includes(cur.skill)){score+=10;reasons.push('어휘·문법 번갈아(섞어 학습)');}
             if(lowMode&&!same&&!_isComp(prev.skill,cur.skill)){score-=25;reasons.push('초보 무관스킬 점프');}
             if(Math.abs(dl)>=2) score=Math.min(score,30);
             score=Math.max(-100,Math.min(100,Math.round(score)));
@@ -974,12 +974,12 @@
             if(reviewDays.length===0) reviewDays=midDays.length?midDays.slice(-1):studyDays.slice(-1);
             if(midDays.length===0) midDays=studyDays.slice(-1);
             const reviewT=[];   // 간격복습 = '다시 읽기' 아닌 '인출(미니테스트)'
-            for(let p=1;p<=inp.lessons;p++) reviewT.push({passage:'본문 '+p+'과', step:'인출 복습(미니테스트)', est:24});
-            for(let x=1;x<=inp.external;x++) reviewT.push({passage:'외부지문 '+x, step:'인출 복습', est:18});
+            for(let p=1;p<=inp.lessons;p++) reviewT.push({passage:'본문 '+p+'과', step:'안 보고 다시 풀기(미니테스트)', est:24});
+            for(let x=1;x<=inp.external;x++) reviewT.push({passage:'외부지문 '+x, step:'안 보고 풀기', est:18});
             const sched=[];
             function pack(tasks, dys){ if(!dys.length) return; let di=0, used=0; tasks.forEach(t=>{ if(used+t.est>inp.daily && di<dys.length-1){ di++; used=0; } sched.push({date:nsFmt(dys[di]), passage:t.passage, step:t.step, est:t.est}); used+=t.est; }); }
             pack(study, studyDays); pack(reviewT, midDays); pack(final, reviewDays);
-            if(lastDay) sched.push({date:nsFmt(lastDay), passage:'전체', step:'최종 인출복습(미니 모의시험·신규학습 금지)', est:inp.daily});
+            if(lastDay) sched.push({date:nsFmt(lastDay), passage:'전체', step:'마지막 점검(안 보고 풀기·새 내용 금지)', est:inp.daily});
             // 실현성 — 총 분량 대비 가용일×하루분. 마지막날 폭주를 학부모가 사실로 믿지 않게.
             const dayTot={}; sched.forEach(t=>{ dayTot[t.date]=(dayTot[t.date]||0)+t.est; });
             const totEst=sched.reduce((n,t)=>n+t.est,0);
@@ -1244,7 +1244,7 @@
                 if(_seriesKey(b)&&_seriesKey(cur)&&_seriesKey(b)===_seriesKey(cur)){ s+=(band==='mid'?48:band==='high'?34:20); why.push('같은 시리즈 다음 권'); }
                 if(gap[b.skill]!=null){ s+=Math.max(0, 8-gap[b.skill]*4); if(gap[b.skill]===0) why.push('4대영역 보완'); }
                 if(band==='low' && b.skill===cur.skill){ s+=18; why.push('약점영역 보강'); }
-                if(band==='high'){ const flow={'문법':'구문','구문':'독해','독해':'쓰기','어휘':'독해'}; if(flow[cur.skill]===b.skill){s+=14;why.push('다음 인지단계');} }
+                if(band==='high'){ const flow={'문법':'구문','구문':'독해','독해':'쓰기','어휘':'독해'}; if(flow[cur.skill]===b.skill){s+=14;why.push('다음 단계 영역');} }
                 if(b.pub===cur.pub) s+=5;
                 const cs=ctxScore(b,ctx); s+=cs.s; cs.why.forEach(w=>why.push(w));   // 상황·학년·약점 가중치
                 return {b,s,why};
@@ -1327,9 +1327,9 @@
                 if(curCard) curCard.innerHTML=`<div class="flex gap-2 items-center bg-slate-900 border border-brand/40 rounded-lg p-2"><img src="${cur.cover||''}" class="w-8 h-11 object-cover rounded" onerror="this.style.display='none'"><div class="min-w-0 flex-1"><div class="text-sm font-bold text-white truncate">${cur.title}</div><div class="text-[11px] text-slate-400">${cur.pub} · ${cur.skill} · Lv${cur.level}${cur.cefr?(' · '+cur.cefr):''}</div></div><button onclick="state.recCurrent=null;renderRecView()" class="text-[10px] text-slate-400 hover:text-white flex-shrink-0">✕ 해제</button></div>`;
                 const ctxLabel=[ctx.grade,ctx.goal&&('🎯'+ctx.goal),ctx.timing&&('🗓'+ctx.timing)].filter(Boolean).join(' · ');
                 wrap.innerHTML=bb+(ctxLabel?`<div class="text-[11px] text-slate-400 mb-2">맞춤 조건 반영: <b class="text-brand">${ctxLabel}</b></div>`:'')+`<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    ${recCol('📈 80%+ · 심화','충분히 숙달 → i+1(크라센 i+1). 다음 CEFR/레벨로 도약','#10b981',cur,'high',ctx)}
-                    ${recCol('➡️ 60~79% · 체화','이해는 됐으나 정착 필요 → 같은 단계 다지기·시리즈 다음 권(자동화)','#0ea5e9',cur,'mid',ctx)}
-                    ${recCol('🔁 40%↓ · 보강','미흡 → 한 단계 낮춰 약점영역 재학습(ZPD 하향)','#f59e0b',cur,'low',ctx)}
+                    ${recCol('📈 80%+ · 도전','거의 다 맞혀요 → 한 단계 위 책으로 도전','#10b981',cur,'high',ctx)}
+                    ${recCol('➡️ 60~79% · 굳히기','이해는 됐지만 아직 안 익었어요 → 같은 수준 한 번 더(시리즈 다음 권)','#0ea5e9',cur,'mid',ctx)}
+                    ${recCol('🔁 40%↓ · 다지기','많이 틀려요 → 한 단계 쉬운 책으로 약한 부분 다지기','#f59e0b',cur,'low',ctx)}
                 </div>`;
             } else {
                 if(curCard) curCard.innerHTML='';
