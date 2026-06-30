@@ -407,6 +407,7 @@
             recGrade: '', recGoal: '', recTiming: '',   // 추천 컨텍스트(학년·목표·시기)
             curGrade: '', curLevel: '',   // 커리 그리드 학생 설정(학년·현재 수준) — 칸 추천이 이걸 따름
             track: 'student',   // 오디언스 트랙: student(학생용) / parent(학부모 공부용) / exam(임용준비)
+            recSort: 'fit',   // 추천 정렬: fit(맞춤 우선) / pop(인기·판매량 우선)
             basket: [],   // 담은 책(장바구니) — 그리드와 별개로 '살 책 목록'만 모음
             grid: gridInit()
         };
@@ -902,7 +903,7 @@
                 let s = 25 - Math.abs((b.level||3)-wantLv)*9;
                 if(b.gradeBand===state.curGrade) s+=22; else s-=14;                 // 학년 정확 매칭 우대
                 s += ((b.q!=null?b.q:50)-50)*0.4;                                   // 최신성·상품성 타이브레이커
-                s += Math.min(14, popOf(b)*0.4);
+                s += popScore(b)*(state.recSort==='pop'?2.2:0.8);   // 알라딘 판매지수 인기 반영
                 let chem=null; if(prev){ chem=chemistry(prev,b); s+=chem.score*0.5; }
                 return {b,s,chem};
             }).filter(x=>x.s>-40).sort((a,b)=>b.s-a.s);
@@ -1222,6 +1223,9 @@
         }
         // 인기/평점/표지/레벨로 동점을 풀어 '왜 이 책인지' 근거를 만든다(무지성 방지)
         function popOf(b){ return (window.__popMap&&window.__popMap[b.id])||(b.pop?Math.min(40,b.pop/2500):0); }   // 서버 없을 때 알라딘 판매지수로 폴백
+        // 알라딘 판매지수(SalesPoint) → 로그 스케일 인기점수(0~32). 베스트셀러일수록 높게(추천 인기반영의 핵심)
+        function popScore(b){ const srv=window.__popMap&&window.__popMap[b.id]; if(srv) return Math.min(38, srv*0.6); const sp=b.pop||0; return sp>0? Math.min(32, Math.log10(sp+1)*6.5) : 0; }
+        function popMult(){ return state.recSort==='pop' ? 2.6 : 1; }   // '인기 우선'이면 판매량이 정렬을 지배
         function priceStr(b){ return b.price? ('₩'+Number(b.price).toLocaleString('ko-KR')) : ''; }
         function isNew(b){ const m=String(b.pubDate||'').match(/(20\d\d)\D*(\d{1,2})?/); if(!m) return false; const y=+m[1], mo=+(m[2]||1); const d=new Date(); const months=(d.getFullYear()-y)*12+(d.getMonth()+1-mo); return months>=0 && months<=6; }
         function ratingOf(b){ return (window.__ratingMap&&window.__ratingMap[b.id])||null; }
@@ -1279,6 +1283,7 @@
             return MASTER_DATA.filter(b=>b.id!==cur.id && audienceOk(b) && b.status!=='절판').map(b=>{
                 let s=0; const why=[];
                 s+=((b.q!=null?b.q:50)-50)*0.3;                                    // 내재 품질(최신성) 타이브레이커
+                s+=popScore(b)*(state.recSort==='pop'?2:0.6);                      // 알라딘 판매지수 인기 반영
                 const ld=Math.abs((b.level||3)-desired); s+=(ld===0?30:ld===1?13:ld===2?2:-12);
                 if(cefrWant!=null && cefrRank(b.cefr)!=null){ const cd=Math.abs(cefrRank(b.cefr)-cefrWant); if(cd<=0.5){s+=26;why.push('CEFR 적정');} else if(cd<=1) s+=12; }
                 const chem=chemistry(cur,b); s += chem.score*0.4; if(chem.score>=38) why.push(chem.reason); else if(chem.score<=-40) s-=10;
@@ -1307,7 +1312,7 @@
                 const cs=ctxScore(b,ctx); let s=cs.s;
                 const ld=Math.abs((b.level||3)-wantLv); s+=(ld===0?16:ld===1?8:ld===2?0:-10);
                 s+=((b.q!=null?b.q:50)-50)*0.45;                                  // 내재 품질(최신성+상품성) → 가나다 동점 해소
-                s+=Math.min(18, popOf(b)*0.45);                                   // 인기(외부+자체) 가산
+                s+=popScore(b)*popMult();                                         // 알라딘 판매지수 인기 가산('인기 우선'이면 ×2.6)
                 const rg=ratingOf(b); if(rg&&rg.count){ s+=(rg.grade==='A'?10:rg.grade==='B'?6:rg.grade==='C'?2:0); }
                 if(ctx.goal==='원서 읽기' && b.foreign) s+=8;
                 if(b.status==='절판') return null;   // 절판은 추천에서 제외(못 사는 책)
@@ -1328,14 +1333,17 @@
         function renderTrackToggle(){
             const box=document.getElementById('trackToggle'); if(!box) return;
             const TR=[['student','🧒 학생용','학생이 풀 교재'],['parent','👩‍🏫 학부모용','부모가 보는 책(엄마표·공부법)'],['exam','🎓 임용준비','교원임용 영어 전공·교육론']];
+            const sortBtn=(v,lab)=>`<button onclick="setRecSort('${v}')" title="${v==='pop'?'알라딘 판매량 많은 순':'우리 아이 맞춤 적합도 순'}" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${state.recSort===v?'bg-accent text-slate-900':'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'}">${lab}</button>`;
             box.innerHTML=TR.map(([t,lab,desc])=>`<button onclick="setTrack('${t}')" title="${desc}" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${state.track===t?'bg-brand text-slate-900':'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'}">${lab}</button>`).join('')
-               +`<span class="text-[10px] text-slate-500 ml-1 self-center">${state.track==='student'?'← 우리 아이가 풀 교재':state.track==='parent'?'← 학부모가 공부할 책':'← 임용고시 영어 준비서'}</span>`;
+               +`<span class="w-px h-5 bg-slate-700 mx-1 self-center inline-block"></span>`+sortBtn('fit','🎯 맞춤순')+sortBtn('pop','🔥 인기순')
+               +`<span class="text-[10px] text-slate-500 ml-1 self-center">${state.recSort==='pop'?'← 판매량 많은 순':'← 우리 아이 맞춤'}</span>`;
         }
         function setTrack(t){ state.track=t; state.recCurrent=null; renderRecView(); }
+        function setRecSort(v){ state.recSort=v; renderRecView(); showToast(v==='pop'?'🔥 인기(판매량) 우선으로':'🎯 맞춤(적합도) 우선으로'); }
         // 학부모/임용 트랙 — 풀 전체를 최신순으로 시리즈 중복 제거해 노출
         function trackPoolRec(){
             const scored=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판').map(b=>{
-                let s=(b.q!=null?b.q:50) + Math.min(20,popOf(b)*0.5);
+                let s=(b.q!=null?b.q:50) + popScore(b)*1.5;   // 트랙 풀도 판매지수 인기 반영
                 const yr=(String(b.pubDate||'').match(/(20|19)\d\d/)||[])[0]; const w=[]; if(b.pub) w.push(b.pub); if(yr) w.push(yr);
                 return {b,s,why:w};
             }).sort((a,b)=>b.s-a.s);
