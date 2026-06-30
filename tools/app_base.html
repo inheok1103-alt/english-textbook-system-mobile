@@ -412,6 +412,7 @@
             curGrade: '', curLevel: '',   // 커리 그리드 학생 설정(학년·현재 수준) — 칸 추천이 이걸 따름
             track: 'student',   // 오디언스 트랙: student(학생용) / parent(학부모 공부용) / exam(임용준비)
             recSort: 'fit',   // 추천 정렬: fit(맞춤 우선) / pop(인기·판매량 우선)
+            examFilter: '',   // 임용·공무원 트랙 내 시험유형 필터(9급/7급/임용 등)
             basket: [],   // 담은 책(장바구니) — 그리드와 별개로 '살 책 목록'만 모음
             grid: gridInit()
         };
@@ -1359,7 +1360,8 @@
         function setRecSort(v){ state.recSort=v; renderRecView(); showToast(v==='pop'?'🔥 인기(판매량) 우선으로':'🎯 맞춤(적합도) 우선으로'); }
         // 학부모/임용 트랙 — 풀 전체를 최신순으로 시리즈 중복 제거해 노출
         function trackPoolRec(){
-            const scored=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판').map(b=>{
+            const scored=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판'
+                    && (state.track!=='exam' || !state.examFilter || b.examType===state.examFilter)).map(b=>{
                 let s=(b.q!=null?b.q:50) + popScore(b)*1.5;   // 트랙 풀도 판매지수 인기 반영
                 const yr=(String(b.pubDate||'').match(/(20|19)\d\d/)||[])[0]; const w=[]; if(b.pub) w.push(b.pub); if(yr) w.push(yr);
                 return {b,s,why:w};
@@ -1380,7 +1382,9 @@
                 const head = state.track==='parent'
                     ? {t:'👩‍🏫 학부모 공부용', d:'아이를 가르치려 부모가 읽는 책 — 엄마표 영어·학습법·코칭'}
                     : {t:'🎓 임용·공무원 시험영어', d:'교원임용·공무원·전공 시험 영어 — 일반 학습 추천에서 분리 (인기·최신순)'};
-                wrap.innerHTML=bb+`<div class="mb-2"><div class="text-sm font-bold text-white">${head.t} <span class="text-[11px] text-brand font-normal">${recs.length}종</span></div><div class="text-[11px] text-slate-400">${head.d}</div></div>`+
+                let chips='';
+                if(state.track==='exam'){ const types=(TABS.examType||['전체']); chips=`<div class="flex flex-wrap gap-1.5 mb-2">`+types.map(t=>{ const v=(t==='전체'?'':t); const on=(state.examFilter||'')===v; return `<button onclick="state.examFilter='${v}';renderRecView()" class="px-2.5 py-1 rounded-full text-[11px] font-bold ${on?'bg-brand text-slate-900':'bg-slate-800 text-slate-300 border border-slate-700 hover:text-white'}">${t}</button>`; }).join('')+`</div>`; }
+                wrap.innerHTML=bb+`<div class="mb-2"><div class="text-sm font-bold text-white">${head.t} <span class="text-[11px] text-brand font-normal">${recs.length}종</span></div><div class="text-[11px] text-slate-400">${head.d}</div></div>`+chips+
                     `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">${recs.map(x=>recCard(x.b,x.why)).join('')||'<div class="text-xs text-slate-500 col-span-full">해당 트랙 교재가 아직 없습니다.</div>'}</div>`;
                 if(typeof lucide!=='undefined') lucide.createIcons();
                 return;
