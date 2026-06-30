@@ -980,7 +980,12 @@
             function pack(tasks, dys){ if(!dys.length) return; let di=0, used=0; tasks.forEach(t=>{ if(used+t.est>inp.daily && di<dys.length-1){ di++; used=0; } sched.push({date:nsFmt(dys[di]), passage:t.passage, step:t.step, est:t.est}); used+=t.est; }); }
             pack(study, studyDays); pack(reviewT, midDays); pack(final, reviewDays);
             if(lastDay) sched.push({date:nsFmt(lastDay), passage:'전체', step:'최종 인출복습(미니 모의시험·신규학습 금지)', est:inp.daily});
-            return {tasks:sched, days};
+            // 실현성 — 총 분량 대비 가용일×하루분. 마지막날 폭주를 학부모가 사실로 믿지 않게.
+            const dayTot={}; sched.forEach(t=>{ dayTot[t.date]=(dayTot[t.date]||0)+t.est; });
+            const totEst=sched.reduce((n,t)=>n+t.est,0);
+            const overDays=Object.keys(dayTot).filter(d=>dayTot[d] > inp.daily*1.2);
+            const neededDaily=Math.ceil(totEst/Math.max(1,days.length));
+            return {tasks:sched, days, dayTot, totEst, overDays, neededDaily, feasible: neededDaily<=inp.daily};
         }
         function genNaesin(){
             const start=document.getElementById('nsStart').value, exam=document.getElementById('nsExam').value;
@@ -991,7 +996,10 @@
             const res=nsBuildSchedule(inp);
             if(res.error){ document.getElementById('nsResult').innerHTML=`<div class="text-danger text-sm p-2">${res.error}</div>`; return; }
             window.__naesin={inp,res};
-            document.getElementById('nsResult').innerHTML=nsCalendar(inp,res,false);
+            const warn = !res.feasible
+                ? `<div class="bg-danger/15 border border-danger/50 text-danger rounded-lg p-2.5 mb-2 text-xs font-bold leading-relaxed">⚠ 시험까지 <b>${res.days.length}일</b> · 총 <b>${Math.round(res.totEst/60)}시간</b> 분량 → 하루 평균 <b>${res.neededDaily}분</b>이 필요해요(설정 ${inp.daily}분). 시험범위(과 수)를 줄이거나 시작을 앞당기세요.</div>`
+                : (res.overDays.length?`<div class="bg-warn/15 border border-warn/50 text-warn rounded-lg p-2 mb-2 text-xs">일부 날(${res.overDays.length}일)이 하루 분량을 넘겨요. 빨간 칸을 확인하세요.</div>`:`<div class="bg-brand/10 border border-brand/30 text-brand rounded-lg p-2 mb-2 text-xs">✅ 하루 평균 ${res.neededDaily}분이면 충분해요(설정 ${inp.daily}분).</div>`);
+            document.getElementById('nsResult').innerHTML=warn+nsCalendar(inp,res,false);
             if(typeof lucide!=='undefined') lucide.createIcons();
         }
         function nsCalendar(inp, res, light){
@@ -1001,8 +1009,10 @@
             Object.keys(months).sort().forEach(mk=>{ const a=mk.split('-'),y=+a[0],mo=+a[1]; const startDow=new Date(y,mo-1,1).getDay(); const dim=new Date(y,mo,0).getDate();
                 let cells=[]; for(let i=0;i<startDow;i++) cells.push(light?'<td></td>':'<td class="border border-slate-700 h-16 bg-slate-900/30"></td>');
                 for(let dd=1;dd<=dim;dd++){ const ds=y+'-'+String(mo).padStart(2,'0')+'-'+String(dd).padStart(2,'0'); const isExam=ds===examStr; const ts=byDate[ds]||[];
+                    const dt=(res.dayTot&&res.dayTot[ds])||0; const over=dt>inp.daily*1.2;
+                    const mins=dt?`<div class="text-[7px] ${over?'text-danger font-bold':'text-slate-500'}">${dt}분${over?'⚠':''}</div>`:'';
                     const items=ts.slice(0,light?20:4).map(t=>light?`<div class="task">·${t.passage.replace('본문 ','').replace('외부지문 ','외')} ${t.step}</div>`:`<div class="text-[8px] truncate ${/복습/.test(t.step)?'text-accent':'text-slate-300'}">·${t.passage.replace('본문 ','').replace('외부지문 ','외')} ${t.step}</div>`).join('')+(!light&&ts.length>4?`<div class="text-[8px] text-slate-500">+${ts.length-4}</div>`:'');
-                    cells.push(light?`<td class="${isExam?'exam':''}"><div class="day">${dd}${isExam?' 🎯':''}</div>${items}</td>`:`<td class="border border-slate-700 h-16 align-top p-0.5 ${isExam?'bg-danger/20':''}"><div class="text-[9px] font-bold ${isExam?'text-danger':'text-slate-400'}">${dd}${isExam?' 🎯':''}</div>${items}</td>`); }
+                    cells.push(light?`<td class="${isExam?'exam':''}${over?' over':''}"><div class="day">${dd}${isExam?' 🎯':''}${over?' ⚠':''}</div>${items}</td>`:`<td class="border ${over?'border-danger bg-danger/10':'border-slate-700'} h-16 align-top p-0.5 ${isExam?'bg-danger/20':''}"><div class="text-[9px] font-bold ${isExam?'text-danger':'text-slate-400'}">${dd}${isExam?' 🎯':''}</div>${mins}${items}</td>`); }
                 let rows=''; for(let i=0;i<cells.length;i+=7) rows+='<tr>'+cells.slice(i,i+7).join('')+'</tr>';
                 const head=['일','월','화','수','목','금','토'].map(d=>light?`<th>${d}</th>`:`<th class="text-[10px] text-slate-500 pb-1">${d}</th>`).join('');
                 cal+=`<div class="mb-4"><div class="font-bold ${light?'':'text-white'} text-sm mb-1">${y}년 ${mo}월</div><table class="w-full border-collapse text-center"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
