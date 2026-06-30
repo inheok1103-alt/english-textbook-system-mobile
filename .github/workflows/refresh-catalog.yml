@@ -24,62 +24,12 @@ jobs:
         with:
           node-version: '20'
 
-      - name: KOBIC 신간 발굴 (학습 교재 · 매일 얕게/주간 깊게)
-        run: node tools/harvest_kobic.js
-        env:
-          KOBIC_MAXPAGES: ${{ github.event.schedule == '0 19 * * 1' && '30' || '8' }}   # 월요일 깊은 전수 신간 스윕
-
-      - name: 신규 학습교재 병합 (기존 ISBN 건너뜀)
-        run: node tools/harvest_kobic_merge.js
-
-      - name: 전공 교재 발굴 (대학·영어학/영문학/언어학/통번역/영어교육)
-        run: node tools/harvest_kobic.js
-        env:
-          KOBIC_NOPUBFILTER: '1'   # 학술/대학 출판사 포함
-          KOBIC_MAXPAGES: '5'
-          KOBIC_TERMS: '영어학개론|영어학|영문학개론|영문학사|영미문학|영미소설|영미시|언어학개론|일반언어학|응용언어학|영어음성학|영어음운론|영어통사론|영어의미론|영어화용론|사회언어학|심리언어학|영어교육론|영어교수법|제2언어습득|통번역|번역학|영어사|코퍼스언어학|담화분석|TESOL|English Linguistics|English Literature'
-
-      - name: 전공 교재 병합
-        run: node tools/harvest_kobic_merge.js
-
-      - name: 원서 발굴 (수입 ELT·브릭스/Subject Link/Smart Phonics 등)
-        run: node tools/harvest_kobic.js
-        env:
-          KOBIC_NOPUBFILTER: '1'
-          KOBIC_MAXPAGES: '6'
-          KOBIC_TERMS: 'Bricks Reading|Bricks Listening|Bricks Phonics|Subject Link|Smart Phonics|Sounds Great|Build and Grow|Reading Town|Reading Star|Insight Link|Reading Sketch|My First Reading|My Next Reading|Phonics Monster|Reading Champion|Reading Future|Oxford Reading Tree|Reading Explorer|Time Zones|Our World|Wonderful World|Spotlight on English'
-
-      - name: 원서 병합 (foreign 태깅)
-        run: node tools/harvest_kobic_merge.js
-
-      - name: 책↔표지 상시 정합검수+자동교정 (ISBN 앵커, 회당 로테이션 · 결손 포함)
-        run: node tools/verify_covers.js --fix || true
-        env:
-          VERIFY_LIMIT: '600'   # 회당 상한 — 매 회차 다른 슬라이스로 전수 순환(결손/불일치/중복 모두 처리)
-
-      - name: 원서 표지·메타 보강 (Open Library / Google Books · 키 불필요)
-        run: node tools/enrich_foreign.js || true
-        env:
-          ENRICH_LIMIT: '150'
-          GOOGLE_BOOKS_KEY: ${{ secrets.GOOGLE_BOOKS_KEY }}
-
-      - name: 알라딘 보강 (인기·가격·표지·절판 · ALADIN_TTBKEY 있으면 자동 활성)
-        run: node tools/enrich_aladin.js || true
+      - name: 전체 파이프라인 (수확→정제→보강→검수→색인→빌드)
+        run: node tools/pipeline.js --pages=${{ github.event.schedule == '0 19 * * 1' && '30' || '8' }} --aladin-limit=${{ github.event.schedule == '0 19 * * 1' && '4500' || '1500' }}
         env:
           ALADIN_TTBKEY: ${{ secrets.ALADIN_TTBKEY }}
-          ENRICH_LIMIT: ${{ github.event.schedule == '0 19 * * 1' && '4500' || '1500' }}
-
-      - name: 카카오 보강 (가격·표지 폴백 · KAKAO_REST_KEY 있으면 자동 활성)
-        run: node tools/enrich_kakao.js || true
-        env:
           KAKAO_REST_KEY: ${{ secrets.KAKAO_REST_KEY }}
-          ENRICH_LIMIT: '3000'
-
-      - name: 랭킹 매칭 색인 갱신 (master_index.csv)
-        run: node tools/export_master_index.js
-
-      - name: 앱 재빌드
-        run: cd tools && node build_app.js
+          GOOGLE_BOOKS_KEY: ${{ secrets.GOOGLE_BOOKS_KEY }}
 
       - name: 변경분 커밋
         run: |
