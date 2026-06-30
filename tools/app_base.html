@@ -570,7 +570,7 @@
                 const map={};
                 if(sum&&sum.popularMaterials) sum.popularMaterials.forEach(x=>{ if(x.uid) map[x.uid]=(map[x.uid]||0)+(Number(x.count)||0)*5; });
                 if(rank&&rank.items) rank.items.forEach(it=>{ const u=it.matchedUid; if(u){ const r=Number(it.rank)||200; map[u]=(map[u]||0)+Math.max(1,201-r); } });
-                window.__popMap=map; window.__popLoading=false; if(state.sort==='popular') renderDB();
+                window.__popMap=map; window.__popLoading=false; if(state.sort==='popular') renderDB(); if(state.view==='rec') renderRecView();
             }).catch(()=>{ window.__popLoading=false; });
         }
 
@@ -1083,7 +1083,7 @@
             jsonp(ep+(ep.indexOf('?')>=0?'&':'?')+'ratings=1').then(d=>{
                 if(d&&Array.isArray(d.ratings)){ const m={}; d.ratings.forEach(x=>m[x.uid]=x);
                     const changed = d.ratings.some(x=>{const o=window.__ratingMap[x.uid]; return !o||o.grade!==x.grade||o.count!==x.count;}) || Object.keys(window.__ratingMap).length!==Object.keys(m).length;
-                    window.__ratingMap=m; if(changed&&typeof renderDB==='function') renderDB();
+                    window.__ratingMap=m; if(changed&&typeof renderDB==='function') renderDB(); if(changed&&state.view==='rec') renderRecView();
                 }
             }).catch(()=>{});
         }

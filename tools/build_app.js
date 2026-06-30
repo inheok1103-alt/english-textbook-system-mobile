@@ -148,7 +148,17 @@ function qualityScore(m, hasCover) {
   if (hasCover) q += 6;                                                    // 실제 유통 상품성
   if (/\bPELT\b|초등.*\bJET\b|중등.*\bJET\b|구\s*수능|구버전/i.test(t)) q -= 22;  // 폐지·구 시험
   if (/level\s*\d|book\s*\d|step\s*\d|\b\d\s*급|stage\s*\d/i.test(t)) q += 5;     // 정규 코스북 신뢰
-  return Math.max(0, Math.min(100, q));
+  q = Math.max(0, Math.min(99, q));
+  // 연속화 — 같은 버킷 동점을 발행일(정밀)→id로 결정적 분해. popMap/평점이 비는 오프라인에서도
+  // 추천 정렬이 '가나다 배열순'으로 무너지지 않게 하는 타이브레이커(전 추천경로가 q를 쓰므로 한 곳만 고침).
+  const ymd = String(m.pubDate || "").match(/(19|20\d\d)\D?(\d{1,2})?\D?(\d{1,2})?/);
+  let frac = 0;
+  if (ymd) { const y = +ymd[1], mo = +(ymd[2] || 6), d = +(ymd[3] || 15); frac = Math.max(0, Math.min(0.9, ((y - 1995) + (mo - 1) / 12 + d / 372) / 35)); }
+  const uid = String(m.materialUid || "");
+  let h = 2166136261;                                            // FNV-1a — 연속 id도 잘 흩어지게(avalanche)
+  for (let i = 0; i < uid.length; i++) { h ^= uid.charCodeAt(i); h = Math.imul(h, 16777619); }
+  const jit = ((h >>> 0) / 4294967296) * 0.0999;                 // id별 고유 미세값(0~0.0999) — 절대 동점 방지
+  return Math.round((q + frac + jit) * 1e6) / 1e6;
 }
 // 영어 교재만 — 비영어(북트리거 인문/과학/문학 등) domain 제외
 const englishOnly = master.materials.filter((m) => m.domain === "영어");
