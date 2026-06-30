@@ -393,6 +393,7 @@
             recGrade: '', recGoal: '', recTiming: '',   // 추천 컨텍스트(학년·목표·시기)
             curGrade: '', curLevel: '',   // 커리 그리드 학생 설정(학년·현재 수준) — 칸 추천이 이걸 따름
             track: 'student',   // 오디언스 트랙: student(학생용) / parent(학부모 공부용) / exam(임용준비)
+            basket: [],   // 담은 책(장바구니) — 그리드와 별개로 '살 책 목록'만 모음
             grid: gridInit()
         };
 
@@ -800,6 +801,18 @@
             openModal(`어휘 자동 처방 (커리 평균 Lv.${target})`, `<div class="text-xs text-slate-400 mb-3">나머지 영역을 배치한 뒤 레벨에 맞춰 어휘 교재를 추천합니다. "담기"로 빈 칸에 자동 배치됩니다.</div>${rows}`);
         }
         function addToActive(id){ closeModal(); selectBook(id); toggleView('2d'); showToast('배치할 칸(시간 슬롯)을 누르세요 (취소: 하단 취소 버튼)'); }
+        // ── 장바구니(담은 책) — 뷰 전환 없이 '살 책'만 모음 ──
+        function inBasket(id){ return state.basket.indexOf(id)>=0; }
+        function addToBasket(id){ const i=state.basket.indexOf(id); if(i>=0){ state.basket.splice(i,1); showToast('담기 취소'); } else { state.basket.push(id); const b=byId(id); showToast(`🛒 담음 — 담은 책 ${state.basket.length}권`); } if(state.view==='rec') renderRecView(); }
+        function basketBarHtml(){ if(!state.basket.length) return ''; return `<div class="flex items-center gap-2 flex-wrap bg-brand/10 border border-brand/30 rounded-xl px-3 py-2 mb-3"><span class="text-sm font-bold text-brand">🛒 담은 책 ${state.basket.length}권</span><button onclick="showBasket()" class="text-xs bg-brand text-slate-900 font-bold px-2.5 py-1 rounded-lg">목록·인쇄</button><button onclick="basketToGrid()" class="text-xs bg-slate-800 border border-slate-600 text-white px-2.5 py-1 rounded-lg">📅 그리드에 펼치기</button><button onclick="if(confirm('담은 책을 비울까요?')){state.basket=[];renderRecView();}" class="text-[10px] text-slate-400 ml-auto hover:text-white">비우기</button></div>`; }
+        function showBasket(){ if(!state.basket.length){ showToast('담은 책이 없어요', true); return; }
+            const rows=state.basket.map((id,i)=>{ const b=byId(id); if(!b) return ''; return `<div class="flex items-center gap-2 p-2 border border-slate-700 rounded-lg mb-1.5 bg-slate-800/40"><span class="text-brand font-black w-5 text-center">${i+1}</span><img src="${b.cover||''}" class="w-8 h-11 object-cover rounded" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><div class="text-sm font-bold text-white truncate">${escHtml(b.title)}</div><div class="text-[11px] text-slate-400 truncate">${escHtml(b.pub)} · ${b.skill} · Lv${b.level}</div></div><button onclick="addToBasket('${id}');closeModal();showBasket()" class="text-xs text-slate-400 hover:text-white flex-shrink-0">✕</button></div>`; }).join('');
+            openModal(`🛒 담은 책 ${state.basket.length}권`, `<div class="text-xs text-slate-400 mb-2">'사면 좋을 책' 목록이에요. 인쇄해서 서점·상담에 들고 가세요.</div>${rows}<button onclick="printBasket()" class="w-full mt-2 bg-brand text-slate-900 font-bold text-sm py-2.5 rounded-lg">🖨 목록 인쇄 / PDF 저장</button>`); }
+        function printBasket(){ if(!state.basket.length) return; const items=state.basket.map(id=>byId(id)).filter(Boolean);
+            const rows=items.map((b,i)=>`<tr><td>${i+1}</td><td><b>${escHtml(b.title)}</b></td><td>${escHtml(b.pub)}</td><td>${b.skill}</td><td>Lv.${b.level}</td></tr>`).join('');
+            const html=`<!doctype html><html><head><meta charset="utf-8"><title>담은 영어 교재 목록</title><style>body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:24px;color:#0f172a}h1{font-size:20px;margin:0 0 2px}table{border-collapse:collapse;width:100%;font-size:13px;margin-top:10px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#f1f5f9}@media print{.noprint{display:none}}</style></head><body><h1>🛒 담은 영어 교재 ${items.length}권</h1><div style="color:#64748b;font-size:12px">${new Date().toLocaleDateString('ko-KR')} · 커리큘럼 제작기</div><table><thead><tr><th>#</th><th>교재명</th><th>출판사</th><th>영역</th><th>레벨</th></tr></thead><tbody>${rows}</tbody></table><button class="noprint" onclick="window.print()" style="margin-top:14px;padding:9px 18px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer">🖨 인쇄 / PDF</button></body></html>`;
+            const w=window.open('','_blank'); if(!w){ showToast('팝업 차단 해제 필요', true); return; } w.document.write(html); w.document.close(); }
+        function basketToGrid(){ let n=0; state.basket.forEach(id=>{ if(gridIsPlaced(id)) return; const b=byId(id); if(!b) return; const row=rowOf(b.skill); for(let c=0;c<GRID_COLS;c++){ if(!state.grid[row][c]){ state.grid[row][c]=id; n++; break; } } }); renderPipeline(); renderDB(); toggleView('2d'); showToast(n?`${n}권을 그리드에 펼쳤어요`:'그리드가 가득 찼어요 — 계획기간을 늘려보세요', !n); }
 
         // 4대영역(독해·듣기·말하기·쓰기) 행마다 단계별 1권씩 균형 자동 채움 — 단계 레벨 + 케미
         function autoFillBalance(){
@@ -1191,7 +1204,7 @@
                 </div>
               </div>
               ${b.comment?`<div class="text-[10px] text-slate-400 mt-1 leading-snug line-clamp-2">${b.comment}</div>`:''}
-              <button onclick="addToActive('${b.id}')" class="w-full mt-1.5 bg-slate-700 hover:bg-slate-600 text-[10px] font-bold py-1.5 rounded">파이프라인에 담기</button>
+              <button onclick="addToBasket('${b.id}')" class="w-full mt-1.5 ${inBasket(b.id)?'bg-brand text-slate-900':'bg-slate-700 hover:bg-slate-600 text-white'} text-[10px] font-bold py-1.5 rounded">${inBasket(b.id)?'✓ 담음':'＋ 내 목록에 담기'}</button>
             </div>`; }
         // 다음 단계(정답률 구간별) — 현재 교재 기준 + 상황·학년 가중치
         function recForBook(cur, band, ctx){
@@ -1271,6 +1284,7 @@
             renderTrackToggle();
             const ctxPanel=document.getElementById('recCtxPanel'), curPanel=document.getElementById('recCurPanel');
             const isStudent=state.track==='student';
+            const bb=basketBarHtml();
             if(ctxPanel) ctxPanel.style.display=isStudent?'':'none';
             if(curPanel) curPanel.style.display=isStudent?'':'none';
             if(!isStudent){
@@ -1279,7 +1293,7 @@
                 const head = state.track==='parent'
                     ? {t:'👩‍🏫 학부모 공부용', d:'아이를 가르치려 부모가 읽는 책 — 엄마표 영어·학습법·코칭'}
                     : {t:'🎓 임용준비(영어)', d:'교원임용 영어 — 전공영어·영어교육론·영미문학·기출 (최신순)'};
-                wrap.innerHTML=`<div class="mb-2"><div class="text-sm font-bold text-white">${head.t} <span class="text-[11px] text-brand font-normal">${recs.length}종</span></div><div class="text-[11px] text-slate-400">${head.d}</div></div>`+
+                wrap.innerHTML=bb+`<div class="mb-2"><div class="text-sm font-bold text-white">${head.t} <span class="text-[11px] text-brand font-normal">${recs.length}종</span></div><div class="text-[11px] text-slate-400">${head.d}</div></div>`+
                     `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">${recs.map(x=>recCard(x.b,x.why)).join('')||'<div class="text-xs text-slate-500 col-span-full">해당 트랙 교재가 아직 없습니다.</div>'}</div>`;
                 if(typeof lucide!=='undefined') lucide.createIcons();
                 return;
@@ -1291,7 +1305,7 @@
             if(cur){
                 if(curCard) curCard.innerHTML=`<div class="flex gap-2 items-center bg-slate-900 border border-brand/40 rounded-lg p-2"><img src="${cur.cover||''}" class="w-8 h-11 object-cover rounded" onerror="this.style.display='none'"><div class="min-w-0 flex-1"><div class="text-sm font-bold text-white truncate">${cur.title}</div><div class="text-[11px] text-slate-400">${cur.pub} · ${cur.skill} · Lv${cur.level}${cur.cefr?(' · '+cur.cefr):''}</div></div><button onclick="state.recCurrent=null;renderRecView()" class="text-[10px] text-slate-400 hover:text-white flex-shrink-0">✕ 해제</button></div>`;
                 const ctxLabel=[ctx.grade,ctx.goal&&('🎯'+ctx.goal),ctx.timing&&('🗓'+ctx.timing)].filter(Boolean).join(' · ');
-                wrap.innerHTML=(ctxLabel?`<div class="text-[11px] text-slate-400 mb-2">맞춤 조건 반영: <b class="text-brand">${ctxLabel}</b></div>`:'')+`<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                wrap.innerHTML=bb+(ctxLabel?`<div class="text-[11px] text-slate-400 mb-2">맞춤 조건 반영: <b class="text-brand">${ctxLabel}</b></div>`:'')+`<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     ${recCol('📈 80%+ · 심화','충분히 숙달 → i+1(크라센 i+1). 다음 CEFR/레벨로 도약','#10b981',cur,'high',ctx)}
                     ${recCol('➡️ 60~79% · 체화','이해는 됐으나 정착 필요 → 같은 단계 다지기·시리즈 다음 권(자동화)','#0ea5e9',cur,'mid',ctx)}
                     ${recCol('🔁 40%↓ · 보강','미흡 → 한 단계 낮춰 약점영역 재학습(ZPD 하향)','#f59e0b',cur,'low',ctx)}
@@ -1299,10 +1313,10 @@
             } else {
                 if(curCard) curCard.innerHTML='';
                 const hasCtx = ctx.grade||ctx.goal||ctx.timing;
-                if(!hasCtx){ wrap.innerHTML='<div class="text-center text-slate-500 py-10 text-sm">위에서 <b class="text-brand">학년·목표·시기</b>를 고르면 <b>시작 교재</b>를, <b class="text-accent">현재 교재</b>까지 고르면 <b>정답률 구간별 다음 단계</b>를 추천합니다.</div>'; if(typeof lucide!=='undefined') lucide.createIcons(); return; }
+                if(!hasCtx){ wrap.innerHTML=bb+'<div class="text-center text-slate-500 py-10 text-sm">위에서 <b class="text-brand">학년·목표·시기</b>를 고르면 <b>시작 교재</b>를, <b class="text-accent">현재 교재</b>까지 고르면 <b>정답률 구간별 다음 단계</b>를 추천합니다.</div>'; if(typeof lucide!=='undefined') lucide.createIcons(); return; }
                 const recs=starterRec(ctx);
                 const ctxLabel=[ctx.grade,ctx.goal&&('🎯'+ctx.goal),ctx.timing&&('🗓'+ctx.timing)].filter(Boolean).join(' · ');
-                wrap.innerHTML=`<div class="mb-2 text-sm font-bold text-white">🚀 시작 추천 <span class="text-[11px] text-brand font-normal">— ${ctxLabel}</span></div>`+
+                wrap.innerHTML=bb+`<div class="mb-2 text-sm font-bold text-white">🚀 시작 추천 <span class="text-[11px] text-brand font-normal">— ${ctxLabel}</span></div>`+
                     `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">${recs.map(x=>recCard(x.b,x.why)).join('')||'<div class="text-xs text-slate-500 col-span-full">조건에 맞는 시작 교재가 없습니다. 조건을 완화해보세요.</div>'}</div>`;
             }
             if(typeof lucide!=='undefined') lucide.createIcons();
