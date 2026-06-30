@@ -195,15 +195,8 @@
         <!-- 3D View (인지 매핑) -->
         <div id="view-3d" class="hidden absolute inset-0 bg-dark z-40 fade-in flex flex-col">
             <div class="absolute top-4 left-4 z-50 bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-xl max-w-sm pointer-events-none">
-                <h3 class="text-brand font-bold text-lg mb-1 flex items-center gap-2"><i data-lucide="brain"></i> 3D 커리큘럼 건강진단</h3>
-                <p class="text-xs text-slate-300 mb-3">X=시간 · <b>Y(높이)=난이도</b> · Z=영역. 회전하며 난이도 흐름을 보고, <b>구(球)를 클릭</b>하면 교재 상세가 열려요.</p>
-                <div class="space-y-1.5 text-xs">
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-white"></span> 정상 흐름</div>
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500 shadow-[0_0_8px_red]"></span> 난이도 급상승 (과부하 위험)</div>
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-warn shadow-[0_0_8px_orange]"></span> 난이도 역행</div>
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-accent animate-pulse"></span> 같은 영역 겹침 (한 시기에 중복)</div>
-                    <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border-2 border-red-500"></span> 빈 4대영역</div>
-                </div>
+                <h3 class="text-brand font-bold text-lg mb-1 flex items-center gap-2"><i data-lucide="brain"></i> <span id="view3dTitle">🧠 뇌 자극 지도</span></h3>
+                <div id="view3dInfo" class="text-xs text-slate-300 space-y-1"></div>
             </div>
             <!-- 진단 패널(텍스트) -->
             <div id="diag3d" class="absolute bottom-3 left-3 right-3 sm:right-auto sm:max-w-md z-50 bg-slate-900/85 backdrop-blur border border-slate-700 rounded-xl p-3 max-h-[34vh] overflow-y-auto hide-scrollbar text-xs"></div>
@@ -405,6 +398,7 @@
             selectedBookId: null,
             lastAddedSkill: null,
             view: '2d',
+            brain3d: true,   // 3D 뷰 서브모드: 뇌 자극지도(기본) ↔ 흐름 격자
             goal: '',
             sort: 'abc',          // 정렬 축: abc(가나다·ABC) / popular(인기순) / recent(최신순)
             foreignOnly: false,   // 원서만 보기
@@ -1504,7 +1498,7 @@
             if (!container || container.clientWidth === 0) return;
             scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x0f172a, 0.05);
             camera = new THREE.PerspectiveCamera(60, container.clientWidth/container.clientHeight, 0.1, 1000);
-            camera.position.set(0, 5, 12); camera.lookAt(0, 2, 0);
+            camera.position.set(0, 5, 12); camera.lookAt(0, 2.8, 0);
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(container.clientWidth, container.clientHeight); renderer.setPixelRatio(window.devicePixelRatio);
             container.appendChild(renderer.domElement);
@@ -1513,11 +1507,11 @@
             scene.add(new THREE.GridHelper(20, 20, 0x334155, 0x1e293b));
             let isDragging = false, prevX;
             container.addEventListener('mousedown', e => { isDragging=true; prevX=e.clientX; });
-            container.addEventListener('mousemove', e => { if(!isDragging) return; const dx = e.clientX - prevX; camera.position.x -= dx*0.05; camera.lookAt(0,2,0); prevX = e.clientX; });
+            container.addEventListener('mousemove', e => { if(!isDragging) return; const dx = e.clientX - prevX; camera.position.x -= dx*0.05; camera.lookAt(0,2.8,0); prevX = e.clientX; });
             container.addEventListener('mouseup', () => isDragging=false);
             container.addEventListener('mouseleave', () => isDragging=false);
             container.addEventListener('touchstart', e => { isDragging=true; prevX=e.touches[0].clientX; }, {passive:true});
-            container.addEventListener('touchmove', e => { if(!isDragging) return; const dx = e.touches[0].clientX - prevX; camera.position.x -= dx*0.05; camera.lookAt(0,2,0); prevX = e.touches[0].clientX; }, {passive:true});
+            container.addEventListener('touchmove', e => { if(!isDragging) return; const dx = e.touches[0].clientX - prevX; camera.position.x -= dx*0.05; camera.lookAt(0,2.8,0); prevX = e.touches[0].clientX; }, {passive:true});
             container.addEventListener('touchend', () => isDragging=false);
             window.addEventListener('resize', resize3D);
             // 노드(구) 클릭 → 교재 상세 (드래그-회전과 구분: 이동 거리 작을 때만)
@@ -1528,8 +1522,13 @@
                 const r=renderer.domElement.getBoundingClientRect();
                 _m.x=((e.clientX-r.left)/r.width)*2-1; _m.y=-((e.clientY-r.top)/r.height)*2+1;
                 _ray.setFromCamera(_m,camera);
-                const hit=_ray.intersectObjects(nodes.filter(n=>n.userData&&n.userData.bookId));
-                if(hit.length){ const id=hit[0].object.userData.bookId; if(id&&typeof showBookDetail==='function') showBookDetail(id); }
+                if(state.brain3d){
+                    const hb=_ray.intersectObjects(brainNodes.filter(n=>n.userData&&n.userData.brainSkill));
+                    if(hb.length){ const sk=hb[0].object.userData.brainSkill; if(sk) showSkillDetail(sk); }
+                } else {
+                    const hit=_ray.intersectObjects(nodes.filter(n=>n.userData&&n.userData.bookId));
+                    if(hit.length){ const id=hit[0].object.userData.bookId; if(id&&typeof showBookDetail==='function') showBookDetail(id); }
+                }
             });
             animate3D();
         }
@@ -1542,9 +1541,214 @@
                 const tex=new THREE.CanvasTexture(cv); const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true})); spr.scale.set(2.6,0.65,1); return spr;
             }catch(e){ return null; }
         }
-        // 3D 인지 매핑: X=분기(시간) · Y=난이도(레벨) · Z=영역(행). 영역별 진행 케미를 색 링크로.
+
+        // ==========================================
+        // 5b. 뇌 학습-자극 지도 (Brain Stimulation Map) — state.brain3d 서브모드(기본)
+        //   ※ 실제 뇌 측정이 아니라 학습영역을 뇌 부위에 빗댄 직관적 비유 지도.
+        //   좌=문해·분석 / 우=소리·소통·표현 / 중앙=통합. 양반구를 고루 밝히면 균형.
+        // ==========================================
+        const BRAIN_CAVEAT = "※ 실제 뇌 측정이 아니라 '이 커리가 어느 학습 기능을 자극하는지'를 인지언어학 통설로 빗댄 직관적 비유 지도예요 — 골고루·시기에 맞게 자극되는지 점검용입니다.";
+        const BRAIN_REGIONS = [
+            // 좌반구 — 문해·분석
+            { skill:'독해',   label:'시각단어영역(VWFA·방추회)',   pos:[-1.9,1.6,-2.3] },
+            { skill:'어휘',   label:'측두엽·해마(의미기억)',        pos:[-2.6,1.7, 1.0] },
+            { skill:'문법',   label:'좌 하전두회(통사 BA44/45)',    pos:[-2.0,3.0, 1.4] },
+            { skill:'구문',   label:'좌 하전두 후방(통사통합)',     pos:[-2.4,2.5, 0.4] },
+            { skill:'파닉스', label:'좌 측두두정·각회(자소-음소)',  pos:[-2.5,3.2,-1.4] },
+            // 우반구 — 소리·소통·표현
+            { skill:'듣기',   label:'청각피질·운율(측두엽)',        pos:[ 2.7,2.0,-0.2] },
+            { skill:'말하기', label:'발화·화용(전두)',             pos:[ 1.7,3.6, 2.3] },
+            { skill:'쓰기',   label:'작문·계획(전전두 DLPFC)',      pos:[ 1.3,4.2, 1.4] },
+            // 정중 — 통합 허브
+            { skill:'모의/기출', label:'통합·인출 허브(메타인지)',  pos:[ 0.0,4.8, 0.6] },
+        ];
+        const BRAIN_CIRCUITS = [ ['듣기','말하기'], ['문법','구문'], ['독해','어휘'], ['파닉스','독해'], ['모의/기출','독해'], ['모의/기출','듣기'] ];
+        const IDEAL_PROFILES = {
+            '유아·예비초': {파닉스:1,듣기:0.9,말하기:0.75,어휘:0.6,독해:0.4,쓰기:0.15,문법:0.1,구문:0.05,'모의/기출':0},
+            '초등 초기':   {듣기:1,말하기:0.9,파닉스:0.8,어휘:0.8,독해:0.6,쓰기:0.4,문법:0.3,구문:0.15,'모의/기출':0},
+            '초등 후기':   {독해:0.9,어휘:0.9,듣기:0.9,말하기:0.8,쓰기:0.6,문법:0.6,구문:0.4,파닉스:0.3,'모의/기출':0.15},
+            '중등':        {독해:1,문법:0.9,어휘:0.9,구문:0.7,듣기:0.7,쓰기:0.6,말하기:0.5,'모의/기출':0.4,파닉스:0.1},
+            '고등·수능 실전': {독해:1,'모의/기출':1,구문:0.9,어휘:0.9,듣기:0.8,문법:0.7,쓰기:0.5,말하기:0.35,파닉스:0},
+            '성인':        {듣기:0.95,말하기:0.9,어휘:0.85,독해:0.8,'모의/기출':0.7,쓰기:0.6,문법:0.5,구문:0.4,파닉스:0},
+        };
+        function brainStage(){
+            const g=state.curGrade, lv=+state.curLevel||2;
+            if(g==='유아/예비초') return '유아·예비초';
+            if(g==='초등') return lv<=2 ? '초등 초기' : '초등 후기';
+            if(g==='중등') return '중등';
+            if(g==='고등') return '고등·수능 실전';
+            if(g==='성인') return '성인';
+            return '중등';   // 학년 미설정 기본값
+        }
+        function idealProfile(){
+            const p=Object.assign({}, IDEAL_PROFILES[brainStage()]);
+            GRID_ROWS.forEach(s=>{ if(p[s]==null) p[s]=0; });
+            if(state.curGrade==='성인' && /토익|토플|시험영어/.test(state.goal||'')){ p['독해']=Math.min(1,(p['독해']||0)+0.15); p['모의/기출']=Math.min(1,(p['모의/기출']||0)+0.15); }
+            return p;
+        }
+        // 영역별 자극강도 stim[skill] 0~1 — 권당(0.6+0.1×레벨), 모의/기출→독해·듣기 0.25 교차, 구문→문법 0.4 교차, cap 4.0
+        function brainStim(){
+            const raw={}; GRID_ROWS.forEach(s=>raw[s]=0);
+            GRID_ROWS.forEach(skill=>{ gridRowSeq(skill).forEach(({book})=>{ const w=0.6+0.1*(book.level||3);
+                raw[skill]+=w;
+                if(skill==='모의/기출'){ raw['독해']+=w*0.25; raw['듣기']+=w*0.25; }
+                if(skill==='구문'){ raw['문법']+=w*0.4; }
+            }); });
+            const cap=4.0, stim={}; GRID_ROWS.forEach(s=>stim[s]=Math.min(1, raw[s]/cap)); return stim;
+        }
+        // 균형점수 0~100 + 진단 — 코사인 방향일치 − 공백8 − 4대영역결함6 − 과집중6, 4대영역 공백 시 상한 59 캡
+        function brainBalance(){
+            const stim=brainStim(), ideal=idealProfile();
+            const sumStim=GRID_ROWS.reduce((a,s)=>a+stim[s],0);
+            if(sumStim<=0) return {score:0,band:'empty',bandColor:'#64748b',bandLabel:'미배치',stim,ideal,p:{},q:{},over:[],voidv:GRID_ROWS.slice(),coreVoid:GRID_CORE.slice(),msgs:[{sev:'info',msg:'아직 배치된 교재가 없어요. ‘커리큘럼 제작’에서 책을 넣으면 뇌가 켜집니다.'}]};
+            const sumIdeal=GRID_ROWS.reduce((a,s)=>a+ideal[s],0)||1;
+            const p={},q={}; GRID_ROWS.forEach(s=>{ p[s]=ideal[s]/sumIdeal; q[s]=stim[s]/sumStim; });
+            let dot=0,np=0,nq=0; GRID_ROWS.forEach(s=>{ dot+=p[s]*q[s]; np+=p[s]*p[s]; nq+=q[s]*q[s]; });
+            const cos=(np>0&&nq>0)?dot/(Math.sqrt(np)*Math.sqrt(nq)):0;
+            let Pv=0,Pc=0,Po=0; const over=[],voidv=[],coreVoid=[],weakNeed=[];
+            GRID_ROWS.forEach(s=>{
+                if(stim[s]===0){ voidv.push(s); if(ideal[s]>=0.5){ Pv+=8; weakNeed.push(s); } }
+                if(GRID_CORE.includes(s) && stim[s]<0.05){ Pc+=6; coreVoid.push(s); }
+                if((q[s]-p[s])>=0.18){ Po+=6; over.push(s); }
+            });
+            let raw=100*cos - Pv - Pc - Po;
+            if(coreVoid.length) raw=Math.min(raw,59);
+            const score=Math.round(Math.max(0,Math.min(100,raw)));
+            let band,bandColor,bandLabel;
+            if(score>=70){band='good';bandColor='#10b981';bandLabel=score>=90?'균형 우수':'양호';}
+            else if(score>=50){band='warn';bandColor='#f59e0b';bandLabel='보완 필요';}
+            else {band='bad';bandColor='#ef4444';bandLabel='불균형';}
+            const msgs=[];
+            coreVoid.forEach(s=>msgs.push({sev:'bad',msg:`${s} 0권 — 4대영역(읽기·듣기·말하기·쓰기) 공백, 구조 결함`}));
+            weakNeed.filter(s=>!GRID_CORE.includes(s)).forEach(s=>msgs.push({sev:'bad',msg:`${s} 0권 — 지금 시기엔 꼭 필요한 영역이 비었어요`}));
+            over.forEach(s=>msgs.push({sev:'warn',msg:`${s} 과집중 — 학년대 이상보다 ${Math.round((q[s]-p[s])*100)}%p 쏠림`}));
+            const leftSet=['독해','어휘','문법','구문','파닉스'], rightSet=['듣기','말하기','쓰기'];
+            const L=leftSet.reduce((a,s)=>a+stim[s],0), R=rightSet.reduce((a,s)=>a+stim[s],0);
+            if(L>0.3 && R<L*0.4) msgs.push({sev:'warn',msg:'좌뇌(읽기·문법·어휘)에 쏠림 — 소리·말하기(우뇌)가 어둡습니다. 듣기·말하기를 보강하세요.'});
+            else if(R>0.3 && L<R*0.4) msgs.push({sev:'warn',msg:'소리·회화에 쏠림 — 읽기·문법(좌뇌)이 비었습니다.'});
+            if(!msgs.length) msgs.push({sev:'good',msg:'온 뇌가 학년대 비율대로 고르게 켜졌어요 — 균형 잡힌 커리큘럼입니다.'});
+            return {score,band,bandColor,bandLabel,stim,ideal,p,q,over,voidv,coreVoid,msgs};
+        }
+
+        // ---- 뇌 3D 형상·발광 렌더 ----
+        let brainGroup=null, brainNodes=[], brainLinks=[];
+        const _glowCache={};
+        function makeGlowSprite(hex){
+            let tex=_glowCache[hex];
+            if(!tex){ const cv=document.createElement('canvas'); cv.width=cv.height=128; const ctx=cv.getContext('2d');
+                const r=(hex>>16)&255, g=(hex>>8)&255, b=hex&255; const grd=ctx.createRadialGradient(64,64,0,64,64,64);
+                grd.addColorStop(0,`rgba(${r},${g},${b},0.95)`); grd.addColorStop(0.4,`rgba(${r},${g},${b},0.35)`); grd.addColorStop(1,`rgba(${r},${g},${b},0)`);
+                ctx.fillStyle=grd; ctx.fillRect(0,0,128,128); tex=new THREE.CanvasTexture(cv); _glowCache[hex]=tex; }
+            return new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+        }
+        function buildBrainGroup(){
+            const g=new THREE.Group();
+            [-1,1].forEach(sx=>{ const geo=new THREE.SphereGeometry(1.9,32,24); const pos=geo.attributes.position;
+                for(let i=0;i<pos.count;i++){ const x=pos.getX(i),y=pos.getY(i),z=pos.getZ(i);
+                    const f=1+0.07*Math.sin(7*x)*Math.sin(7*y)+0.05*Math.sin(9*z); pos.setXYZ(i,x*f,y*f,z*f); }
+                geo.computeVertexNormals();
+                const m=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x9aa6b8,roughness:0.92,metalness:0,transparent:true,opacity:0.24,depthWrite:false}));
+                m.position.set(sx*0.95,3.0,0); m.scale.set(1,0.92,1.18); m.renderOrder=-1; g.add(m);
+            });
+            [-1,1].forEach(sx=>{ const m=new THREE.Mesh(new THREE.SphereGeometry(0.7,16,12),new THREE.MeshStandardMaterial({color:0x8893a3,roughness:0.95,transparent:true,opacity:0.24,depthWrite:false}));
+                m.position.set(sx*0.5,1.85,-1.75); m.scale.set(1,0.8,1); m.renderOrder=-1; g.add(m); });
+            const lp=[[0,0],[0.42,0.3],[0.32,0.7],[0.36,1.05]].map(([x,y])=>new THREE.Vector2(x,y));
+            const stem=new THREE.Mesh(new THREE.LatheGeometry(lp,16),new THREE.MeshStandardMaterial({color:0x8893a3,roughness:0.95,transparent:true,opacity:0.2,depthWrite:false}));
+            stem.position.set(0,0.9,-1.0); stem.renderOrder=-1; g.add(stem);
+            const pl=new THREE.PointLight(0x60a5fa,0.4,10); pl.position.set(0,3,0); g.add(pl);
+            return g;
+        }
+        function clearBrainNodes(){
+            const shared=Object.values(_glowCache);
+            brainNodes.forEach(n=>{ scene.remove(n); try{ if(n.geometry && !n.isSprite) n.geometry.dispose(); if(n.material){ if(n.material.map && shared.indexOf(n.material.map)<0) n.material.map.dispose(); n.material.dispose(); } }catch(e){} });   // Sprite는 r128 전역 공유 geometry라 dispose 제외(전체 스프라이트 churn 방지)
+            brainLinks.forEach(l=>{ scene.remove(l); try{ l.geometry.dispose(); l.material.dispose(); }catch(e){} });
+            brainNodes=[]; brainLinks=[];
+        }
+        function renderBrainMap(){
+            if(!scene) return;
+            nodes.forEach(n=>scene.remove(n)); links.forEach(l=>scene.remove(l)); nodes=[]; links=[];
+            clearBrainNodes();
+            if(!brainGroup){ brainGroup=buildBrainGroup(); scene.add(brainGroup); }
+            brainGroup.visible=true;
+            const tt=document.getElementById('view3dTitle'); if(tt) tt.textContent='🧠 뇌 자극 지도';
+            const inf=document.getElementById('view3dInfo'); if(inf) inf.innerHTML=BRAIN_LEGEND_HTML;
+            const bal=brainBalance(), stim=bal.stim, posOf={};
+            BRAIN_REGIONS.forEach(R=>{
+                const skill=R.skill, color=SKILL_COLOR[skill]||0x94a3b8, s=stim[skill]||0, core=GRID_CORE.includes(skill);
+                const isOver=bal.over.indexOf(skill)>=0; posOf[skill]=new THREE.Vector3(R.pos[0],R.pos[1],R.pos[2]);
+                if(s<=0){
+                    const gm=new THREE.Mesh(new THREE.SphereGeometry(core?0.5:0.42,16,12),new THREE.MeshBasicMaterial({color:core?0xef4444:0x334155,transparent:true,opacity:core?0.22:0.16,wireframe:true}));
+                    gm.position.copy(posOf[skill]); gm.userData={brainSkill:skill,empty:true,baseScale:1,phase:0}; scene.add(gm); brainNodes.push(gm);
+                    const lab=makeLabel('⚠ '+skill+' 0권', core?0xef4444:0x94a3b8); if(lab){ lab.position.set(R.pos[0],R.pos[1]+0.6,R.pos[2]); scene.add(lab); brainNodes.push(lab); }
+                    return;
+                }
+                const baseScale=0.7+0.6*s;
+                const cm=new THREE.Mesh(new THREE.SphereGeometry(0.30,20,20),new THREE.MeshStandardMaterial({color,emissive:isOver?0xef4444:color,emissiveIntensity:isOver?0.7:(0.20+0.65*s)}));
+                cm.position.copy(posOf[skill]); cm.scale.set(baseScale,baseScale,baseScale);
+                cm.userData={brainSkill:skill,stim:s,over:isOver,baseScale,phase:(Math.abs(Math.sin(R.pos[0]*12.9+R.pos[1]*78.2))*6.28)};
+                scene.add(cm); brainNodes.push(cm);
+                const glow=makeGlowSprite(color); const gs=(0.8+1.3*s)*(isOver?1.1:1); glow.scale.set(gs,gs,1); glow.position.copy(posOf[skill]); glow.userData={glow:true}; scene.add(glow); brainNodes.push(glow);
+                if(isOver){ const ring=new THREE.Mesh(new THREE.RingGeometry(baseScale*0.62,baseScale*0.78,28),new THREE.MeshBasicMaterial({color:0xef4444,transparent:true,opacity:0.8,side:THREE.DoubleSide}));
+                    ring.position.copy(posOf[skill]); ring.userData={ring:true,phase:cm.userData.phase}; scene.add(ring); brainNodes.push(ring); }
+                if(core){ const lab=makeLabel(skill,color); if(lab){ lab.position.set(R.pos[0],R.pos[1]+0.58,R.pos[2]); lab.userData={label:true}; scene.add(lab); brainNodes.push(lab); } }
+            });
+            BRAIN_CIRCUITS.forEach(([a,b])=>{ if((stim[a]||0)>0 && (stim[b]||0)>0 && posOf[a] && posOf[b]){
+                const lg=new THREE.BufferGeometry().setFromPoints([posOf[a],posOf[b]]);
+                const ln=new THREE.Line(lg,new THREE.LineBasicMaterial({color:0x10b981,transparent:true,opacity:0.35})); scene.add(ln); brainLinks.push(ln);
+            }});
+            renderBrainDiag(bal);
+        }
+        function showSkillDetail(skill){
+            const bal=brainBalance(), stim=bal.stim[skill]||0, ideal=bal.ideal[skill]||0;
+            const R=BRAIN_REGIONS.find(r=>r.skill===skill)||{label:''}, books=gridRowSeq(skill).map(x=>x.book), pct=v=>Math.round(v*100);
+            const cHex='#'+((SKILL_COLOR[skill]||0x94a3b8).toString(16).padStart(6,'0'));
+            let rx; if(stim===0) rx = GRID_CORE.includes(skill) ? `<b class="text-red-400">${skill} 0권</b> — 4대영역 공백입니다. ${skill} 교재를 1~2권 넣어 회로를 켜세요.` : `<b class="text-red-300">${skill} 0권</b> — 지금 시기 이상 비중 ${pct(ideal)}%인데 비어 있어요.`;
+            else if(bal.over.indexOf(skill)>=0) rx=`<b class="text-amber-300">과집중</b> — 학년대 이상보다 쏠려 있어요. 다른 영역으로 분산하세요.`;
+            else rx=`<b class="text-emerald-300">적정</b> — 현재 자극이 학년대 이상과 가깝습니다.`;
+            const bar=(v,c)=>`<div class="flex-1 bg-slate-800 rounded h-2.5 overflow-hidden"><div class="h-full" style="width:${pct(v)}%;background:${c}"></div></div>`;
+            const html=`<div class="text-xs text-slate-400 mb-2">${escHtml(R.label)} <span class="text-slate-600">· 비유</span></div>`+
+                `<div class="space-y-1.5 mb-3 text-[11px]"><div class="flex items-center gap-2"><span class="w-16 text-slate-400">현재 자극</span>${bar(stim,cHex)}<span class="w-9 text-right">${pct(stim)}%</span></div>`+
+                `<div class="flex items-center gap-2"><span class="w-16 text-slate-400">이상(${escHtml(brainStage())})</span>${bar(ideal,'#64748b')}<span class="w-9 text-right">${pct(ideal)}%</span></div></div>`+
+                `<div class="text-xs mb-3">${rx}</div>`+
+                `<div class="text-[11px] font-bold text-slate-300 mb-1">배치된 ${escHtml(skill)} 교재 ${books.length}권</div>`+
+                `<div class="space-y-1 max-h-40 overflow-y-auto hide-scrollbar">${books.length?books.map(b=>`<div class="text-[11px] flex items-center gap-2"><span class="truncate flex-1">${escHtml(b.title)}</span><span class="text-slate-500">Lv.${b.level}</span></div>`).join(''):'<div class="text-slate-500 text-[11px]">없음 — 좌측 DB에서 골라 배치하세요</div>'}</div>`+
+                `<div class="text-[10px] text-slate-600 mt-3">${escHtml(BRAIN_CAVEAT)}</div>`;
+            if(typeof openModal==='function') openModal(`🧠 ${skill} — ${escHtml(R.label)}`, html);
+        }
+        function brainToggleHtml(){ return `<div class="mt-2 flex gap-1 pt-2 border-t border-slate-700/60">`+
+            `<button onclick="setBrain3d(true)" class="px-2 py-1 rounded text-[10px] font-bold ${state.brain3d?'bg-brand text-slate-900':'bg-slate-800 text-slate-400 border border-slate-700'}">🧠 뇌 자극지도</button>`+
+            `<button onclick="setBrain3d(false)" class="px-2 py-1 rounded text-[10px] font-bold ${!state.brain3d?'bg-brand text-slate-900':'bg-slate-800 text-slate-400 border border-slate-700'}">▦ 흐름 격자</button></div>`; }
+        function renderBrainDiag(bal){
+            const el=document.getElementById('diag3d'); if(!el) return; bal=bal||brainBalance();
+            const ico={bad:'🔴',warn:'🟠',good:'✅',info:'ℹ️'}, stim=bal.stim;
+            const bars=GRID_ROWS.map(s=>{ const v=stim[s]||0, id=bal.ideal[s]||0, c='#'+((SKILL_COLOR[s]||0x94a3b8).toString(16).padStart(6,'0'));
+                const tag=v===0?(GRID_CORE.includes(s)?'<span class="text-red-400">0권</span>':'<span class="text-slate-500">0</span>'):(bal.over.indexOf(s)>=0?'<span class="text-amber-400">과집중</span>':'');
+                return `<div class="flex items-center gap-1.5 text-[10px]"><span class="w-10 truncate text-slate-300">${s}</span><div class="flex-1 bg-slate-800 rounded h-2 overflow-hidden relative"><div class="h-full" style="width:${Math.round(v*100)}%;background:${c}"></div><div class="absolute top-0 h-full w-px bg-white/60" style="left:${Math.round(id*100)}%"></div></div><span class="w-8 text-right">${tag}</span></div>`; }).join('');
+            const head=`<div class="flex items-center justify-between mb-1.5"><span class="font-bold text-white">🧠 뇌 자극 균형</span><span class="font-black text-lg" style="color:${bal.bandColor}">${bal.score}<span class="text-[10px] font-normal text-slate-400">/100</span></span></div>`+
+                `<div class="text-[11px] font-bold mb-2" style="color:${bal.bandColor}">${bal.bandLabel}${bal.coreVoid.length?` · 4대영역 공백 ${bal.coreVoid.length}`:''}${bal.over.length?` · 과집중 ${bal.over.length}`:''}</div>`;
+            el.innerHTML=head+`<div class="space-y-1 mb-2">${bars}</div>`+
+                `<div class="space-y-1">${bal.msgs.slice(0,5).map(x=>`<div class="flex gap-1.5 leading-snug ${x.sev==='bad'?'text-red-300':x.sev==='warn'?'text-amber-300':x.sev==='good'?'text-emerald-300':'text-slate-300'}"><span class="flex-shrink-0">${ico[x.sev]}</span><span>${x.msg}</span></div>`).join('')}</div>`+
+                `<div class="text-[9px] text-slate-600 mt-2 leading-tight">${escHtml(BRAIN_CAVEAT)}</div>`+brainToggleHtml();
+        }
+        function setBrain3d(b){ state.brain3d=b; if(b){ update3DGraph(); } else { if(brainGroup) brainGroup.visible=false; clearBrainNodes(); update3DGraph(); } if(typeof lucide!=='undefined') lucide.createIcons(); }
+        const GRID_LEGEND_HTML = `<p class="mb-2">X=시간 · <b>Y(높이)=난이도</b> · Z=영역. 회전하며 흐름을 보고 <b>구를 클릭</b>하면 교재 상세.</p>`+
+            `<div class="space-y-1"><div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-white"></span> 정상 흐름</div>`+
+            `<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span> 난이도 급상승</div>`+
+            `<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-warn"></span> 난이도 역행</div>`+
+            `<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-accent"></span> 영역 겹침</div>`+
+            `<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border-2 border-red-500"></span> 빈 4대영역</div></div>`;
+        const BRAIN_LEGEND_HTML = `<p class="mb-2"><b>좌</b>=문해·분석 · <b>우</b>=소리·소통·표현 · <b>중앙</b>=통합. 밝게 빛날수록 그 영역을 많이 자극. <b>부위 클릭</b>=상세.</p>`+
+            `<div class="space-y-1"><div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-400"></span> 충분히 자극(밝음)</div>`+
+            `<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border border-slate-500"></span> 비어있는 영역(0권)</div>`+
+            `<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full ring-2 ring-red-500"></span> 과집중(쏠림·깜빡임)</div>`+
+            `<div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full border-2 border-red-500"></span> 4대영역 공백(구조결함)</div></div>`+
+            `<div class="text-[10px] text-slate-500 mt-2">${escHtml(BRAIN_CAVEAT)}</div>`;
+        // 3D 인지 매핑(격자 모드): X=분기(시간) · Y=난이도(레벨) · Z=영역(행). 영역별 진행 케미를 색 링크로.
         function update3DGraph() {
             if(!scene) return;
+            if(state.brain3d){ renderBrainMap(); return; }   // 뇌 자극지도(기본 서브모드)로 분기
+            if(brainGroup) brainGroup.visible=false; clearBrainNodes();
+            { const tt=document.getElementById('view3dTitle'); if(tt) tt.textContent='3D 커리큘럼 건강진단'; const inf=document.getElementById('view3dInfo'); if(inf) inf.innerHTML=GRID_LEGEND_HTML; }
             nodes.forEach(n => scene.remove(n)); links.forEach(l => scene.remove(l)); nodes = []; links = [];
             const placed = gridPlaced();
             const rowZ = {}; GRID_ROWS.forEach((s,i)=> rowZ[s]=(i-(GRID_ROWS.length-1)/2)*1.7);
@@ -1612,12 +1816,19 @@
             const ico={bad:'🔴',warn:'🟠',good:'✅',info:'ℹ️'};
             const bad=list.filter(x=>x.sev==='bad').length, warn=list.filter(x=>x.sev==='warn').length;
             const head=`<div class="font-bold text-white mb-1.5 flex items-center justify-between"><span>🩺 커리큘럼 진단</span><span class="text-[10px] font-normal text-slate-400">${bad?('🔴 '+bad+'  '):''}${warn?('🟠 '+warn):''}${!bad&&!warn?'양호':''}</span></div>`;
-            el.innerHTML=head+'<div class="space-y-1">'+list.slice(0,12).map(x=>`<div class="flex gap-1.5 leading-snug ${x.sev==='bad'?'text-red-300':x.sev==='warn'?'text-amber-300':x.sev==='good'?'text-emerald-300':'text-slate-300'}"><span class="flex-shrink-0">${ico[x.sev]}</span><span>${x.msg}</span></div>`).join('')+(list.length>12?`<div class="text-[10px] text-slate-500">…외 ${list.length-12}건</div>`:'')+'</div>';
+            el.innerHTML=head+'<div class="space-y-1">'+list.slice(0,12).map(x=>`<div class="flex gap-1.5 leading-snug ${x.sev==='bad'?'text-red-300':x.sev==='warn'?'text-amber-300':x.sev==='good'?'text-emerald-300':'text-slate-300'}"><span class="flex-shrink-0">${ico[x.sev]}</span><span>${x.msg}</span></div>`).join('')+(list.length>12?`<div class="text-[10px] text-slate-500">…외 ${list.length-12}건</div>`:'')+'</div>'+brainToggleHtml();
         }
         function animate3D() {
             requestAnimationFrame(animate3D);
             const time = Date.now() * 0.003;
             nodes.forEach(n => { if(n.userData.isBottleneck){ const s = 1 + Math.sin(time + n.userData.time) * 0.3; n.scale.set(s,s,s); } });
+            brainNodes.forEach(n=>{ const u=n.userData; if(!u) return;
+                if(u.ring){ if(camera) n.quaternion.copy(camera.quaternion); n.material.opacity=0.5+0.4*Math.abs(Math.sin(time*1.6+(u.phase||0))); return; }
+                if(u.brainSkill && !u.empty && n.material && n.material.isMeshStandardMaterial){
+                    if(u.over){ const t=time*1.8+(u.phase||0); n.material.emissiveIntensity=0.6+0.4*Math.abs(Math.sin(t)); const s=u.baseScale*(1+0.12*Math.sin(t)); n.scale.set(s,s,s); }
+                    else { const s=u.baseScale*(1+0.04*Math.sin(time+(u.phase||0))); n.scale.set(s,s,s); }
+                }
+            });
             if(renderer && scene && camera) renderer.render(scene, camera);
         }
     </script>
