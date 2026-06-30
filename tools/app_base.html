@@ -571,7 +571,7 @@
         // 발행일 "2026년 01월 20일"/"2026-01" → 정렬키(YYYYMMDD)
         function pubKey(b){ const t=String(b.pubDate||''); let m=t.match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/); if(m) return (+m[1])*10000+(+m[2])*100+(+m[3]);
             m=t.match(/(\d{4})\D+(\d{1,2})/); if(m) return (+m[1])*10000+(+m[2])*100; m=t.match(/(\d{4})/); return m?(+m[1])*10000:0; }
-        function popKey(b){ const m=window.__popMap||{}; return m[b.id]||0; }
+        function popKey(b){ const m=window.__popMap||{}; return (m[b.id]||0)*1000 + (b.pop||0); }   // 서버 인기 우선, 없으면 알라딘 판매지수(pop)
         function sortBooks(arr){
             if(state.sort==='recent')  return arr.slice().sort((a,b)=> pubKey(b)-pubKey(a) || String(a.title).localeCompare(b.title,'ko'));
             if(state.sort==='popular') return arr.slice().sort((a,b)=> popKey(b)-popKey(a) || String(a.title).localeCompare(b.title,'ko'));
@@ -834,12 +834,15 @@
         function inBasket(id){ return state.basket.indexOf(id)>=0; }
         function addToBasket(id){ const i=state.basket.indexOf(id); if(i>=0){ state.basket.splice(i,1); showToast('담기 취소'); } else { state.basket.push(id); showToast(`🛒 담음 — 담은 책 ${state.basket.length}권`); logEvent('rec_accepted',{id:id}); } if(state.view==='rec') renderRecView(); renderCurMini(); }
         function basketBarHtml(){ if(!state.basket.length) return ''; return `<div class="flex items-center gap-2 flex-wrap bg-brand/10 border border-brand/30 rounded-xl px-3 py-2 mb-3"><span class="text-sm font-bold text-brand">🛒 담은 책 ${state.basket.length}권</span><button onclick="showBasket()" class="text-xs bg-brand text-slate-900 font-bold px-2.5 py-1 rounded-lg">목록·인쇄</button><button onclick="basketToGrid()" class="text-xs bg-slate-800 border border-slate-600 text-white px-2.5 py-1 rounded-lg">📅 그리드에 펼치기</button><button onclick="if(confirm('담은 책을 비울까요?')){state.basket=[];renderRecView();}" class="text-[10px] text-slate-400 ml-auto hover:text-white">비우기</button></div>`; }
+        function basketTotal(){ return state.basket.map(id=>byId(id)).filter(Boolean).reduce((s,b)=>s+(+b.price||0),0); }
         function showBasket(){ if(!state.basket.length){ showToast('담은 책이 없어요', true); return; }
-            const rows=state.basket.map((id,i)=>{ const b=byId(id); if(!b) return ''; return `<div class="flex items-center gap-2 p-2 border border-slate-700 rounded-lg mb-1.5 bg-slate-800/40"><span class="text-brand font-black w-5 text-center">${i+1}</span><img src="${b.cover||''}" class="w-8 h-11 object-cover rounded" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><div class="text-sm font-bold text-white truncate">${escHtml(b.title)}</div><div class="text-[11px] text-slate-400 truncate">${escHtml(b.pub)} · ${b.skill} · Lv${b.level}</div></div><button onclick="addToBasket('${id}');closeModal();showBasket()" class="text-xs text-slate-400 hover:text-white flex-shrink-0">✕</button></div>`; }).join('');
-            openModal(`🛒 담은 책 ${state.basket.length}권`, `<div class="text-xs text-slate-400 mb-2">'사면 좋을 책' 목록이에요. 인쇄해서 서점·상담에 들고 가세요.</div>${rows}<button onclick="printBasket()" class="w-full mt-2 bg-brand text-slate-900 font-bold text-sm py-2.5 rounded-lg">🖨 목록 인쇄 / PDF 저장</button>`); }
+            const rows=state.basket.map((id,i)=>{ const b=byId(id); if(!b) return ''; return `<div class="flex items-center gap-2 p-2 border border-slate-700 rounded-lg mb-1.5 bg-slate-800/40"><span class="text-brand font-black w-5 text-center">${i+1}</span><img src="${b.cover||''}" class="w-8 h-11 object-cover rounded" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><div class="text-sm font-bold text-white truncate">${escHtml(b.title)}</div><div class="text-[11px] text-slate-400 truncate">${escHtml(b.pub)} · ${b.skill} · Lv${b.level}${b.price?(' · '+priceStr(b)):''}</div></div><button onclick="addToBasket('${id}');closeModal();showBasket()" class="text-xs text-slate-400 hover:text-white flex-shrink-0">✕</button></div>`; }).join('');
+            const tot=basketTotal();
+            openModal(`🛒 담은 책 ${state.basket.length}권`, `<div class="text-xs text-slate-400 mb-2">'사면 좋을 책' 목록이에요. 인쇄해서 서점·상담에 들고 가세요.</div>${rows}${tot?`<div class="text-right text-sm font-bold text-white mt-1 mb-1">예상 합계 ₩${tot.toLocaleString('ko-KR')} <span class="text-[10px] text-slate-500 font-normal">(가격 아는 책만)</span></div>`:''}<button onclick="printBasket()" class="w-full mt-2 bg-brand text-slate-900 font-bold text-sm py-2.5 rounded-lg">🖨 목록 인쇄 / PDF 저장</button>`); }
         function printBasket(){ if(!state.basket.length) return; const items=state.basket.map(id=>byId(id)).filter(Boolean);
-            const rows=items.map((b,i)=>`<tr><td>${i+1}</td><td><b>${escHtml(b.title)}</b></td><td>${escHtml(b.pub)}</td><td>${b.skill}</td><td>Lv.${b.level}</td></tr>`).join('');
-            const html=`<!doctype html><html><head><meta charset="utf-8"><title>담은 영어 교재 목록</title><style>body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:24px;color:#0f172a}h1{font-size:20px;margin:0 0 2px}table{border-collapse:collapse;width:100%;font-size:13px;margin-top:10px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#f1f5f9}@media print{.noprint{display:none}}</style></head><body><h1>🛒 담은 영어 교재 ${items.length}권</h1><div style="color:#64748b;font-size:12px">${new Date().toLocaleDateString('ko-KR')} · 커리큘럼 제작기</div><table><thead><tr><th>#</th><th>교재명</th><th>출판사</th><th>영역</th><th>레벨</th></tr></thead><tbody>${rows}</tbody></table><button class="noprint" onclick="window.print()" style="margin-top:14px;padding:9px 18px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer">🖨 인쇄 / PDF</button></body></html>`;
+            const tot=basketTotal();
+            const rows=items.map((b,i)=>`<tr><td>${i+1}</td><td><b>${escHtml(b.title)}</b></td><td>${escHtml(b.pub)}</td><td>${b.skill}</td><td>Lv.${b.level}</td><td style="text-align:right">${b.price?('₩'+Number(b.price).toLocaleString('ko-KR')):'-'}</td></tr>`).join('')+(tot?`<tr><td colspan="5" style="text-align:right;font-weight:bold">예상 합계(가격 아는 책만)</td><td style="text-align:right;font-weight:bold">₩${tot.toLocaleString('ko-KR')}</td></tr>`:'');
+            const html=`<!doctype html><html><head><meta charset="utf-8"><title>담은 영어 교재 목록</title><style>body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:24px;color:#0f172a}h1{font-size:20px;margin:0 0 2px}table{border-collapse:collapse;width:100%;font-size:13px;margin-top:10px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#f1f5f9}@media print{.noprint{display:none}}</style></head><body><h1>🛒 담은 영어 교재 ${items.length}권</h1><div style="color:#64748b;font-size:12px">${new Date().toLocaleDateString('ko-KR')} · 커리큘럼 제작기</div><table><thead><tr><th>#</th><th>교재명</th><th>출판사</th><th>영역</th><th>레벨</th><th>가격</th></tr></thead><tbody>${rows}</tbody></table><button class="noprint" onclick="window.print()" style="margin-top:14px;padding:9px 18px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer">🖨 인쇄 / PDF</button></body></html>`;
             const w=window.open('','_blank'); if(!w){ showToast('팝업 차단 해제 필요', true); return; } w.document.write(html); w.document.close(); }
         function basketToGrid(){ let n=0; state.basket.forEach(id=>{ if(gridIsPlaced(id)) return; const b=byId(id); if(!b) return; const row=rowOf(b.skill); for(let c=0;c<GRID_COLS;c++){ if(!state.grid[row][c]){ state.grid[row][c]=id; n++; break; } } }); renderPipeline(); renderDB(); toggleView('2d'); showToast(n?`${n}권을 그리드에 펼쳤어요`:'그리드가 가득 찼어요 — 계획기간을 늘려보세요', !n); }
 
@@ -1217,7 +1220,9 @@
             return { s, why };
         }
         // 인기/평점/표지/레벨로 동점을 풀어 '왜 이 책인지' 근거를 만든다(무지성 방지)
-        function popOf(b){ return (window.__popMap&&window.__popMap[b.id])||0; }
+        function popOf(b){ return (window.__popMap&&window.__popMap[b.id])||(b.pop?Math.min(40,b.pop/2500):0); }   // 서버 없을 때 알라딘 판매지수로 폴백
+        function priceStr(b){ return b.price? ('₩'+Number(b.price).toLocaleString('ko-KR')) : ''; }
+        function isNew(b){ const m=String(b.pubDate||'').match(/(20\d\d)\D*(\d{1,2})?/); if(!m) return false; const y=+m[1], mo=+(m[2]||1); const d=new Date(); const months=(d.getFullYear()-y)*12+(d.getMonth()+1-mo); return months>=0 && months<=6; }
         function ratingOf(b){ return (window.__ratingMap&&window.__ratingMap[b.id])||null; }
         // 카드에 띄울 '왜' 근거 배열(짧은 문장 칩들)
         function recWhy(b, ctx){
@@ -1251,7 +1256,7 @@
                 <img src="${b.cover||'https://placehold.co/60x80/1e293b/64748b?text=BOOK'}" class="w-9 h-12 object-cover rounded flex-shrink-0" onerror="this.src='https://placehold.co/60x80/1e293b/64748b?text=BOOK'">
                 <div class="min-w-0 flex-1">
                   <div class="text-[11px] font-bold text-white truncate" title="${b.title}">${b.title}</div>
-                  <div class="text-[10px] text-slate-400 truncate">${b.pub} · ${b.skill} · Lv${b.level}${b.gradeBand?(' · '+b.gradeBand):''}${b.cefr?(' · '+b.cefr):''}${b.foreign?' · 📖원서':''}</div>
+                  <div class="text-[10px] text-slate-400 truncate">${b.pub} · ${b.skill} · Lv${b.level}${b.gradeBand?(' · '+b.gradeBand):''}${b.cefr?(' · '+b.cefr):''}${b.foreign?' · 📖원서':''}${b.price?(' · <b class="text-slate-300">'+priceStr(b)+'</b>'):''}${isNew(b)?' · <span class="text-brand">🆕</span>':''}${b.status==='절판'?' · <span class="text-danger">절판</span>':''}</div>
                   <div class="text-[10px] text-brand mt-0.5 truncate">${(why||[]).slice(0,3).join(' · ')||'적합'}</div>
                 </div>
               </div>

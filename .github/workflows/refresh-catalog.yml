@@ -2,7 +2,8 @@ name: refresh-catalog
 # KOBIC 신간·표지 자동 갱신 → 재빌드 → 커밋 (당신 PC 없이 클라우드에서)
 on:
   schedule:
-    - cron: '0 18 * * *'   # 매일 03:00 KST (18:00 UTC)
+    - cron: '0 18 * * *'   # 매일 03:00 KST (18:00 UTC) — 얕은 신간 갱신
+    - cron: '0 19 * * 1'   # 매주 월 04:00 KST — 깊은 신간 전수 스윕
   workflow_dispatch:        # 수동 실행 버튼
 
 permissions:
@@ -23,10 +24,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: KOBIC 신간 발굴 (학습 교재)
+      - name: KOBIC 신간 발굴 (학습 교재 · 매일 얕게/주간 깊게)
         run: node tools/harvest_kobic.js
         env:
-          KOBIC_MAXPAGES: '8'   # 신간 갱신은 얕게(최근분 위주)
+          KOBIC_MAXPAGES: ${{ github.event.schedule == '0 19 * * 1' && '30' || '8' }}   # 월요일 깊은 전수 신간 스윕
 
       - name: 신규 학습교재 병합 (기존 ISBN 건너뜀)
         run: node tools/harvest_kobic_merge.js
@@ -55,6 +56,24 @@ jobs:
         run: node tools/verify_covers.js --fix || true
         env:
           VERIFY_LIMIT: '600'   # 회당 상한 — 매 회차 다른 슬라이스로 전수 순환(결손/불일치/중복 모두 처리)
+
+      - name: 원서 표지·메타 보강 (Open Library / Google Books · 키 불필요)
+        run: node tools/enrich_foreign.js || true
+        env:
+          ENRICH_LIMIT: '150'
+          GOOGLE_BOOKS_KEY: ${{ secrets.GOOGLE_BOOKS_KEY }}
+
+      - name: 알라딘 보강 (인기·가격·표지·절판 · ALADIN_TTBKEY 있으면 자동 활성)
+        run: node tools/enrich_aladin.js || true
+        env:
+          ALADIN_TTBKEY: ${{ secrets.ALADIN_TTBKEY }}
+          ENRICH_LIMIT: ${{ github.event.schedule == '0 19 * * 1' && '4500' || '1500' }}
+
+      - name: 카카오 보강 (가격·표지 폴백 · KAKAO_REST_KEY 있으면 자동 활성)
+        run: node tools/enrich_kakao.js || true
+        env:
+          KAKAO_REST_KEY: ${{ secrets.KAKAO_REST_KEY }}
+          ENRICH_LIMIT: '3000'
 
       - name: 랭킹 매칭 색인 갱신 (master_index.csv)
         run: node tools/export_master_index.js

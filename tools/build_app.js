@@ -15,6 +15,13 @@ const html = fs.readFileSync(SRC_HTML, "utf8");
 const master = JSON.parse(html.match(/<script id="master-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);
 const images = (JSON.parse(fs.readFileSync(IMG_JSON, "utf8")).images) || {};
 
+// 무료 API enrich 캐시(있으면 머지) — 알라딘(인기·가격·표지·절판) > 카카오(가격·표지 폴백) > 원서(OpenLibrary/GoogleBooks 표지·메타)
+function loadEnrich(name) { try { return JSON.parse(fs.readFileSync(path.join(DATA, name), "utf8")) || {}; } catch (e) { return {}; } }
+const ENRICH_ALADIN = loadEnrich("aladin_enrich.json");
+const ENRICH_KAKAO = loadEnrich("kakao_enrich.json");
+const ENRICH_FOREIGN = loadEnrich("foreign_enrich.json");
+function enrichOf(isbn) { if (!isbn) return {}; return Object.assign({}, ENRICH_FOREIGN[isbn] || {}, ENRICH_KAKAO[isbn] || {}, ENRICH_ALADIN[isbn] || {}); }  // 알라딘 우선
+
 // 스킬 정규화: 4대영역(+문법/구문/어휘/파닉스/모의기출)으로 수렴
 const SKILL_MAP = {
   "인문사회/CLIL": "독해", "과학/CLIL": "독해", "역사/사회": "독해", "지리/문화": "독해",
@@ -181,6 +188,8 @@ const MASTER_DATA = englishOnly.map((m) => {
   const parentBook = !examPrep && PARENT_RE.test(_atxt);
   const teacherRef = !examPrep && !parentBook && TEACHER_RE.test(_atxt);
   const q = qualityScore(m, hasCover);
+  const en = enrichOf(m.isbn);   // 무료 API 보강(가격·인기·표지·상태)
+  const enStatus = (/[\[\(]\s*절판\s*[\]\)]/.test(m.title || "")) ? "절판" : (en.status && en.status !== "정상" ? en.status : (m.status || "정상"));
   return {
     id: uid,
     pub: m.publisher || "",
@@ -196,7 +205,10 @@ const MASTER_DATA = englishOnly.map((m) => {
     tags: (m.situations || []).slice(0, 3).map((s) => "#" + s),
     situations: m.situations || [],
     weaknesses: m.weaknesses || [],
-    cover: m.coverInline || (hasCover ? `covers/${uid}.jpg` : ""),
+    cover: m.coverInline || (hasCover ? `covers/${uid}.jpg` : (en.cover || "")),
+    price: en.price || null,                        // 판매가(알라딘/카카오/네이버) — 예상비용
+    salesPoint: en.salesPoint || 0,                 // 알라딘 판매지수(인기)
+    pop: en.salesPoint || en.loanCount || 0,        // 오프라인 인기정렬 베이크값(서버 popMap 없을 때)
     age: m.ageLabel || "",
     comment: shortComment(m.pickComment),
     fullComment: m.pickComment || "",
@@ -206,7 +218,7 @@ const MASTER_DATA = englishOnly.map((m) => {
     cefr: extractCefr(m.pickComment || ""),
     lexile: extractLexile(m.pickComment || ""),
     ageBand: ageBandAdj(m),                          // 세분 나이대
-    status: (/[\[\(]\s*절판\s*[\]\)]/.test(m.title || "") ? "절판" : (m.status || "정상")),   // 제목에 [절판] 표기 보정
+    status: enStatus,                               // [절판]표기·알라딘/카카오 유통상태 반영
     foreign: !!m.foreign,                           // 원서(수입 ELT) 여부
     isbn: m.isbn || "",
     kdc: m.kdc || "",
