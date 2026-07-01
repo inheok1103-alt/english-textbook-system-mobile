@@ -895,23 +895,48 @@
             r.querySelectorAll('[onclick]:not(button):not(a):not(input):not(select):not(textarea):not([tabindex])').forEach(el=>{ el.setAttribute('tabindex','0'); if(!el.hasAttribute('role')) el.setAttribute('role','button'); });
             r.querySelectorAll('img:not([alt])').forEach(img=>img.setAttribute('alt','')); }
         function showHelp(){
-            openModal('🎓 처음이세요? 3분 가이드', `
+            openModal('📖 사용설명서', `
               <div class="space-y-3 text-sm text-slate-300">
-                <div><b class="text-white">이 앱은?</b> 교재를 잘 몰라도, 아이에게 맞는 영어 커리큘럼을 쉽게 짜드립니다.</div>
-                <div class="bg-slate-800/60 rounded-lg p-3"><b class="text-brand">📌 3단계로 시작</b>
+                <div><b class="text-white">이 앱은?</b> 교재를 잘 몰라도, 아이(또는 본인)에게 맞는 영어 커리큘럼을 <b>학년·목표만 고르면</b> 자동으로 짜드립니다. 1만종 교재 DB + 알라딘 판매·인기 데이터 기반.</div>
+
+                <div class="bg-slate-800/60 rounded-lg p-3"><b class="text-brand">🚀 가장 빠른 시작 (3단계)</b>
                   <ol class="list-decimal ml-5 mt-1 space-y-1 text-xs">
-                    <li><b>학년·목표</b>를 고르고 <b>"목표 시작"</b> → 시작 교재가 자동 배치돼요.</li>
-                    <li>표의 <b>빈 칸</b>을 누르면 그 자리(영역×시기)에 맞는 교재를 추천해드려요. (추천 외 교재도 좌측에서 자유 선택)</li>
-                    <li><b>"균형 채우기"</b>로 4대영역(듣기·말하기·읽기·쓰기)을 고르게 채우고 <b>"출력"</b>으로 예쁘게 뽑으세요.</li>
+                    <li>막막하면 <b>💬 상담</b>(우하단)이나 <b>✨ 추천</b> 탭에서 "중2 독해 기초"처럼 말/선택 → 교재를 딱 집어줍니다.</li>
+                    <li><b>커리큘럼 제작</b>에서 상단 <b>학년</b>을 고르고, 표의 <b>빈 칸</b>을 누르면 그 자리(영역×시기)에 맞는 교재를 <b>판매·인기순</b>으로 추천.</li>
+                    <li><b>균형 채우기</b>로 4대영역을 고르게 채우고 <b>출력</b>으로 PDF 저장.</li>
                   </ol></div>
-                <div class="bg-slate-800/60 rounded-lg p-3 text-xs space-y-1.5"><b class="text-accent">💡 좋은 커리의 원칙 (쉽게)</b>
-                  <div>• <b>딱 한 뼘 위</b>: 거의 다 아는데 5%만 새로운 교재가 가장 잘 큽니다(너무 어려우면 질려요).</div>
+
+                <div class="bg-slate-800/60 rounded-lg p-3 text-xs space-y-2"><b class="text-white">🗂 화면별 사용법</b>
+                  <div><b class="text-brand">📋 커리큘럼 제작</b> — 핵심 화면. <b>가로=시간(분기/주), 세로=영어 영역</b> 표에 교재를 배치.
+                    <ul class="list-disc ml-4 mt-1 space-y-0.5 text-slate-400">
+                      <li><b>학생 설정</b>(상단): 학년·현재 수준을 고르면 칸 추천이 이 아이에 맞춰집니다.</li>
+                      <li><b>빈 칸 탭</b> → 그 영역·시기 추천 목록(판매/인기순) → "배치".</li>
+                      <li><b>목표 시작</b>(목표 고르면 시작 교재 자동) · <b>균형 채우기</b>(4대영역 단계별 자동) · <b>어휘 처방</b>.</li>
+                      <li><b>계획 기간</b>: 1달(주간)·1분기·1년(4분기) 선택.</li>
+                      <li><b>저장/불러오기</b>(JSON) · <b>커리 공유</b> · <b>출력</b>(PDF).</li>
+                    </ul></div>
+                  <div><b class="text-brand">📚 교재 찾기</b>(PC 왼쪽 / 폰 상단 토글) — 전체 DB 탐색. <b>필터</b>(4대영역·난이도·상황·약점·학년·나이대) + <b>검색</b> + <b>정렬</b>(가나다·🔥인기·🆕최신) + <b>📖원서만</b>. 책을 고른 뒤 표의 칸을 누르면 배치.</div>
+                  <div><b class="text-brand">✨ 교재 추천</b> — 학년·목표·시기만 고르면 <b>시작 교재</b>. <b>방금 푼 교재</b>+정답률까지 고르면 구간별(80%↑ 도전 / 60~79% 굳히기 / 40%↓ 다지기) <b>다음 단계</b> 추천. 상단 <b>트랙</b>: 🧒학생 / 🧑‍💼성인(본인) / 👩‍🏫학부모용 / 🎓임용·공무원.</div>
+                  <div><b class="text-brand">💬 교재 상담(챗봇)</b> — 우하단 말풍선. "초6 문법 기초"처럼 말로 물으면 딱 맞는 교재를 판매·인기순으로 추천.</div>
+                  <div><b class="text-brand">🧠 3D 뇌 자극지도</b> — 짠 커리가 뇌(=영어 영역)를 골고루 자극하는지 진단. 어두운 부위 = 부족한 영역(직관적 비유).</div>
+                  <div><b class="text-brand">📊 랭킹</b> — 알라딘 판매 인기 랭킹(학년대별) + 커뮤니티 인기 조합.</div>
+                  <div><b class="text-brand">📅 내신대비</b> — 학교·시험범위·기간 입력 → 본문을 단계별(해석→어휘→어법→빈칸→배열→영작→실전)로 쪼개 <b>날짜에 자동 배치</b>한 달력. 간격복습 원리 반영.</div>
+                </div>
+
+                <div class="bg-slate-800/60 rounded-lg p-3 text-xs space-y-1"><b class="text-accent">📱 폰에서 쓸 때</b>
+                  <div>• 상단 <b>[📚 교재 찾기] [📋 내 계획표]</b> 토글로 한 화면씩 봅니다.</div>
+                  <div>• 계획표는 <b>가로로 밀어</b> 뒤 분기를 봐요(영역 이름은 왼쪽 고정).</div>
+                  <div>• 하단 <b>⋯ 더보기</b>에 저장·공유·출력 버튼이 들어있어요.</div>
+                </div>
+
+                <div class="bg-slate-800/60 rounded-lg p-3 text-xs space-y-1.5"><b class="text-accent">💡 좋은 커리의 원칙</b>
+                  <div>• <b>딱 한 뼘 위</b>: 거의 다 아는데 5%만 새로운 교재가 가장 잘 큽니다.</div>
                   <div>• <b>듣기·읽기만 ❌</b>: 말하기·쓰기도 섞어야 '말이 터집니다.'</div>
-                  <div>• <b>나눠서 여러 번</b>: 벼락치기보다 며칠 간격 복습이 오래 남아요(내신대비 탭이 자동으로 짜드려요).</div>
+                  <div>• <b>나눠서 여러 번</b>: 벼락치기보다 며칠 간격 복습(내신대비 탭이 자동).</div>
                   <div>• <b>읽지 말고 맞혀보기</b>: 복습은 다시 읽기보다 '미니 퀴즈'가 2배 효과.</div>
                 </div>
-                <div class="text-xs text-slate-400">상단 탭: <b>커리큘럼 제작</b>(커리 짜기)·<b>추천</b>·<b>3D</b>(인지 흐름)·<b>랭킹</b>·<b>내신대비</b>(시험 일정표). 우상단 <b>?</b>로 언제든 다시 봐요.</div>
-                <div class="text-[11px] text-slate-500 border-t border-slate-700 pt-2">만든 사람: <b class="text-slate-300">이인혁 (Ray T)</b> · 인기 교재·조합 랭킹을 위해 <b>비식별 사용기록</b>(고른 교재·학년대)만 익명 누적됩니다. 학교명·학생명은 전송하지 않으며 이 기기에만 저장돼요. 하단 🗑로 언제든 삭제할 수 있습니다.</div>
+
+                <div class="text-[11px] text-slate-500 border-t border-slate-700 pt-2">만든 사람: <b class="text-slate-300">이인혁 (Ray T)</b> · 인기 랭킹을 위해 <b>비식별 사용기록</b>(고른 교재·학년대)만 익명 누적. 학교명·학생명은 전송 안 하고 이 기기에만 저장돼요(하단 🗑로 삭제). 우상단 <b>?</b>로 언제든 다시 봐요.</div>
               </div>`);
         }
 
