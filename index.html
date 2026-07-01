@@ -71,7 +71,24 @@
             #view-2d.m-plan .p-plan { padding-bottom: 4.5rem; }
             /* 툴바 '더보기' 접기: 모바일은 열었을 때만 보조 버튼 표시 */
             #toolMore.toolMore-open { display: contents; }
+            input, select, textarea { font-size: 16px !important; }   /* iOS 입력창 터치 시 자동확대 방지 */
         }
+        /* 인쇄: 팝업 새 창(모바일 차단) 대신 현재 페이지의 #printArea만 인쇄 */
+        #printArea { display: none; }
+        @media print {
+            body > *:not(#printArea) { display: none !important; }
+            #printArea { display: block !important; color:#0f172a; background:#fff; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; padding:10px; }
+            #printArea h1 { font-size:18px; margin:0 0 4px; color:#0f172a; }
+            #printArea .sub { color:#475569; font-size:11px; margin-bottom:8px; }
+            #printArea .legend { margin-top:12px; font-size:11px; color:#475569; }
+            #printArea table { border-collapse:collapse; width:100%; font-size:11px; }
+            #printArea th, #printArea td { border:1px solid #cbd5e1; padding:5px; text-align:center; vertical-align:top; }
+            #printArea th { background:#f1f5f9; }
+            #printArea td.sk { background:#f8fafc; font-weight:bold; text-align:left; } #printArea td.sk.core { background:#e0f2fe; color:#075985; }
+            #printArea .lv { color:#64748b; font-size:10px; } #printArea .day { font-weight:bold; } #printArea .exam { background:#fee2e2; } #printArea .task { font-size:8px; text-align:left; color:#334155; }
+            #printArea .noprint { display:none !important; }
+        }
+    </style>
 </head>
 <body class="flex flex-col h-screen">
 
@@ -917,11 +934,15 @@
             const rows=state.basket.map((id,i)=>{ const b=byId(id); if(!b) return ''; return `<div class="flex items-center gap-2 p-2 border border-slate-700 rounded-lg mb-1.5 bg-slate-800/40"><span class="text-brand font-black w-5 text-center">${i+1}</span><img src="${b.cover||''}" class="w-8 h-11 object-cover rounded" onerror="this.style.display='none'"><div class="flex-1 min-w-0"><div class="text-sm font-bold text-white truncate">${escHtml(b.title)}</div><div class="text-[11px] text-slate-400 truncate">${escHtml(b.pub)} · ${b.skill} · Lv${b.level}${b.price?(' · '+priceStr(b)):''}</div></div><button onclick="addToBasket('${id}');closeModal();showBasket()" class="text-xs text-slate-400 hover:text-white flex-shrink-0">✕</button></div>`; }).join('');
             const tot=basketTotal();
             openModal(`🛒 담은 책 ${state.basket.length}권`, `<div class="text-xs text-slate-400 mb-2">'사면 좋을 책' 목록이에요. 인쇄해서 서점·상담에 들고 가세요.</div>${rows}${tot?`<div class="text-right text-sm font-bold text-white mt-1 mb-1">예상 합계 ₩${tot.toLocaleString('ko-KR')} <span class="text-[10px] text-slate-500 font-normal">(가격 아는 책만)</span></div>`:''}<button onclick="printBasket()" class="w-full mt-2 bg-brand text-slate-900 font-bold text-sm py-2.5 rounded-lg">🖨 목록 인쇄 / PDF 저장</button>`); }
+        // 인쇄: 팝업 새 창(모바일 Safari 차단) 대신 현재 페이지 #printArea에 넣고 window.print() → 네이티브 인쇄/PDF 저장
+        function doPrintDoc(fullHtml){ const m=String(fullHtml).match(/<body[^>]*>([\s\S]*)<\/body>/i); const inner=m?m[1]:fullHtml;
+            let pa=document.getElementById('printArea'); if(!pa){ pa=document.createElement('div'); pa.id='printArea'; document.body.appendChild(pa); }
+            pa.innerHTML=inner; setTimeout(()=>{ try{ window.print(); }catch(e){} setTimeout(()=>{ pa.innerHTML=''; },1200); }, 80); }
         function printBasket(){ if(!state.basket.length) return; const items=state.basket.map(id=>byId(id)).filter(Boolean);
             const tot=basketTotal();
             const rows=items.map((b,i)=>`<tr><td>${i+1}</td><td><b>${escHtml(b.title)}</b></td><td>${escHtml(b.pub)}</td><td>${b.skill}</td><td>Lv.${b.level}</td><td style="text-align:right">${b.price?('₩'+Number(b.price).toLocaleString('ko-KR')):'-'}</td></tr>`).join('')+(tot?`<tr><td colspan="5" style="text-align:right;font-weight:bold">예상 합계(가격 아는 책만)</td><td style="text-align:right;font-weight:bold">₩${tot.toLocaleString('ko-KR')}</td></tr>`:'');
             const html=`<!doctype html><html><head><meta charset="utf-8"><title>담은 영어 교재 목록</title><style>body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:24px;color:#0f172a}h1{font-size:20px;margin:0 0 2px}table{border-collapse:collapse;width:100%;font-size:13px;margin-top:10px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#f1f5f9}@media print{.noprint{display:none}}</style></head><body><h1>🛒 담은 영어 교재 ${items.length}권</h1><div style="color:#64748b;font-size:12px">${new Date().toLocaleDateString('ko-KR')} · 커리큘럼 제작기</div><table><thead><tr><th>#</th><th>교재명</th><th>출판사</th><th>영역</th><th>레벨</th><th>가격</th></tr></thead><tbody>${rows}</tbody></table><button class="noprint" onclick="window.print()" style="margin-top:14px;padding:9px 18px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer">🖨 인쇄 / PDF</button></body></html>`;
-            const w=window.open('','_blank'); if(!w){ showToast('팝업 차단 해제 필요', true); return; } w.document.write(html); w.document.close(); }
+            doPrintDoc(html); }
         function basketToGrid(){ let n=0; state.basket.forEach(id=>{ if(gridIsPlaced(id)) return; const b=byId(id); if(!b) return; const row=rowOf(b.skill); for(let c=0;c<GRID_COLS;c++){ if(!state.grid[row][c]){ state.grid[row][c]=id; n++; break; } } }); renderPipeline(); renderDB(); toggleView('2d'); showToast(n?`${n}권을 그리드에 펼쳤어요`:'그리드가 가득 찼어요 — 계획기간을 늘려보세요', !n); }
 
         // 4대영역(독해·듣기·말하기·쓰기) 행마다 단계별 1권씩 균형 자동 채움 — 단계 레벨 + 케미
@@ -1059,7 +1080,7 @@
                 <div style="margin-top:10px;font-size:10px;color:#94a3b8">커리큘럼 제작기 · 만든이 이인혁 (Ray T)</div>
                 <button class="noprint" onclick="window.print()" style="margin-top:16px;padding:9px 18px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer">🖨 인쇄 / PDF 저장</button>
             </body></html>`;
-            const w=window.open('','_blank'); if(!w){ showToast('팝업 차단을 해제해주세요', true); return; } w.document.write(html); w.document.close();
+            doPrintDoc(html);
         }
 
         // ===== 내신 대비 스케줄러 (이그잼포유·백발백중·내신콘서트·아잉카 단계 종합) =====
@@ -1141,7 +1162,7 @@
             const {inp,res}=window.__naesin;
             accumulateNaesin(inp, res);
             const html=`<!doctype html><html><head><meta charset="utf-8"><title>내신 대비 일정</title><style>body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;padding:20px;color:#0f172a}h1{font-size:18px;margin:0 0 6px}.sub{color:#64748b;font-size:12px;margin-bottom:12px}table{border-collapse:collapse;width:100%;margin-bottom:12px}th,td{border:1px solid #cbd5e1;text-align:center;vertical-align:top;font-size:10px}td{height:64px;padding:2px}th{background:#f1f5f9;padding:3px}.day{font-weight:bold;font-size:11px}.exam{background:#fee2e2}.task{font-size:8px;color:#334155;text-align:left;line-height:1.3}@media print{.noprint{display:none}}</style></head><body><h1>📅 ${escHtml(inp.school)} 내신 대비 일정 — ${escHtml(inp.student)}</h1><div class="sub">${inp.level==='high'?'고등 10단계':'중등 7단계'} · ${nsFmt(new Date(inp.start))} ~ ${nsFmt(new Date(inp.exam))}(시험) · 본문 ${inp.lessons}과${inp.external?(' + 외부 '+inp.external):''}</div>${nsCalendar(inp,res,true)}<div style="margin-top:8px;font-size:10px;color:#94a3b8">커리큘럼 제작기 · 만든이 이인혁 (Ray T) · 간격복습·인출연습 원리 반영</div><button class="noprint" onclick="window.print()" style="margin-top:10px;padding:8px 16px;background:#0ea5e9;color:#fff;border:none;border-radius:8px;font-weight:bold;cursor:pointer">🖨 인쇄 / PDF 저장</button></body></html>`;
-            const w=window.open('','_blank'); if(!w){ showToast('팝업 차단 해제 필요', true); return; } w.document.write(html); w.document.close();
+            doPrintDoc(html);
         }
 
         function deviceId(){ try{ let d=localStorage.getItem('ih_device'); if(!d){ d='d'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); localStorage.setItem('ih_device',d); } return d; }catch(e){ return 'd0'; } }
@@ -1178,7 +1199,7 @@
             placed.forEach(({book})=>{ picks.push(book.id); partCounts[book.skill]=(partCounts[book.skill]||0)+1; });
             const seq=gridColSeq().map(b=>b.id);   // 시간순(열 우선) 시퀀스 → 조합 집계용
             // 전송용 — 학교명·학생명 등 식별정보는 빼고 비식별(학년대)만. 이름은 로컬 인쇄에만 쓰임.
-            return { picks:Array.from(new Set(picks)), curriculum:seq, gridSnap:state.grid, goal:state.goal||'', meta:{ grade:state.curGrade||'' }, region:(state.curGrade||''), deviceId:deviceId(), partCounts, submittedAt:new Date().toISOString() };
+            return { picks:Array.from(new Set(picks)), curriculum:seq, gridSnap:state.grid, goal:state.goal||'', grade:state.curGrade||'', meta:{ grade:state.curGrade||'' }, region:(state.curGrade||''), deviceId:deviceId(), partCounts, submittedAt:new Date().toISOString() };
         }
         function exportCurriculum(){
             accumulateUsage('save');
@@ -1213,7 +1234,7 @@
                 fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(plan)}).catch(()=>{});
                 logEvent('auto_share',{n:plan.picks.length});
             }catch(e){} }, 6000); }
-        function titleOf(id){ const b=byId(id); return b?b.title:id; }
+        function titleOf(id){ const b=byId(id); return escHtml(b?b.title:id); }   // 서버 에코 uid 저장형 XSS 차단
         function openDashboard(){
             openModal('실시간 인기 교재 · 커리 대시보드', `<div id="dashSeg" class="flex gap-2 flex-wrap mb-3">${['all','day','week','month','year'].map(b=>`<button data-b="${b}" class="px-3 py-1 rounded-full text-xs font-bold border ${b==='all'?'bg-brand text-slate-900 border-brand':'bg-slate-800 text-slate-300 border-slate-600'}">${({all:'전체',day:'일간',week:'주간',month:'월간',year:'연간'})[b]}</button>`).join('')}</div><div id="dashBody" class="text-sm text-slate-300">불러오는 중…</div>`);
             window.__dashBucket='all';
