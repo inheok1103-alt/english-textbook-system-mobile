@@ -1365,15 +1365,23 @@
             const toks=(p.q.toLowerCase().match(/[a-z0-9가-힣]+/g)||[]).filter(w=>w.length>1);
             let pool=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판' && (!p.skills.length || p.skills.includes(b.skill)));
             if(!pool.length) pool=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판');
+            const higherGrade = p.grade==='중등'||p.grade==='고등'||p.grade==='성인';
             const scored=pool.map(b=>{
-                let s=popScore(b)*2.4;                                                 // ★ 판매·인기 우선
+                let s=popScore(b)*1.8;                                                 // 판매·인기(비중 낮춤)
                 if(p.skills.includes(b.skill)) s+=25;
-                if(p.grade){ if(b.gradeBand===p.grade) s+=20; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=6; else s-=8; }
+                if(p.grade){ if(b.gradeBand===p.grade) s+=28; else if(b.gradeBand==='전체') s+=6; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=4; else s-=14; }   // 정확 학년 우대
                 if(p.lvHint!=null) s-=Math.abs((b.level||3)-p.lvHint)*6;
+                if(higherGrade && /만화/.test(b.track||'')) s-=40;                     // 중등↑ 질문에 어린이 학습만화 배제
                 const t=(b.title||'').toLowerCase(); let ov=0; toks.forEach(w=>{ if(t.includes(w)) ov++; }); s+=ov*4;
                 return {b,s};
             }).sort((a,b)=>b.s-a.s);
-            return dedupBySeries(scored,6).map(x=>x.b);
+            // 같은 시리즈(부제만 다른 다권) 강한 dedup — 제목의 첫 숫자/콜론 앞 + 출판사 접두로 1권만
+            const seen={}, out=[];
+            for(const x of scored){ const b=x.b;
+                const key=(b.pub||'').replace(/[^a-z0-9가-힣]/gi,'').slice(0,6)+'|'+String(b.title||'').split(/[0-9:：]/)[0].replace(/[^a-z0-9가-힣]/gi,'').slice(0,14);
+                if(seen[key]) continue; seen[key]=1; out.push(b); if(out.length>=6) break;
+            }
+            return out;
         }
         function chatBookCard(b){ return `<div class="flex items-center gap-2 bg-slate-900/70 border border-slate-700 rounded-lg p-1.5 mt-1.5">`+
             `<img src="${b.cover||''}" onerror="this.style.display='none'" class="w-8 h-11 object-cover rounded flex-shrink-0">`+
