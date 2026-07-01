@@ -69,6 +69,8 @@
             #pipelineContainer .cell-box { min-height: 66px !important; }
             /* 하단 고정 도구/취소 바가 내용 가리지 않게 여유 */
             #view-2d.m-plan .p-plan { padding-bottom: 4.5rem; }
+            /* 툴바 '더보기' 접기: 모바일은 열었을 때만 보조 버튼 표시 */
+            #toolMore.toolMore-open { display: contents; }
         }
 </head>
 <body class="flex flex-col h-screen">
@@ -201,12 +203,15 @@
                     <select id="goalSel" class="bg-slate-900 border border-slate-600 text-white text-xs rounded-lg px-2 py-2.5 font-bold"><option value="">목표…</option><option>기초·파닉스 떼기</option><option>읽기(독해) 강화</option><option>어휘 집중</option><option>문법 마스터</option><option>듣기·말하기(회화)</option><option>영작·서술형</option><option>수능 대비(구문·독해)</option><option>공인시험(토익/토플/텝스)</option><option>원서 읽기</option><option>4대영역 균형</option></select>
                     <button onclick="startByGoal()" class="flex-1 min-w-[90px] bg-purple-500 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="flag" class="w-4 h-4"></i> 목표 시작</button>
                     <button onclick="autoFillBalance()" class="flex-1 min-w-[100px] bg-accent text-slate-900 font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="layout-grid" class="w-4 h-4"></i> 균형 채우기</button>
+                    <button id="toolMoreBtn" onclick="toolMoreToggle()" class="lg:hidden flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg">⋯ 더보기</button>
+                    <div id="toolMore" class="hidden lg:contents">
                     <button onclick="prescribeVocab()" class="flex-1 min-w-[100px] bg-brand text-slate-900 font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="pill" class="w-4 h-4"></i> 어휘 처방</button>
                     <button onclick="shareCurriculum()" class="flex-1 min-w-[100px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="upload-cloud" class="w-4 h-4"></i> 커리 공유</button>
                     <button onclick="exportCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="save" class="w-4 h-4"></i> 저장</button>
                     <button onclick="importCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="folder-open" class="w-4 h-4"></i> 불러오기</button>
                     <button onclick="printCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="printer" class="w-4 h-4"></i> 출력</button>
                     <button onclick="openDashboard()" class="flex-1 min-w-[100px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> 실시간 대시보드</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1348,6 +1353,8 @@
             const ex=['초6 문법 기초','중2 독해','고3 수능 어휘','초등 파닉스','성인 회화'];
             const c=document.getElementById('chatChips'); if(c) c.innerHTML=ex.map(e=>`<button onclick="chatQuick('${e}')" class="px-2 py-1 rounded-full text-[11px] bg-slate-800 border border-slate-600 text-slate-300 hover:border-brand">${e}</button>`).join(''); }
         function chatQuick(e){ const i=document.getElementById('chatInput'); if(i){ i.value=e; chatSend(); } }
+        // 모바일 툴바 보조버튼 접기/펼치기 (데스크톱은 항상 표시)
+        function toolMoreToggle(){ const m=document.getElementById('toolMore'), b=document.getElementById('toolMoreBtn'); if(!m) return; m.classList.toggle('toolMore-open'); if(b) b.textContent=m.classList.contains('toolMore-open')?'⋯ 접기':'⋯ 더보기'; }
         function toggleChat(on){ const p=document.getElementById('chatPanel'), f=document.getElementById('chatFab'); if(!p) return;
             p.classList.toggle('hidden',!on); if(f) f.classList.toggle('hidden',on);
             if(on){ if(!document.getElementById('chatLog').children.length) chatGreet(); const i=document.getElementById('chatInput'); if(i) setTimeout(()=>{try{i.focus();}catch(e){}},60); logEvent&&logEvent('chat_open'); } }
