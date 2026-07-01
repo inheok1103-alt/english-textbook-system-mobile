@@ -217,6 +217,23 @@
             <button onclick="cancelSelection()" class="bg-slate-900 text-white px-3 py-1.5 rounded text-xs">취소</button>
         </div>
 
+        <!-- 💬 교재 상담 챗봇 (검색기반 + LLM 업그레이드 훅) -->
+        <button id="chatFab" onclick="toggleChat(true)" class="fixed bottom-4 right-4 z-40 bg-brand text-slate-900 rounded-full shadow-xl w-14 h-14 flex items-center justify-center text-2xl hover:scale-105 transition" title="교재 상담 챗봇">💬</button>
+        <div id="chatPanel" class="hidden fixed inset-0 sm:inset-auto sm:bottom-4 sm:right-4 sm:w-[380px] sm:h-[560px] sm:max-h-[85vh] z-[80] bg-panel sm:border sm:border-slate-700 sm:rounded-2xl shadow-2xl flex flex-col">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700 flex-shrink-0">
+                <div class="font-bold text-white flex items-center gap-2">💬 교재 상담 <span id="chatMode" class="text-[10px] font-normal text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded">검색기반</span></div>
+                <button onclick="toggleChat(false)" class="text-slate-400 hover:text-white text-xl px-1">✕</button>
+            </div>
+            <div id="chatLog" class="flex-1 overflow-y-auto p-3 space-y-3 hide-scrollbar"></div>
+            <div class="p-3 border-t border-slate-700 flex-shrink-0">
+                <div id="chatChips" class="flex gap-1.5 flex-wrap mb-2"></div>
+                <div class="flex gap-2">
+                    <input id="chatInput" onkeydown="if(event.key==='Enter')chatSend()" placeholder="예: 초6 문법 기초 6개월" class="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand">
+                    <button onclick="chatSend()" class="bg-brand text-slate-900 font-bold px-4 rounded-lg">전송</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 3D View (인지 매핑) -->
         <div id="view-3d" class="hidden absolute inset-0 bg-dark z-40 fade-in flex flex-col">
             <div class="absolute top-4 left-4 z-50 bg-slate-900/80 backdrop-blur border border-slate-700 p-4 rounded-xl max-w-sm pointer-events-none">
@@ -1289,6 +1306,63 @@
         function popScore(b){ const srv=window.__popMap&&window.__popMap[b.id]; if(srv) return Math.min(38, srv*0.6); const sp=b.pop||0; return sp>0? Math.min(32, Math.log10(sp+1)*6.5) : 0; }
         function popMult(){ return state.recSort==='pop' ? 3 : 1.7; }   // 판매량·인기를 철저히 반영(맞춤순에서도 큰 가중)
         function priceStr(b){ return b.price? ('₩'+Number(b.price).toLocaleString('ko-KR')) : ''; }
+
+        // ===== 💬 교재 상담 챗봇 — 검색기반(BM25 유사) + 판매/인기 랭킹, LLM 프록시 훅 =====
+        // window.CHAT_ENDPOINT 에 GAS chat 프록시 /exec URL을 넣으면 자연어 LLM 답변으로 자동 업그레이드.
+        window.CHAT_ENDPOINT = window.CHAT_ENDPOINT || '';
+        const CHAT_GRADE = [[/유아|예비\s*초/,'유아/예비초'],[/초등|초\s*[1-6]|초[1-6]|초등학교/,'초등'],[/중등|중\s*[1-3]|중[1-3]|중학/,'중등'],[/고등|고\s*[1-3]|고[1-3]|고교|수능/,'고등'],[/성인|어른|직장|토익|토플|텝스/,'성인']];
+        const CHAT_SKILL = [[/문법|어법|grammar/i,'문법'],[/독해|읽기|리딩|reading/i,'독해'],[/어휘|단어|voca|vocab/i,'어휘'],[/듣기|리스닝|listening/i,'듣기'],[/말하기|회화|스피킹|speaking/i,'말하기'],[/쓰기|영작|서술형|writing/i,'쓰기'],[/파닉스|phonics/i,'파닉스'],[/구문/i,'구문'],[/수능|모의|기출/i,'모의/기출']];
+        const CHAT_LEVEL = [[/왕초보|처음|입문|기초/,2],[/기본/,3],[/실력|심화|실전|고난도|어려운/,4.5]];
+        function parseChat(q){
+            const grade=(CHAT_GRADE.find(x=>x[0].test(q))||[])[1]||'';
+            const skills=CHAT_SKILL.filter(x=>x[0].test(q)).map(x=>x[1]);
+            const lvHint=(CHAT_LEVEL.find(x=>x[0].test(q))||[])[1];
+            return {grade, skills, lvHint:(lvHint==null?null:lvHint), q};
+        }
+        function chatRetrieve(p){
+            const toks=(p.q.toLowerCase().match(/[a-z0-9가-힣]+/g)||[]).filter(w=>w.length>1);
+            let pool=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판' && (!p.skills.length || p.skills.includes(b.skill)));
+            if(!pool.length) pool=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판');
+            const scored=pool.map(b=>{
+                let s=popScore(b)*2.4;                                                 // ★ 판매·인기 우선
+                if(p.skills.includes(b.skill)) s+=25;
+                if(p.grade){ if(b.gradeBand===p.grade) s+=20; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=6; else s-=8; }
+                if(p.lvHint!=null) s-=Math.abs((b.level||3)-p.lvHint)*6;
+                const t=(b.title||'').toLowerCase(); let ov=0; toks.forEach(w=>{ if(t.includes(w)) ov++; }); s+=ov*4;
+                return {b,s};
+            }).sort((a,b)=>b.s-a.s);
+            return dedupBySeries(scored,6).map(x=>x.b);
+        }
+        function chatBookCard(b){ return `<div class="flex items-center gap-2 bg-slate-900/70 border border-slate-700 rounded-lg p-1.5 mt-1.5">`+
+            `<img src="${b.cover||''}" onerror="this.style.display='none'" class="w-8 h-11 object-cover rounded flex-shrink-0">`+
+            `<div class="min-w-0 flex-1"><div class="text-[12px] font-bold text-white truncate">${escHtml(b.title)}</div><div class="text-[10px] text-slate-400 truncate">${escHtml(b.pub||'')} · ${b.gradeBand||''} · Lv${b.level}${b.salesPoint?' · <span class="text-orange-400">🔥인기</span>':''}${b.price?(' · '+priceStr(b)):''}</div></div>`+
+            `<button onclick="showBookDetail('${b.id}')" class="text-[11px] text-brand flex-shrink-0 px-1 font-bold">보기</button></div>`; }
+        function chatTemplate(p,books){ if(!books.length) return '조건에 맞는 교재를 못 찾았어요. 학년·영역을 다시 알려주세요. 예) "중2 독해 기본"';
+            const parts=[]; if(p.grade)parts.push(p.grade); if(p.skills.length)parts.push(p.skills.join('·')); if(p.lvHint!=null)parts.push(p.lvHint<=2?'기초':p.lvHint>=4?'실전':'기본');
+            return `<b>${parts.join(' · ')||'인기'}</b> 기준 <b class="text-orange-400">판매·인기 순</b> 추천이에요 👇`; }
+        function chatAppend(who,html){ const log=document.getElementById('chatLog'); if(!log) return null; const d=document.createElement('div');
+            d.className=(who==='user'?'text-right':''); d.setAttribute('data-who',who);
+            d.innerHTML=`<div class="inline-block max-w-[88%] text-left rounded-2xl px-3 py-2 text-sm ${who==='user'?'bg-brand text-slate-900':'bg-slate-800 text-slate-100'}">${html}</div>`;
+            log.appendChild(d); log.scrollTop=log.scrollHeight; if(typeof lucide!=='undefined') lucide.createIcons(); return d; }
+        function chatGreet(){ chatAppend('bot','안녕하세요! 어떤 학생인가요? <b>학년·영역·수준</b>을 말로 알려주시면 딱 맞는 교재를 <b>판매·인기 순</b>으로 추천해드려요. 예) <b>"초6 문법 기초"</b>');
+            const ex=['초6 문법 기초','중2 독해','고3 수능 어휘','초등 파닉스','성인 회화'];
+            const c=document.getElementById('chatChips'); if(c) c.innerHTML=ex.map(e=>`<button onclick="chatQuick('${e}')" class="px-2 py-1 rounded-full text-[11px] bg-slate-800 border border-slate-600 text-slate-300 hover:border-brand">${e}</button>`).join(''); }
+        function chatQuick(e){ const i=document.getElementById('chatInput'); if(i){ i.value=e; chatSend(); } }
+        function toggleChat(on){ const p=document.getElementById('chatPanel'), f=document.getElementById('chatFab'); if(!p) return;
+            p.classList.toggle('hidden',!on); if(f) f.classList.toggle('hidden',on);
+            if(on){ if(!document.getElementById('chatLog').children.length) chatGreet(); const i=document.getElementById('chatInput'); if(i) setTimeout(()=>{try{i.focus();}catch(e){}},60); logEvent&&logEvent('chat_open'); } }
+        async function chatSend(){
+            const inp=document.getElementById('chatInput'); if(!inp) return; const q=(inp.value||'').trim(); if(!q) return; inp.value='';
+            chatAppend('user', escHtml(q));
+            const p=parseChat(q), books=chatRetrieve(p), ep=(window.CHAT_ENDPOINT||'').trim();
+            if(ep){ const thinking=chatAppend('bot','<span class="text-slate-500">생각 중…</span>');
+                try{ const r=await fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({chat:1,q,candidates:books.slice(0,6).map(b=>({id:b.id,title:b.title,pub:b.pub,grade:b.gradeBand,skill:b.skill,level:b.level,sp:b.salesPoint||0,price:b.price||0}))})});
+                    const d=await r.json(); if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking);
+                    chatAppend('bot',(d&&d.answer?escHtml(d.answer).replace(/\n/g,'<br>'):chatTemplate(p,books))+books.map(chatBookCard).join(''));
+                    const md=document.getElementById('chatMode'); if(md) md.textContent='AI 상담';
+                }catch(e){ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking); chatAppend('bot', chatTemplate(p,books)+books.map(chatBookCard).join('')); }
+            } else { chatAppend('bot', chatTemplate(p,books)+books.map(chatBookCard).join('')); }
+        }
         function isNew(b){ const m=String(b.pubDate||'').match(/(20\d\d)\D*(\d{1,2})?/); if(!m) return false; const y=+m[1], mo=+(m[2]||1); const d=new Date(); const months=(d.getFullYear()-y)*12+(d.getMonth()+1-mo); return months>=0 && months<=6; }
         function ratingOf(b){ return (window.__ratingMap&&window.__ratingMap[b.id])||null; }
         // 카드에 띄울 '왜' 근거 배열(짧은 문장 칩들)
