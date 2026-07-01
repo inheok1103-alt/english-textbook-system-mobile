@@ -342,7 +342,7 @@
 
     <!-- 중앙 집계 설정 (배포 후 /exec URL 입력) -->
     <script>
-        window.GUIDE_ENDPOINT = "https://script.google.com/macros/s/AKfycbzIKCLfsc8MWz1UqTJ21KJMf0ytIJlgFJKgt7Zov7zogMcyeMVFwICijxiZeBfPIJOj4Q/exec";  // ← Apps Script 웹앱 /exec URL
+        window.GUIDE_ENDPOINT = "https://script.google.com/macros/s/AKfycbzUtUgVHmgYWfyYf5IXAgm0_p4UHzk5TKW-8RPEOx8HGMY_EpGJZrTjpSuZALcUr-B4CQ/exec";  // ← Apps Script 웹앱 /exec URL (신규 배포: 챗봇·활동로그 포함)
         window.GUIDE_DASHBOARD_POLL_MS = 30000;
     </script>
 
@@ -1378,7 +1378,7 @@
             if(ep && typeof jsonp==='function'){
                 const thinking=chatAppend('bot','<span class="text-slate-500">🤖 생각 중…</span>');
                 const c=encodeURIComponent(JSON.stringify(books.slice(0,6).map(b=>({t:b.title,p:b.pub,g:b.gradeBand,s:b.skill,l:b.level,sp:b.salesPoint||0}))));
-                const url=ep+(ep.indexOf('?')>=0?'&':'?')+'chat=1&q='+encodeURIComponent(q.slice(0,300))+'&c='+c;   // JSONP(GET) — GAS CORS 우회
+                const url=ep+(ep.indexOf('?')>=0?'&':'?')+'chat=1&q='+encodeURIComponent(q.slice(0,300))+'&cands='+c;   // JSONP(GET) — 'c'는 GAS가 가로채 400 유발 → 'cands'
                 jsonp(url).then(d=>{ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking);
                     const ai=d&&d.ok&&d.answer;
                     chatAppend('bot',(ai?escHtml(d.answer).replace(/\n/g,'<br>'):chatTemplate(p,books))+books.map(chatBookCard).join(''));
