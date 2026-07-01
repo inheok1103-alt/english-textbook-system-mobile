@@ -113,7 +113,8 @@ function getSheet_() { return sheet_(SHEET_NAME, HEADERS); }
 function normTitle_(t) { return String(t || '').toLowerCase().replace(/\([^)]*\)/g, '').replace(/[^a-z0-9가-힣]/g, ''); }
 function output_(obj, cb) {
   var json = JSON.stringify(obj);
-  if (cb) return ContentService.createTextOutput(cb + '(' + json + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  // JSONP 콜백은 안전한 식별자만 허용(임의 JS 반사 방지) — 아니면 순수 JSON
+  if (cb && /^[A-Za-z_$][\w$]*$/.test(cb)) return ContentService.createTextOutput(cb + '(' + json + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
 }
 function parseJson_(t, fb) { try { return t ? JSON.parse(t) : fb; } catch (e) { return fb; } }

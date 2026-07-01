@@ -56,6 +56,8 @@
         #mobPanelBar { display: none; }
         .mobtab-on  { background:#10b981; color:#0f172a; }
         .mobtab-off { background:#1e293b; color:#94a3b8; border:1px solid #334155; }
+        /* 계획표: 가로 스크롤 시 영역 라벨 좌측 고정 (모바일 가독성) */
+        .plangrid-lbl { position: sticky; left: 0; z-index: 6; background: #1e293b; padding-right: 3px; }
         @media (max-width: 1023px) {
             /* 커리 제작: 좌(교재)·우(계획표)를 45vh로 우겨넣지 않고 한 번에 하나만 전체높이로 */
             #mobPanelBar { display: flex; }
@@ -795,11 +797,11 @@
             const sel = state.selectedBookId ? byId(state.selectedBookId) : null;
             const selRow = sel ? rowOf(sel.skill) : null;
             const phaseColors = {1:'text-brand', 2:'text-accent', 3:'text-purple-400'};
-            const gcols = `grid-template-columns: 42px repeat(${GRID_COLS}, minmax(0,1fr)); gap:2px;`;   // 화면폭에 꽉 차게(한눈에)
+            const gcols = `grid-template-columns: 52px repeat(${GRID_COLS}, minmax(78px,1fr)); gap:3px;`;   // 셀 최소 78px(모바일 가로스크롤)·데스크톱은 1fr로 확장
 
             const isPhaseStart=(c)=> c===0 || colMeta(c-1).phase!==colMeta(c).phase;
             const tLabel=(c)=> TIME_UNIT==='year'?(c+1)+'분기':TIME_UNIT==='month'?(c+1)+'주':(c+1)+'개월';
-            let header = `<div class="grid" style="${gcols}"><div class="text-[9px] text-slate-500 flex items-end pb-1">영역</div>`;
+            let header = `<div class="grid" style="${gcols}"><div class="plangrid-lbl text-[9px] text-slate-500 flex items-end pb-1">영역</div>`;
             for(let c=0;c<GRID_COLS;c++){ const m=colMeta(c), ps=isPhaseStart(c); header += `<div class="text-center ${ps?'border-l border-slate-700':''}">${ps?`<div class="text-[8px] ${phaseColors[m.phase]} font-bold truncate">${m.phase}단계</div>`:'<div class="h-3"></div>'}<div class="text-[8px] text-slate-500">${tLabel(c)}</div></div>`; }
             header += `</div>`;
 
@@ -807,7 +809,7 @@
             GRID_ROWS.forEach(skill=>{
                 const core = GRID_CORE.includes(skill);
                 const empty = gridRowSeq(skill).length===0;
-                let cells = `<div class="grid items-stretch" style="${gcols}"><div class="flex flex-col justify-center"><span class="text-[11px] font-bold ${core?'text-white':'text-slate-400'}">${skill}</span>${core?'<span class="text-[7px] text-brand">4대영역</span>':''}${empty?'<span class="text-[7px] text-warn">미배치</span>':''}</div>`;
+                let cells = `<div class="grid items-stretch" style="${gcols}"><div class="plangrid-lbl flex flex-col justify-center"><span class="text-[11px] font-bold ${core?'text-white':'text-slate-400'}">${skill}</span>${core?'<span class="text-[7px] text-brand">4대영역</span>':''}${empty?'<span class="text-[7px] text-warn">미배치</span>':''}</div>`;
                 for(let c=0;c<GRID_COLS;c++){
                     const uid = state.grid[skill][c]; const m=colMeta(c); const bl = isPhaseStart(c)?'border-l border-slate-700':'';
                     if(uid){
@@ -827,7 +829,7 @@
                 rowsHtml += `<div class="${skill==='문법'?'mt-1.5 pt-1.5 border-t border-slate-700':''}">${cells}</div>`;
             });
 
-            container.innerHTML = `<div class="overflow-x-auto hide-scrollbar"><div style="min-width:${GRID_COLS>8?(GRID_COLS*52+42)+'px':'0'}">${header}<div class="space-y-1 mt-1">${rowsHtml}</div></div></div>`;
+            container.innerHTML = `<div class="overflow-x-auto hide-scrollbar"><div style="min-width:${GRID_COLS*81+52}px">${header}<div class="space-y-1 mt-1">${rowsHtml}</div></div></div>`;
 
             let diag='흐름 양호', dc='bg-slate-800 text-brand border-brand/50';
             const missing=GRID_CORE.filter(s=>gridRowSeq(s).length===0);
@@ -1647,10 +1649,10 @@
                     ins.classList.remove('hidden');
                     const max=d.areaEmphasis[0].count||1;
                     let ih='<div class="font-black text-white mb-2 text-sm">📈 요즘 영어교육 경향 — 강조되는 영역</div>';
-                    ih+=d.areaEmphasis.slice(0,9).map(a=>`<div class="flex items-center gap-2 mb-1 text-xs"><div class="w-16 text-slate-300 truncate">${a.area}</div><div class="flex-1 bg-slate-800 rounded h-3 overflow-hidden"><div class="h-full bg-gradient-to-r from-accent to-brand" style="width:${Math.round(a.count/max*100)}%"></div></div><div class="w-10 text-right text-slate-400">${a.pct}%</div></div>`).join('');
+                    ih+=d.areaEmphasis.slice(0,9).map(a=>`<div class="flex items-center gap-2 mb-1 text-xs"><div class="w-16 text-slate-300 truncate">${escHtml(a.area)}</div><div class="flex-1 bg-slate-800 rounded h-3 overflow-hidden"><div class="h-full bg-gradient-to-r from-accent to-brand" style="width:${Math.round(a.count/max*100)}%"></div></div><div class="w-10 text-right text-slate-400">${a.pct}%</div></div>`).join('');
                     if(d.areaTrend && d.areaTrend.length>=2){ const cur=d.areaTrend[d.areaTrend.length-1].areas||{}, prev=d.areaTrend[d.areaTrend.length-2].areas||{};
                         const rising=Object.keys(cur).map(k=>({k,delta:(cur[k]||0)-(prev[k]||0)})).filter(x=>x.delta>0).sort((a,b)=>b.delta-a.delta).slice(0,3);
-                        if(rising.length) ih+='<div class="text-[11px] text-brand mt-2">▲ 이번 달 상승: '+rising.map(x=>x.k+' (+'+x.delta+'%p)').join(' · ')+'</div>';
+                        if(rising.length) ih+='<div class="text-[11px] text-brand mt-2">▲ 이번 달 상승: '+rising.map(x=>escHtml(x.k)+' (+'+x.delta+'%p)').join(' · ')+'</div>';
                     }
                     ih+='<div class="text-[10px] text-slate-500 mt-1">모든 사용자의 커리큘럼 영역 분포(기기당 1회) 집계 — 어디에 무게를 두는지 보여줍니다.</div>';
                     ins.innerHTML=ih;
