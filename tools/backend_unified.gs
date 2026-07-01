@@ -83,7 +83,7 @@ function chatProxy_(p) {
   var key = PropertiesService.getScriptProperties().getProperty('GROQ_KEY');
   if (!key) return { ok: false, answer: '' };                 // 키 없으면 앱이 검색기반으로 폴백
   var q = String(p.q || '').slice(0, 400);
-  var cands = parseJson_(p.c, []);
+  var cands = parseJson_(p.cands || p.c, []);   // 'c'는 GAS가 가로채 400 유발 → 'cands' 사용
   var lines = (cands || []).slice(0, 6).map(function (b, i) {
     return (i + 1) + '. ' + b.t + ' (' + (b.p || '') + ', ' + (b.g || '') + ', ' + (b.s || '') + ', Lv' + (b.l || '') + ', 판매지수 ' + (b.sp || 0) + ')';
   }).join('\n');
