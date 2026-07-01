@@ -51,7 +51,25 @@
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
+
+        /* ===== 모바일 최적화 (핸드폰에서 쓰기 쉽게) ===== */
+        #mobPanelBar { display: none; }
+        .mobtab-on  { background:#10b981; color:#0f172a; }
+        .mobtab-off { background:#1e293b; color:#94a3b8; border:1px solid #334155; }
+        @media (max-width: 1023px) {
+            /* 커리 제작: 좌(교재)·우(계획표)를 45vh로 우겨넣지 않고 한 번에 하나만 전체높이로 */
+            #mobPanelBar { display: flex; }
+            #view-2d.m-db  .p-plan { display: none !important; }
+            #view-2d.m-plan .p-db  { display: none !important; }
+            #view-2d.m-db  .p-db,
+            #view-2d.m-plan .p-plan { height: calc(100dvh - 8.8rem) !important; }
+            /* 계획표 그리드 셀 가독성 — 7px는 폰에서 안 보임 */
+            #pipelineContainer .cell-t   { font-size: 10px !important; line-height: 1.2; }
+            #pipelineContainer .cell-cov { height: 40px !important; }
+            #pipelineContainer .cell-box { min-height: 66px !important; }
+            /* 하단 고정 도구/취소 바가 내용 가리지 않게 여유 */
+            #view-2d.m-plan .p-plan { padding-bottom: 4.5rem; }
+        }
 </head>
 <body class="flex flex-col h-screen">
 
@@ -89,10 +107,16 @@
 
     <main class="flex-1 relative overflow-hidden">
         <!-- 2D View (조립기) -->
-        <div id="view-2d" class="h-full overflow-y-auto lg:overflow-hidden max-w-[1400px] mx-auto px-2 sm:px-4 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 fade-in">
+        <div id="view-2d" class="h-full overflow-y-auto lg:overflow-hidden max-w-[1400px] mx-auto px-2 sm:px-4 py-4 grid grid-cols-1 lg:grid-cols-12 gap-4 fade-in m-db">
+
+            <!-- 모바일 전용: 교재↔계획표 전환 (데스크톱은 좌우 동시 표시) -->
+            <div id="mobPanelBar" class="gap-2 sticky top-0 z-30">
+                <button id="mob-db-btn" onclick="setMobPanel('db')" class="flex-1 py-2.5 rounded-lg text-sm font-bold mobtab-on">📚 교재 찾기</button>
+                <button id="mob-plan-btn" onclick="setMobPanel('plan')" class="flex-1 py-2.5 rounded-lg text-sm font-bold mobtab-off">📋 내 계획표</button>
+            </div>
 
             <!-- [Left] DB & Filters -->
-            <div class="lg:col-span-5 bg-panel border border-slate-700 rounded-2xl flex flex-col h-[45vh] lg:h-[calc(100vh-6rem)] shadow-xl relative">
+            <div class="p-db lg:col-span-5 bg-panel border border-slate-700 rounded-2xl flex flex-col h-[45vh] lg:h-[calc(100vh-6rem)] shadow-xl relative">
 
                 <div class="flex overflow-x-auto border-b border-slate-700 hide-scrollbar bg-slate-800/50 rounded-t-2xl flex-shrink-0">
                     <button onclick="setTab('skill')" id="tab-skill" class="flex-1 py-3 px-2 text-sm font-bold text-brand border-b-2 border-brand whitespace-nowrap">4대영역</button>
@@ -132,15 +156,10 @@
                     </div>
                 </div>
 
-                <!-- 모바일 선택 취소 오버레이 -->
-                <div id="cancel-banner" class="hidden absolute bottom-0 left-0 w-full bg-brand text-slate-900 px-4 py-3 text-sm font-bold flex justify-between items-center z-20 shadow-[0_-10px_20px_rgba(16,185,129,0.2)]">
-                    <span class="flex items-center gap-2"><i data-lucide="hand" class="w-4 h-4"></i> 우측 빈 칸(시간 슬롯)을 선택하세요</span>
-                    <button onclick="cancelSelection()" class="bg-slate-900 text-white px-3 py-1.5 rounded text-xs">취소</button>
-                </div>
             </div>
 
             <!-- [Right] Pipeline (분기 시스템) -->
-            <div class="lg:col-span-7 bg-panel border border-slate-700 rounded-2xl flex flex-col h-[45vh] lg:h-[calc(100vh-6rem)] shadow-xl overflow-y-auto p-4 sm:p-5 relative hide-scrollbar">
+            <div class="p-plan lg:col-span-7 bg-panel border border-slate-700 rounded-2xl flex flex-col h-[45vh] lg:h-[calc(100vh-6rem)] shadow-xl overflow-y-auto p-4 sm:p-5 relative hide-scrollbar">
                 <div class="flex justify-between items-end border-b border-slate-700 pb-3 mb-4 flex-shrink-0">
                     <div>
                         <h2 class="font-bold text-lg sm:text-xl mb-1 flex items-center gap-2 text-white">
@@ -190,6 +209,12 @@
                     <button onclick="openDashboard()" class="flex-1 min-w-[100px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> 실시간 대시보드</button>
                 </div>
             </div>
+        </div>
+
+        <!-- 교재 선택 시 배치 안내 (전역 하단 고정 — 모바일 패널 전환에도 항상 보임) -->
+        <div id="cancel-banner" class="hidden fixed bottom-0 left-0 w-full bg-brand text-slate-900 px-4 py-3 text-sm font-bold flex justify-between items-center z-50 shadow-[0_-10px_20px_rgba(16,185,129,0.3)]">
+            <span class="flex items-center gap-2"><i data-lucide="hand" class="w-4 h-4"></i> 빈 칸(시간 슬롯)을 눌러 배치하세요</span>
+            <button onclick="cancelSelection()" class="bg-slate-900 text-white px-3 py-1.5 rounded text-xs">취소</button>
         </div>
 
         <!-- 3D View (인지 매핑) -->
@@ -746,15 +771,15 @@
                     const uid = state.grid[skill][c]; const m=colMeta(c); const bl = isPhaseStart(c)?'border-l border-slate-700':'';
                     if(uid){
                         const b=byId(uid); const chem=chemMap[skill+':'+c];
-                        cells += `<div class="relative group rounded border border-slate-600 bg-card overflow-hidden ${bl}" style="min-height:50px">
-                            <button onclick="event.stopPropagation();removeCell('${skill}',${c})" class="absolute top-0 right-0 w-4 h-4 bg-danger text-white rounded-bl items-center justify-center opacity-0 group-hover:opacity-100 z-10 text-[10px] hidden group-hover:flex">×</button>
+                        cells += `<div class="relative group rounded border border-slate-600 bg-card overflow-hidden cell-box ${bl}" style="min-height:50px">
+                            <button onclick="event.stopPropagation();removeCell('${skill}',${c})" class="absolute top-0 right-0 w-5 h-5 bg-danger text-white rounded-bl flex items-center justify-center opacity-70 group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 z-10 text-xs">×</button>
                             <button onclick="event.stopPropagation();showBookDetail('${uid}')" class="block w-full text-left">
-                                <div class="h-7 bg-dark overflow-hidden flex items-center justify-center"><img src="${b.cover}" class="w-full h-full object-cover opacity-90" loading="lazy" onerror="this.style.display='none'"></div>
-                                <div class="px-0.5 pb-0.5 text-center"><div class="text-[7px] text-white truncate" title="${b.title}">${b.title}</div><div class="text-[7px] text-slate-500">Lv${b.level}</div>${chem&&chem.g!=='start'?`<div class="text-[7px] font-black leading-none" style="color:${chem.css}" title="${chem.t}">${chem.icon}</div>`:''}</div>
+                                <div class="h-7 bg-dark overflow-hidden flex items-center justify-center cell-cov"><img src="${b.cover}" class="w-full h-full object-cover opacity-90" loading="lazy" onerror="this.style.display='none'"></div>
+                                <div class="px-0.5 pb-0.5 text-center"><div class="text-[7px] text-white truncate cell-t" title="${b.title}">${b.title}</div><div class="text-[7px] text-slate-500 cell-t">Lv${b.level}</div>${chem&&chem.g!=='start'?`<div class="text-[7px] font-black leading-none" style="color:${chem.css}" title="${chem.t}">${chem.icon}</div>`:''}</div>
                             </button></div>`;
                     } else {
                         const tgt = sel && selRow===skill;
-                        cells += `<div onclick="handleCellClick('${skill}',${c})" ondragover="allowDrop(event)" ondrop="handleCellDrop(event,'${skill}',${c})" class="rounded border border-dashed flex items-center justify-center cursor-pointer ${bl} ${tgt?'border-brand bg-brand/10':'border-slate-700 bg-slate-800/20 hover:border-slate-500'}" style="min-height:50px" title="${skill} · ${m.label} 추천"><span class="text-[11px] ${tgt?'text-brand':'text-slate-600'}">${tgt?'＋':'·'}</span></div>`;
+                        cells += `<div onclick="handleCellClick('${skill}',${c})" ondragover="allowDrop(event)" ondrop="handleCellDrop(event,'${skill}',${c})" class="rounded border border-dashed flex items-center justify-center cursor-pointer cell-box ${bl} ${tgt?'border-brand bg-brand/10':'border-slate-700 bg-slate-800/20 hover:border-slate-500'}" style="min-height:50px" title="${skill} · ${m.label} 추천"><span class="text-base ${tgt?'text-brand':'text-slate-600'}">${tgt?'＋':'·'}</span></div>`;
                     }
                 }
                 cells += `</div>`;
@@ -778,8 +803,16 @@
         // ==========================================
         // 4. Interaction Logic
         // ==========================================
-        function selectBook(id) { if(state.selectedBookId === id){ cancelSelection(); return; } state.selectedBookId = id; document.getElementById('cancel-banner').classList.remove('hidden'); renderDB(); renderPipeline(); }
+        function selectBook(id) { if(state.selectedBookId === id){ cancelSelection(); return; } state.selectedBookId = id; document.getElementById('cancel-banner').classList.remove('hidden'); if(window.innerWidth<1024) setMobPanel('plan'); renderDB(); renderPipeline(); }
         function cancelSelection() { state.selectedBookId = null; document.getElementById('cancel-banner').classList.add('hidden'); renderDB(); renderPipeline(); }
+        // 모바일: 교재 찾기 ↔ 내 계획표 단일 패널 전환 (데스크톱은 CSS상 무효)
+        function setMobPanel(p){ const v=document.getElementById('view-2d'); if(!v) return;
+            v.classList.toggle('m-db', p==='db'); v.classList.toggle('m-plan', p!=='db');
+            const on='flex-1 py-2.5 rounded-lg text-sm font-bold mobtab-on', off='flex-1 py-2.5 rounded-lg text-sm font-bold mobtab-off';
+            const d=document.getElementById('mob-db-btn'), l=document.getElementById('mob-plan-btn');
+            if(d) d.className=(p==='db'?on:off); if(l) l.className=(p==='db'?off:on);
+            try{ v.scrollTo(0,0); }catch(e){}
+        }
         function dragStart(e, id) { e.dataTransfer.setData('bookId', id); cancelSelection(); }
         function allowDrop(e) { e.preventDefault(); }
         function handleCellDrop(e, skill, col){ e.preventDefault(); const id=e.dataTransfer.getData('bookId'); if(id) placeInGrid(id, col); }
@@ -1430,6 +1463,8 @@
         let scene, camera, renderer, nodes=[], links=[];
         function toggleView(v) {
             state.view = v;
+            // 다른 뷰로 전환 시 교재 선택(전역 고정 취소바) 해제 — 배너가 추천/랭킹 화면 위에 남지 않게
+            if(v!=='2d' && state.selectedBookId){ state.selectedBookId=null; const _cb=document.getElementById('cancel-banner'); if(_cb) _cb.classList.add('hidden'); }
             const views = { '2d':'view-2d', 'rec':'view-rec', '3d':'view-3d', 'rank':'view-rank', 'naesin':'view-naesin' };
             Object.keys(views).forEach(k => { const el=document.getElementById(views[k]); if(el) el.classList.toggle('hidden', k!==v); });
             const base = "px-3 py-2 sm:px-4 rounded-md text-xs sm:text-sm font-bold transition-all flex items-center gap-2";
