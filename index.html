@@ -488,13 +488,15 @@
                 '파닉스>문법':-70,'파닉스>구문':-70,'파닉스>모의/기출':-75,'모의/기출>파닉스':-50,'모의/기출>어휘':-30,'말하기>모의/기출':-20 }
         };
         function _cnorm(s){ return String(s||'').toLowerCase().replace(/[\s\-_]/g,''); }
-        function _seriesKey(b){ return String(b.title||'').toLowerCase()
+        function _seriesKey(b){ const t = String(b.title||'').toLowerCase()
             .replace(/\([^)]*\)/g,' ')                                               // 괄호 속(교과서명·연도·저자) 제거 → 내신콘서트(비상)/(동아) 합침
             .replace(/\b\d+\s*(st|nd|rd|th)\s+edition\b/g,' ')
             .replace(/\b(basic|advanced|starter|intro|master|essential|practice|workbook|complete)\b/gi,' ')   // 에디션·난이도 표기
             .replace(/(기본|심화|입문|완성|끝내기|실력|종합|기초|기적)\b/g,' ')          // 한글 난이도/시리즈 변형어 → 100일의 기적 Basic/Advanced 합침
             .replace(/\b(level|lv|book|band|stage|grade|step|단계|권|편|차)\b/gi,' ')
-            .replace(/[0-9]+/g,' ').replace(/[^a-z0-9가-힣]+/g,'').trim(); }
+            .replace(/[0-9]+/g,' ').replace(/[^a-z0-9가-힣]+/g,'').trim();
+            const pub = String(b.pub||'').toLowerCase().replace(/[^a-z0-9가-힣]/g,'').slice(0,8);   // 출판사 접두 — 다른 출판사 시리즈 오병합 방지
+            return pub + '|' + t; }
         // 오디언스 트랙 필터 — 학생용(기본)은 임용·학부모·교사책 제외 / 학부모용·임용준비는 각 풀만
         function audienceOk(b){
             if(state.track==='parent') return !!b.parentBook;
