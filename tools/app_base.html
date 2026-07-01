@@ -820,6 +820,7 @@
             if(dEl){ dEl.innerText=diag; dEl.className=`text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded-lg border ${dc} text-center max-w-[140px] sm:max-w-none`; }
             if (typeof lucide !== 'undefined') lucide.createIcons();
             if(state.view === '3d') update3DGraph();
+            scheduleAutoShare();   // 커리 변경 시 중앙 서버로 자동 공유(디바운스+내용변경 시에만)
         }
 
         // ==========================================
@@ -1202,6 +1203,16 @@
             if(!ep){ showToast('서버 미설정: 로컬에 저장됨', true); return; }
             fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(plan)}).then(()=>showToast('커리큘럼을 공유했습니다.')).catch(()=>showToast('전송 실패(로컬 저장됨)', true));
         }
+        // 커리 자동 공유 — 배치 내용이 바뀌면 6초 뒤 중앙 서버로 조용히 전송(별명·프롬프트 없이, 중복 방지)
+        function scheduleAutoShare(){ const ep=(window.GUIDE_ENDPOINT||'').trim(); if(!ep) return;
+            clearTimeout(window.__autoShareT);
+            window.__autoShareT=setTimeout(()=>{ try{ const plan=collectPlan(); if(!plan.picks.length) return;
+                const sig=plan.picks.slice().sort().join(',')+'|'+(plan.curriculum||[]).join(',');
+                if(sig===window.__lastShareSig) return; window.__lastShareSig=sig;
+                plan.attemptId='auto-'+deviceId()+'-'+Date.now(); plan.auto=1;
+                fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(plan)}).catch(()=>{});
+                logEvent('auto_share',{n:plan.picks.length});
+            }catch(e){} }, 6000); }
         function titleOf(id){ const b=byId(id); return b?b.title:id; }
         function openDashboard(){
             openModal('실시간 인기 교재 · 커리 대시보드', `<div id="dashSeg" class="flex gap-2 flex-wrap mb-3">${['all','day','week','month','year'].map(b=>`<button data-b="${b}" class="px-3 py-1 rounded-full text-xs font-bold border ${b==='all'?'bg-brand text-slate-900 border-brand':'bg-slate-800 text-slate-300 border-slate-600'}">${({all:'전체',day:'일간',week:'주간',month:'월간',year:'연간'})[b]}</button>`).join('')}</div><div id="dashBody" class="text-sm text-slate-300">불러오는 중…</div>`);
@@ -1248,6 +1259,7 @@
         }
         function showBookDetail(id){
             const b=byId(id); if(!b) return;
+            try{ logEvent('view_book',{id:id,skill:b.skill}); }catch(e){}
             const r=window.__ratingMap[id];
             const meta=[b.pub,b.skill,'Lv.'+b.level,b.cefr,b.gradeBand,(b.status==='절판'?'⛔ 절판':''),b.kdc,b.pubDate].filter(Boolean).join(' · ');
             const _toc=(window.__TOC__&&window.__TOC__[b.id])||b.toc||'';
@@ -1490,10 +1502,11 @@
         function setRecSort(v){ state.recSort=v; renderRecView(); showToast(v==='pop'?'🔥 인기(판매량) 우선으로':'🎯 맞춤(적합도) 우선으로'); }
         // 학부모/임용 트랙 — 풀 전체를 최신순으로 시리즈 중복 제거해 노출
         function trackPoolRec(){
+            const pop=(state.recSort==='pop');   // 인기순 ↔ 맞춤순으로 가중치 분기(트랙 풀도 실제로 달라지게)
             const scored=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판'
                     && (state.track!=='exam' || !state.examFilter || b.examType===state.examFilter)).map(b=>{
-                let s=(b.q!=null?b.q:50) + popScore(b)*1.5;   // 트랙 풀도 판매지수 인기 반영
-                const yr=(String(b.pubDate||'').match(/(20|19)\d\d/)||[])[0]; const w=[]; if(b.pub) w.push(b.pub); if(yr) w.push(yr);
+                let s = (b.q!=null?b.q:50)*(pop?0.5:1.4) + popScore(b)*(pop?4.5:1.0);   // 인기순=판매지수 지배 / 맞춤순=품질·최신 우선
+                const yr=(String(b.pubDate||'').match(/(20|19)\d\d/)||[])[0]; const w=[]; if(pop&&b.salesPoint) w.push('🔥인기'); if(b.pub) w.push(b.pub); if(yr) w.push(yr);
                 return {b,s,why:w};
             }).sort((a,b)=>b.s-a.s);
             return dedupBySeries(scored, 24);
@@ -1549,6 +1562,7 @@
         let scene, camera, renderer, nodes=[], links=[];
         function toggleView(v) {
             state.view = v;
+            try{ logEvent('view',{v:v}); }catch(e){}
             // 다른 뷰로 전환 시 교재 선택(전역 고정 취소바) 해제 — 배너가 추천/랭킹 화면 위에 남지 않게
             if(v!=='2d' && state.selectedBookId){ state.selectedBookId=null; const _cb=document.getElementById('cancel-banner'); if(_cb) _cb.classList.add('hidden'); }
             const views = { '2d':'view-2d', 'rec':'view-rec', '3d':'view-3d', 'rank':'view-rank', 'naesin':'view-naesin' };
