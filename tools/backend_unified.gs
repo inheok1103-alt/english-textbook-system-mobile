@@ -39,6 +39,7 @@ function doPost(e) {
   try {
     var rec = parseBody_(e);
     if (rec.type === 'rating') { sheet_(RATING_SHEET, RATING_HEADERS).appendRow(ratingRow_(rec)); return output_({ ok: true, type: 'rating' }); }
+    if (rec.event === 'evt') { logEventRow_(rec.evt); return output_({ ok: true, type: 'evt' }); }   // 사용 활동 로그 → events_v1 (커리 시트 오염 방지)
     getSheet_().appendRow(rowFromRecord_(rec)); return output_({ ok: true });
   } finally { lock.releaseLock(); }
 }
@@ -49,8 +50,56 @@ function doGet(e) {
   if (p.rankings)  return output_(buildRankings_(p), p.callback);
   if (p.newbooks)  return output_(buildNewbooks_(p), p.callback);
   if (p.summary || p.admin) return output_(buildSummary_(p), p.callback);
+  if (p.events)    return output_(buildEvents_(p), p.callback);      // 활동로그 조회(관리자)
+  if (p.chat)      return output_(chatProxy_(p), p.callback);        // 교재 상담 LLM 프록시
   return output_({ ok: true, message: '교재 시스템 백엔드 작동 중',
-    usage: 'POST 제출 / ?summary=1 / ?material=UID / ?rankings=1&source=&gradeBand=&englishArea= / ?newbooks=1' }, p.callback);
+    usage: 'POST 제출 / ?summary=1 / ?material=UID / ?rankings=1&source=&gradeBand=&englishArea= / ?newbooks=1 / ?events=1 / ?chat=1&q=&c=' }, p.callback);
+}
+
+// ===== 사용 활동 로그 (누가·언제·무슨 활동 → events_v1 시트에 정리) =====
+var EVENT_SHEET = 'events_v1';
+var EVENT_HEADERS = ['at', 'date', 'event', 'deviceId', 'grade', 'track', 'targetId', 'extra'];
+function logEventRow_(ev) {
+  ev = ev || {}; var now = new Date();
+  sheet_(EVENT_SHEET, EVENT_HEADERS).appendRow([
+    ev.t ? new Date(ev.t).toISOString() : now.toISOString(),
+    Utilities.formatDate(now, TZ, 'yyyy. M. d. a h:mm:ss'),
+    ev.e || '', ev.dev || '', ev.grade || '', ev.track || '', ev.id || '', JSON.stringify(ev)]);
+}
+function buildEvents_(p) {
+  var sh = ss_().getSheetByName(EVENT_SHEET);
+  if (!sh || sh.getLastRow() <= 1) return { ok: true, total: 0, uniqueDevices: 0, counts: {}, events: [] };
+  var v = sh.getDataRange().getValues(), h = v[0].map(String), rows = v.slice(1);
+  var counts = {}, dev = {};
+  rows.forEach(function (r) { var e = String(r[2] || ''); counts[e] = (counts[e] || 0) + 1; dev[String(r[3] || '')] = 1; });
+  var n = Math.max(1, Math.min(200, +(p.n) || 60));
+  var recent = rows.slice(-n).reverse().map(function (r) { var o = {}; h.forEach(function (k, i) { o[k] = r[i]; }); return o; });
+  return { ok: true, generatedAt: new Date().toISOString(), total: rows.length, uniqueDevices: Object.keys(dev).length, counts: counts, events: recent };
+}
+
+// ===== 교재 상담 LLM 프록시 (Groq) — 키는 Script Property 'GROQ_KEY'에만 저장(리포·클라이언트 노출 금지) =====
+var GROQ_MODEL = 'llama-3.3-70b-versatile';
+function chatProxy_(p) {
+  var key = PropertiesService.getScriptProperties().getProperty('GROQ_KEY');
+  if (!key) return { ok: false, answer: '' };                 // 키 없으면 앱이 검색기반으로 폴백
+  var q = String(p.q || '').slice(0, 400);
+  var cands = parseJson_(p.c, []);
+  var lines = (cands || []).slice(0, 6).map(function (b, i) {
+    return (i + 1) + '. ' + b.t + ' (' + (b.p || '') + ', ' + (b.g || '') + ', ' + (b.s || '') + ', Lv' + (b.l || '') + ', 판매지수 ' + (b.sp || 0) + ')';
+  }).join('\n');
+  var sys = '너는 한국 영어교재 상담사다. 학부모가 교재를 몰라도 되게, 아래 "후보 교재"만 근거로 2~4문장으로 친절하고 구체적으로 추천 이유를 설명하라. 후보에 없는 책은 절대 언급하지 말고 과장하지 마라. 학년·영역·수준·판매인기를 자연스럽게 녹여라.';
+  var usr = '질문: ' + q + '\n\n후보 교재:\n' + lines;
+  try {
+    var res = UrlFetchApp.fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'post', contentType: 'application/json',
+      headers: { Authorization: 'Bearer ' + key },
+      payload: JSON.stringify({ model: GROQ_MODEL, temperature: 0.4, max_tokens: 400,
+        messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] }),
+      muteHttpExceptions: true });
+    var d = JSON.parse(res.getContentText());
+    var ans = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+    return { ok: true, answer: ans || '' };
+  } catch (err) { return { ok: false, answer: '', error: String(err) }; }
 }
 
 // ===== 공통 유틸 =====
