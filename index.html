@@ -181,16 +181,16 @@
 
             <!-- [Right] Pipeline (분기 시스템) -->
             <div class="p-plan lg:col-span-7 bg-panel border border-slate-700 rounded-2xl flex flex-col h-[45vh] lg:h-[calc(100vh-6rem)] shadow-xl overflow-y-auto p-4 sm:p-5 relative hide-scrollbar">
-                <div class="flex justify-between items-end border-b border-slate-700 pb-3 mb-4 flex-shrink-0">
-                    <div>
-                        <h2 class="font-bold text-lg sm:text-xl mb-1 flex items-center gap-2 text-white">
-                            <i data-lucide="network" class="text-brand w-5 h-5"></i> 우리 아이 영어 계획표 (영역 × 시간)
+                <div class="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-end border-b border-slate-700 pb-3 mb-4 flex-shrink-0">
+                    <div class="min-w-0">
+                        <h2 class="font-bold text-base sm:text-xl mb-1 flex items-center gap-2 text-white">
+                            <i data-lucide="network" class="text-brand w-5 h-5 flex-shrink-0"></i> 우리 아이 영어 계획표 <span class="text-slate-400 font-normal text-sm">(영역 × 시간)</span>
                         </h2>
                         <p class="text-[11px] sm:text-xs text-slate-400">가로=시간 흐름 / 세로=영어 영역. 빈 칸을 누르면 그 자리에 맞는 교재를 추천해요.</p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <select id="timeUnitSel" onchange="setTimeUnit(this.value)" title="계획 기간" class="bg-slate-900 border border-slate-600 text-white text-[11px] rounded-lg px-2 py-1.5 font-bold"><option value="month">📅 1달 계획(4주)</option><option value="quarter">📅 1분기 계획(3개월)</option><option value="year" selected>📅 1년 계획(4분기)</option></select>
-                        <div id="diag-msg" class="text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 text-center max-w-[120px] sm:max-w-none">
+                    <div class="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
+                        <select id="timeUnitSel" onchange="setTimeUnit(this.value)" title="계획 기간" class="bg-slate-900 border border-slate-600 text-white text-[11px] rounded-lg px-2 py-1.5 font-bold flex-shrink-0"><option value="month">📅 1달 계획(4주)</option><option value="quarter">📅 1분기 계획(3개월)</option><option value="year" selected>📅 1년 계획(4분기)</option></select>
+                        <div id="diag-msg" class="text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 text-center flex-1 sm:flex-none sm:max-w-none truncate">
                             진단 대기 중
                         </div>
                     </div>
@@ -838,7 +838,7 @@
             else if(bad){ diag='⚠️ 부적합 연계'; dc='bg-danger/20 text-danger border-danger/50'; }
             else if(warn){ diag='⚠ 주의 연계'; dc='bg-accent/20 text-accent border-accent/50'; }
             const dEl=document.getElementById('diag-msg');
-            if(dEl){ dEl.innerText=diag; dEl.className=`text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded-lg border ${dc} text-center max-w-[140px] sm:max-w-none`; }
+            if(dEl){ dEl.innerText=diag; dEl.className=`text-[10px] sm:text-xs font-bold px-2 py-1.5 rounded-lg border ${dc} text-center flex-1 sm:flex-none sm:max-w-none`; }
             if (typeof lucide !== 'undefined') lucide.createIcons();
             if(state.view === '3d') update3DGraph();
             scheduleAutoShare();   // 커리 변경 시 중앙 서버로 자동 공유(디바운스+내용변경 시에만)
