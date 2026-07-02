@@ -1388,42 +1388,64 @@
         window.CHAT_ENDPOINT = window.CHAT_ENDPOINT || (window.GUIDE_ENDPOINT || '');   // GAS에 chat 핸들러+GROQ_KEY 준비되면 자동으로 AI 답변
         const CHAT_GRADE = [[/유아|예비\s*초/,'유아/예비초'],[/초등|초\s*[1-6]|초[1-6]|초등학교/,'초등'],[/중등|중\s*[1-3]|중[1-3]|중학/,'중등'],[/고등|고\s*[1-3]|고[1-3]|고교|수능/,'고등'],[/성인|어른|직장|토익|토플|텝스/,'성인']];
         const CHAT_SKILL = [[/문법|어법|grammar/i,'문법'],[/독해|읽기|리딩|reading/i,'독해'],[/어휘|단어|voca|vocab/i,'어휘'],[/듣기|리스닝|listening/i,'듣기'],[/말하기|회화|스피킹|speaking/i,'말하기'],[/쓰기|영작|서술형|writing/i,'쓰기'],[/파닉스|phonics/i,'파닉스'],[/구문/i,'구문'],[/수능|모의|기출/i,'모의/기출']];
-        const CHAT_LEVEL = [[/왕초보|처음|입문|기초/,2],[/기본/,3],[/실력|심화|실전|고난도|어려운/,4.5]];
+        const CHAT_LEVEL = [[/영포자|포기했|기초가?\s*없|바닥부터|처음부터\s*다시/,1.5],[/왕초보|처음|입문|기초/,2],[/기본/,3],[/실력|심화|실전|고난도|어려운/,4.5]];
         // 약점 신호 → 보완 영역 매핑: "고1 2등급인데 서술형에서 틀려" 같은 실전 상담 대응
-        const CHAT_WEAK = [[/서술형|영작/,'서술형',['쓰기','문법']],[/빈칸/,'빈칸추론',['독해']],[/어법/,'어법',['문법']],[/해석이?\s*(안|어렵)|직독직해/,'구문독해',['구문']],[/시간이?\s*(부족|모자)|다\s*못\s*풀/,'실전 시간관리',['모의/기출']],[/단어를?\s*(몰|모르|부족)|어휘가?\s*(약|부족)/,'어휘력',['어휘']]];
-        function parseChat(q){
-            const grade=(CHAT_GRADE.find(x=>x[0].test(q))||[])[1]||'';
+        const CHAT_WEAK = [[/서술형|영작/,'서술형',['쓰기','문법']],[/빈칸/,'빈칸추론',['독해']],[/어법/,'어법',['문법']],[/해석이?\s*(안|어렵)|직독직해|문장이\s*안\s*읽/,'구문독해',['구문']],[/시간이?\s*(부족|모자)|다\s*못\s*풀/,'실전 시간관리',['모의/기출']],[/단어(를|가)?.{0,6}(몰|모르|부족|약하)|어휘(력|가)?.{0,4}(약|부족|없)/,'어휘력',['어휘']],[/말이\s*안\s*나오|입이\s*안\s*떨어/,'말하기',['말하기']]];
+        // 학년별 기본 수준(수준 신호가 전혀 없을 때) — 고1에게 Lv1 교재가 나가는 사고 방지
+        const GRADE_BASE_LV = {'유아/예비초':1.5,'초등':2,'중등':3,'고등':3.3,'성인':3};
+        function parseChat(q, prev){
+            let grade=(CHAT_GRADE.find(x=>x[0].test(q))||[])[1]||'';
             const skills=CHAT_SKILL.filter(x=>x[0].test(q)).map(x=>x[1]);
             // 약점 매핑: 약점 보완 영역을 후보에 합류(별도 가중치)
             const weakHit=CHAT_WEAK.filter(x=>x[0].test(q));
             const weakSkills=[...new Set(weakHit.flatMap(x=>x[2]))];
             weakSkills.forEach(s=>{ if(!skills.includes(s)) skills.push(s); });
-            // 수준 추정: 키워드(기초/실전) 우선, 없으면 등급으로 — 2등급=상위권→심화 수준
+            // 수준 추정: 키워드 → 등급(2등급=상위권) → 점수(70점대=중상) 순
             let lvHint=(CHAT_LEVEL.find(x=>x[0].test(q))||[])[1];
             const rk=q.match(/([1-9])\s*등급/);
             if(lvHint==null&&rk){ const r=+rk[1]; lvHint=r<=2?4.5:r<=3?4:r<=5?3:2.2; }
+            const sc=q.match(/([1-9]\d)\s*점/);
+            if(lvHint==null&&sc){ const v=+sc[1]; lvHint=v>=90?4.5:v>=80?4:v>=70?3.5:v>=60?3:2; }
+            // 후속 질문 맥락 승계: 새 신호가 없으면 직전 상담(학년·영역·수준)을 이어간다
+            if(prev){ if(!grade) grade=prev.grade||''; if(!skills.length&&(prev.skills||[]).length) prev.skills.forEach(s=>skills.push(s)); if(lvHint==null&&prev.lvHint!=null) lvHint=prev.lvHint; }
+            // "더 쉬운/어려운 걸로" 수준 조정
+            const adj=/더\s*쉬운|쉬운\s*걸로|낮은\s*걸로/.test(q)?-1:/더\s*어려운|어려운\s*걸로|심화로|높은\s*걸로/.test(q)?1:0;
+            if(adj){ lvHint=Math.max(1,Math.min(5,(lvHint!=null?lvHint:3)+adj)); }
+            // 수준 신호가 끝내 없으면 학년 기본 수준 적용(고1→Lv3.3: 쉬운 권 배제)
+            if(lvHint==null&&grade) lvHint=GRADE_BASE_LV[grade]!=null?GRADE_BASE_LV[grade]:null;
             return {grade, skills, lvHint:(lvHint==null?null:lvHint), weak:weakHit.map(x=>x[1]), weakSkills, q};
         }
         function chatRetrieve(p){
             const toks=(p.q.toLowerCase().match(/[a-z0-9가-힣]+/g)||[]).filter(w=>w.length>1);
             let pool=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판' && (!p.skills.length || p.skills.includes(b.skill)));
             if(!pool.length) pool=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판');
+            // 학년 하드필터: 학년이 명시되면 그 학년/전체용만(감점만으론 초인기 타학년 시리즈가 뚫음 — 고1에 중등 리딩튜터 사고 방지)
+            if(p.grade){
+                const exact=pool.filter(b=>!b.gradeBand||b.gradeBand===p.grade||b.gradeBand==='전체');
+                pool = exact.length>=25 ? exact : pool.filter(b=>!b.gradeBand||b.gradeBand==='전체'||gradeAdj(b.gradeBand,p.grade)<=1);
+            }
             const higherGrade = p.grade==='중등'||p.grade==='고등'||p.grade==='성인';
             const scored=pool.map(b=>{
-                let s=popScore(b)*1.8;                                                 // 판매·인기(비중 낮춤)
+                let s=popScore(b)*1.8;
                 if(p.skills.includes(b.skill)) s+=25;
                 if(p.weakSkills&&p.weakSkills.includes(b.skill)) s+=14;   // 약점 보완 영역 추가 가중
-                if(p.grade){ if(b.gradeBand===p.grade) s+=28; else if(b.gradeBand==='전체') s+=6; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=4; else s-=14; }   // 정확 학년 우대
+                if(p.grade){ if(b.gradeBand===p.grade) s+=28; else if(b.gradeBand==='전체') s+=6; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=4; else s-=14; }
                 if(p.lvHint!=null) s-=Math.abs((b.level||3)-p.lvHint)*6;
-                if(higherGrade && /만화/.test(b.track||'')) s-=40;                     // 중등↑ 질문에 어린이 학습만화 배제
+                if(higherGrade && /만화/.test(b.track||'')) s-=40;
                 // 커뮤니티 평가 학습: 쌓이는 A/B/C 등급이 추천 점수에 반영(매번 더 똑똑해짐)
                 const rg=(window.__ratingMap&&window.__ratingMap[b.id]); if(rg&&rg.count){ if(rg.grade==='A')s+=10; else if(rg.grade==='B')s+=5; else if(rg.grade==='D'||rg.grade==='F')s-=8; }
                 const t=(b.title||'').toLowerCase(); let ov=0; toks.forEach(w=>{ if(t.includes(w)) ov++; }); s+=ov*4;
                 return {b,s};
             }).sort((a,b)=>b.s-a.s);
-            // 같은 시리즈(부제만 다른 다권) 강한 dedup — 제목의 첫 숫자/콜론 앞 + 출판사 접두로 1권만
+            // 영역 신호가 전혀 없으면(모호한 질문) 핵심 영역을 다양하게 — LLM이 고를 재료를 넓힘
+            let ranked=scored;
+            if(!p.skills.length&&!(p.weakSkills||[]).length){
+                const perSkill={}, front=[], rest=[];
+                for(const x of scored){ const k=x.b.skill||'기타'; if(!perSkill[k]){ perSkill[k]=1; front.push(x); } else rest.push(x); }
+                ranked=front.concat(rest);
+            }
             const seen={}, out=[];
-            for(const x of scored){ const b=x.b;
+            for(const x of ranked){ const b=x.b;
                 const key=(b.pub||'').replace(/[^a-z0-9가-힣]/gi,'').slice(0,6)+'|'+String(b.title||'').split(/[0-9:：]/)[0].replace(/[^a-z0-9가-힣]/gi,'').slice(0,14);
                 if(seen[key]) continue; seen[key]=1; out.push(b); if(out.length>=6) break;
             }
@@ -1456,16 +1478,21 @@
         async function chatSend(){
             const inp=document.getElementById('chatInput'); if(!inp) return; const q=(inp.value||'').trim(); if(!q) return; inp.value='';
             chatAppend('user', escHtml(q));
-            const p=parseChat(q), books=chatRetrieve(p), ep=(window.CHAT_ENDPOINT||'').trim();
+            // 대화 맥락: 직전 상담(학년·영역·수준) 승계 → "그럼 더 쉬운 걸로" 같은 후속 질문 대응
+            const p=parseChat(q, window.__chatCtx); window.__chatCtx=p;
+            const books=chatRetrieve(p), ep=(window.CHAT_ENDPOINT||'').trim();
+            const hist=(window.__chatHist||[]).slice(-3);   // 직전 3턴을 LLM에 전달(맥락 유지)
+            window.__chatHist=(window.__chatHist||[]); window.__chatHist.push({w:'u',t:q.slice(0,100)});
             const fallback=()=>chatTemplate(p,books)+books.map(chatBookCard).join('');
             if(ep && typeof jsonp==='function'){
                 const thinking=chatAppend('bot','<span class="text-slate-500">🤖 생각 중…</span>');
                 // 교재정보 확장: 한줄평(c)·가격(pr)·판매상태(st)·CEFR(cf)까지 LLM에 전달 → 더 구체적 상담
                 const c=encodeURIComponent(JSON.stringify(books.slice(0,6).map(b=>({t:b.title,p:b.pub,g:b.gradeBand,s:b.skill,l:b.level,sp:b.salesPoint||0,c:String(b.comment||'').slice(0,24),pr:b.price||0,st:(b.status&&b.status!=='정상')?b.status:'',cf:b.cefr||''}))));
-                const url=ep+(ep.indexOf('?')>=0?'&':'?')+'chat=1&q='+encodeURIComponent(q.slice(0,300))+'&cands='+c;   // JSONP(GET) — 'c'는 GAS가 가로채 400 유발 → 'cands'
+                const url=ep+(ep.indexOf('?')>=0?'&':'?')+'chat=1&q='+encodeURIComponent(q.slice(0,300))+'&cands='+c+'&hist='+encodeURIComponent(JSON.stringify(hist));   // 'c'는 GAS가 가로채 400 유발 → 'cands'
                 jsonp(url).then(d=>{ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking);
                     // 한자 방어선: LLM이 한자·중국어를 섞으면 검색기반 템플릿으로 폴백
                     const ai=d&&d.ok&&d.answer&&!/[一-鿿]/.test(d.answer);
+                    if(ai) window.__chatHist.push({w:'a',t:String(d.answer).slice(0,100)});
                     chatAppend('bot',(ai?escHtml(d.answer).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>'):chatTemplate(p,books))+books.map(chatBookCard).join(''));
                     const md=document.getElementById('chatMode'); if(md&&ai) md.textContent='AI 상담';
                 }).catch(()=>{ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking); chatAppend('bot', fallback()); });
