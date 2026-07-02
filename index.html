@@ -370,7 +370,7 @@
 
     <!-- 중앙 집계 설정 (배포 후 /exec URL 입력) -->
     <script>
-        window.GUIDE_ENDPOINT = "https://script.google.com/macros/s/AKfycbwGnHc-MG-ZzqNP3xaoAZhtpU8y6HiymNW4ONsoPEQB7jqGietIXGQu68YALlGZgg2zbw/exec";  // ← Apps Script 웹앱 /exec URL (신규 배포: 챗봇·활동로그 포함)
+        window.GUIDE_ENDPOINT = "https://script.google.com/macros/s/AKfycbw8PQuLvjlRPWVH3caJ3UCZqEwJDala9bcov3tTRIQ7Mji5i1KBsgkDYkVzdo8qUXit0w/exec";  // ← Apps Script 웹앱 /exec URL (신규 배포: 챗봇·활동로그 포함)
         window.GUIDE_DASHBOARD_POLL_MS = 30000;
     </script>
 
@@ -1466,7 +1466,7 @@
                 jsonp(url).then(d=>{ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking);
                     // 한자 방어선: LLM이 한자·중국어를 섞으면 검색기반 템플릿으로 폴백
                     const ai=d&&d.ok&&d.answer&&!/[一-鿿]/.test(d.answer);
-                    chatAppend('bot',(ai?escHtml(d.answer).replace(/\n/g,'<br>'):chatTemplate(p,books))+books.map(chatBookCard).join(''));
+                    chatAppend('bot',(ai?escHtml(d.answer).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>'):chatTemplate(p,books))+books.map(chatBookCard).join(''));
                     const md=document.getElementById('chatMode'); if(md&&ai) md.textContent='AI 상담';
                 }).catch(()=>{ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking); chatAppend('bot', fallback()); });
             } else { chatAppend('bot', fallback()); }
