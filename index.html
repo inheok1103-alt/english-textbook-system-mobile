@@ -1406,6 +1406,8 @@
                 if(p.grade){ if(b.gradeBand===p.grade) s+=28; else if(b.gradeBand==='전체') s+=6; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=4; else s-=14; }   // 정확 학년 우대
                 if(p.lvHint!=null) s-=Math.abs((b.level||3)-p.lvHint)*6;
                 if(higherGrade && /만화/.test(b.track||'')) s-=40;                     // 중등↑ 질문에 어린이 학습만화 배제
+                // 커뮤니티 평가 학습: 쌓이는 A/B/C 등급이 추천 점수에 반영(매번 더 똑똑해짐)
+                const rg=(window.__ratingMap&&window.__ratingMap[b.id]); if(rg&&rg.count){ if(rg.grade==='A')s+=10; else if(rg.grade==='B')s+=5; else if(rg.grade==='D'||rg.grade==='F')s-=8; }
                 const t=(b.title||'').toLowerCase(); let ov=0; toks.forEach(w=>{ if(t.includes(w)) ov++; }); s+=ov*4;
                 return {b,s};
             }).sort((a,b)=>b.s-a.s);
@@ -1420,7 +1422,9 @@
         function chatBookCard(b){ return `<div class="flex items-center gap-2 bg-slate-900/70 border border-slate-700 rounded-lg p-1.5 mt-1.5">`+
             `<img src="${b.cover||''}" onerror="this.style.display='none'" class="w-8 h-11 object-cover rounded flex-shrink-0">`+
             `<div class="min-w-0 flex-1"><div class="text-[12px] font-bold text-white truncate">${escHtml(b.title)}</div><div class="text-[10px] text-slate-400 truncate">${escHtml(b.pub||'')} · ${b.gradeBand||''} · Lv${b.level}${b.salesPoint?' · <span class="text-orange-400">🔥인기</span>':''}${b.price?(' · '+priceStr(b)):''}</div></div>`+
-            `<button onclick="showBookDetail('${b.id}')" class="text-[11px] text-brand flex-shrink-0 px-1 font-bold">보기</button></div>`; }
+            `<button onclick="showBookDetail('${b.id}')" class="text-[11px] text-brand flex-shrink-0 px-1 font-bold">보기</button>`+
+            `<button onclick="recFeedback('${b.id}',1)" title="도움됐어요" class="text-[12px] flex-shrink-0 px-0.5">👍</button>`+
+            `<button onclick="recFeedback('${b.id}',-1)" title="안 맞아요" class="text-[12px] flex-shrink-0 px-0.5">👎</button></div>`; }
         function chatTemplate(p,books){ if(!books.length) return '조건에 맞는 교재를 못 찾았어요. 학년·영역을 다시 알려주세요. 예) "중2 독해 기본"';
             const parts=[]; if(p.grade)parts.push(p.grade); if(p.skills.length)parts.push(p.skills.join('·')); if(p.lvHint!=null)parts.push(p.lvHint<=2?'기초':p.lvHint>=4?'실전':'기본');
             return `<b>${parts.join(' · ')||'인기'}</b> 기준 <b class="text-orange-400">판매·인기 순</b> 추천이에요 👇`; }
@@ -1446,10 +1450,12 @@
             const fallback=()=>chatTemplate(p,books)+books.map(chatBookCard).join('');
             if(ep && typeof jsonp==='function'){
                 const thinking=chatAppend('bot','<span class="text-slate-500">🤖 생각 중…</span>');
-                const c=encodeURIComponent(JSON.stringify(books.slice(0,6).map(b=>({t:b.title,p:b.pub,g:b.gradeBand,s:b.skill,l:b.level,sp:b.salesPoint||0}))));
+                // 교재정보 확장: 한줄평(c)·가격(pr)·판매상태(st)·CEFR(cf)까지 LLM에 전달 → 더 구체적 상담
+                const c=encodeURIComponent(JSON.stringify(books.slice(0,6).map(b=>({t:b.title,p:b.pub,g:b.gradeBand,s:b.skill,l:b.level,sp:b.salesPoint||0,c:String(b.comment||'').slice(0,24),pr:b.price||0,st:(b.status&&b.status!=='정상')?b.status:'',cf:b.cefr||''}))));
                 const url=ep+(ep.indexOf('?')>=0?'&':'?')+'chat=1&q='+encodeURIComponent(q.slice(0,300))+'&cands='+c;   // JSONP(GET) — 'c'는 GAS가 가로채 400 유발 → 'cands'
                 jsonp(url).then(d=>{ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking);
-                    const ai=d&&d.ok&&d.answer;
+                    // 한자 방어선: LLM이 한자·중국어를 섞으면 검색기반 템플릿으로 폴백
+                    const ai=d&&d.ok&&d.answer&&!/[一-鿿]/.test(d.answer);
                     chatAppend('bot',(ai?escHtml(d.answer).replace(/\n/g,'<br>'):chatTemplate(p,books))+books.map(chatBookCard).join(''));
                     const md=document.getElementById('chatMode'); if(md&&ai) md.textContent='AI 상담';
                 }).catch(()=>{ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking); chatAppend('bot', fallback()); });

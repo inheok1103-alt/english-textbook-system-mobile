@@ -78,36 +78,44 @@ function buildEvents_(p) {
 }
 
 // ===== 교재 상담 LLM 프록시 (Groq) — 키는 Script Property 'GROQ_KEY'에만 저장(리포·클라이언트 노출 금지) =====
-// 모델 폴백 체인: 앞에서부터 시도, 일일 한도(429)·오류 시 다음 모델로 자동 전환 (무료티어 TPD 대응)
-var GROQ_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+// 모델 폴백 체인(실측 선정): 70B(품질) → gpt-oss-120b(한국어 최상·별도쿼터) → llama4-scout(별도쿼터) → 8B(최후).
+// 각 모델 쿼터가 분리라 일일 한도(429)에 사실상 안 걸림. 한자(漢字) 섞인 답도 실패로 간주 → 다음 모델 재시도.
+var GROQ_MODELS = ['llama-3.3-70b-versatile', 'openai/gpt-oss-120b', 'meta-llama/llama-4-scout-17b-16e-instruct', 'llama-3.1-8b-instant'];
 function chatProxy_(p) {
   var key = String(PropertiesService.getScriptProperties().getProperty('GROQ_KEY') || '').trim();
   if (!key) return { ok: false, answer: '' };                 // 키 없으면 앱이 검색기반으로 폴백
   var q = String(p.q || '').slice(0, 400);
   var cands = parseJson_(p.cands || p.c, []);   // 'c'는 GAS가 가로채 400 유발 → 'cands' 사용
+  // 매 질문을 학습 데이터로 축적(events_v1) — 뭘 많이 묻는지·어떤 후보가 떴는지 시트에 쌓임
+  try { logEventRow_({ e: 'chat_q', id: (cands && cands[0] && cands[0].t) || '', extraQ: q }); } catch (eLog) {}
   var lines = (cands || []).slice(0, 6).map(function (b, i) {
-    return (i + 1) + '. ' + b.t + ' (' + (b.p || '') + ', ' + (b.g || '') + ', ' + (b.s || '') + ', Lv' + (b.l || '') + ', 판매지수 ' + (b.sp || 0) + ')';
+    return (i + 1) + '. ' + b.t + ' (' + (b.p || '') + ', ' + (b.g || '') + ', ' + (b.s || '') + ', Lv' + (b.l || '') + ', 판매지수 ' + (b.sp || 0) +
+      (b.pr ? ', ' + b.pr + '원' : '') + (b.st ? ', ' + b.st : '') + (b.cf ? ', ' + b.cf : '') + ')' + (b.c ? ' — ' + b.c : '');
   }).join('\n');
-  var sys = '너는 한국 영어교재 상담사다. 학부모가 교재를 몰라도 되게, 아래 "후보 교재"만 근거로 2~4문장으로 친절하고 구체적으로 추천 이유를 설명하라. 후보에 없는 책은 절대 언급하지 말고 과장하지 마라. 학년·영역·수준·판매인기를 자연스럽게 녹여라.';
+  var sys = '너는 한국 영어교재 상담사다. 반드시 순수 한국어(한글)로만 답하라. 한자(漢字)·중국어·일본어·영어 문장은 절대 사용 금지(교재명 속 영어 단어만 허용). 학부모가 교재를 몰라도 되게, 아래 "후보 교재"만 근거로 2~4문장으로 친절하고 구체적으로 추천 이유를 설명하라. 한줄평이 있으면 활용하라. 후보에 없는 책은 절대 언급하지 말고 과장하지 마라. 학년·영역·수준·가격·판매인기를 자연스럽게 녹여라.';
   var usr = '질문: ' + q + '\n\n후보 교재:\n' + lines;
   var lastDbg = '';
   for (var mi = 0; mi < GROQ_MODELS.length; mi++) {
+    var m = GROQ_MODELS[mi];
     try {
+      var payload = { model: m, temperature: 0.4, max_tokens: (m.indexOf('gpt-oss') >= 0 ? 900 : 400),
+        messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] };
+      if (m.indexOf('gpt-oss') >= 0) payload.reasoning_effort = 'low';   // gpt-oss는 내부 추론이 토큰을 먹음 → 낮게+여유
       var res = UrlFetchApp.fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'post', contentType: 'application/json',
         headers: { Authorization: 'Bearer ' + key },
-        payload: JSON.stringify({ model: GROQ_MODELS[mi], temperature: 0.4, max_tokens: 400,
-          messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] }),
-        muteHttpExceptions: true });
+        payload: JSON.stringify(payload), muteHttpExceptions: true });
       var code = res.getResponseCode(), body = res.getContentText();
       var d = {}; try { d = JSON.parse(body); } catch (e2) {}
       var ans = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
-      if (ans) return { ok: true, answer: ans, ver: 'v4', model: GROQ_MODELS[mi] };
-      lastDbg = GROQ_MODELS[mi] + ': HTTP ' + code + ' | ' + String((d.error && d.error.message) || body).slice(0, 140);
-    } catch (err) { lastDbg = GROQ_MODELS[mi] + ': ' + String(err).slice(0, 140); }
+      if (ans) ans = String(ans).replace(/<think>[\s\S]*?<\/think>/g, '').trim();   // 추론 태그 방어
+      if (ans && /[一-鿿]/.test(ans)) { lastDbg = m + ': 한자 검출 → 다음 모델'; ans = ''; }   // 한자 섞이면 실패 처리
+      if (ans) return { ok: true, answer: ans, ver: 'v5', model: m };
+      if (!lastDbg || lastDbg.indexOf('한자') < 0) lastDbg = m + ': HTTP ' + code + ' | ' + String((d.error && d.error.message) || body).slice(0, 140);
+    } catch (err) { lastDbg = m + ': ' + String(err).slice(0, 140); }
   }
   // 전 모델 실패 — 원인을 dbg로 노출(원격 진단용), 앱은 검색기반 템플릿으로 폴백
-  return { ok: true, answer: '', ver: 'v4', dbg: lastDbg };
+  return { ok: true, answer: '', ver: 'v5', dbg: lastDbg };
 }
 
 // ===== 공통 유틸 =====
