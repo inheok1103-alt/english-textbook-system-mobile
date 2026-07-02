@@ -1,9 +1,8 @@
 name: refresh-catalog
 # KOBIC 신간·표지 자동 갱신 → 재빌드 → 커밋 (당신 PC 없이 클라우드에서)
+# ⚠️ 모바일 repo는 이제 독자 수확하지 않는다 — 데이터는 PC repo의 brain(🧠)이 매 사이클 동기.
+#    (이중 수확=알라딘 쿼터 낭비+데이터 분기 방지) 수동 실행만 남김.
 on:
-  schedule:
-    - cron: '0 7,19 * * *'   # 매일 2회(16:00·04:00 KST) — 지속 업데이트(신간·표지·가격·인기)
-    - cron: '0 20 * * 1'     # 매주 월 05:00 KST — 깊은 신간 전수 스윕
   workflow_dispatch:          # 수동 실행 버튼
 
 permissions:
