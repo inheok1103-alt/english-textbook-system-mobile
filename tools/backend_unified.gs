@@ -78,9 +78,10 @@ function buildEvents_(p) {
 }
 
 // ===== 교재 상담 LLM 프록시 (Groq) — 키는 Script Property 'GROQ_KEY'에만 저장(리포·클라이언트 노출 금지) =====
-var GROQ_MODEL = 'llama-3.3-70b-versatile';
+// 모델 폴백 체인: 앞에서부터 시도, 일일 한도(429)·오류 시 다음 모델로 자동 전환 (무료티어 TPD 대응)
+var GROQ_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
 function chatProxy_(p) {
-  var key = PropertiesService.getScriptProperties().getProperty('GROQ_KEY');
+  var key = String(PropertiesService.getScriptProperties().getProperty('GROQ_KEY') || '').trim();
   if (!key) return { ok: false, answer: '' };                 // 키 없으면 앱이 검색기반으로 폴백
   var q = String(p.q || '').slice(0, 400);
   var cands = parseJson_(p.cands || p.c, []);   // 'c'는 GAS가 가로채 400 유발 → 'cands' 사용
@@ -89,17 +90,24 @@ function chatProxy_(p) {
   }).join('\n');
   var sys = '너는 한국 영어교재 상담사다. 학부모가 교재를 몰라도 되게, 아래 "후보 교재"만 근거로 2~4문장으로 친절하고 구체적으로 추천 이유를 설명하라. 후보에 없는 책은 절대 언급하지 말고 과장하지 마라. 학년·영역·수준·판매인기를 자연스럽게 녹여라.';
   var usr = '질문: ' + q + '\n\n후보 교재:\n' + lines;
-  try {
-    var res = UrlFetchApp.fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'post', contentType: 'application/json',
-      headers: { Authorization: 'Bearer ' + key },
-      payload: JSON.stringify({ model: GROQ_MODEL, temperature: 0.4, max_tokens: 400,
-        messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] }),
-      muteHttpExceptions: true });
-    var d = JSON.parse(res.getContentText());
-    var ans = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
-    return { ok: true, answer: ans || '' };
-  } catch (err) { return { ok: false, answer: '', error: String(err) }; }
+  var lastDbg = '';
+  for (var mi = 0; mi < GROQ_MODELS.length; mi++) {
+    try {
+      var res = UrlFetchApp.fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'post', contentType: 'application/json',
+        headers: { Authorization: 'Bearer ' + key },
+        payload: JSON.stringify({ model: GROQ_MODELS[mi], temperature: 0.4, max_tokens: 400,
+          messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }] }),
+        muteHttpExceptions: true });
+      var code = res.getResponseCode(), body = res.getContentText();
+      var d = {}; try { d = JSON.parse(body); } catch (e2) {}
+      var ans = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
+      if (ans) return { ok: true, answer: ans, ver: 'v4', model: GROQ_MODELS[mi] };
+      lastDbg = GROQ_MODELS[mi] + ': HTTP ' + code + ' | ' + String((d.error && d.error.message) || body).slice(0, 140);
+    } catch (err) { lastDbg = GROQ_MODELS[mi] + ': ' + String(err).slice(0, 140); }
+  }
+  // 전 모델 실패 — 원인을 dbg로 노출(원격 진단용), 앱은 검색기반 템플릿으로 폴백
+  return { ok: true, answer: '', ver: 'v4', dbg: lastDbg };
 }
 
 // ===== 공통 유틸 =====
