@@ -16,9 +16,21 @@ const master = JSON.parse(mm[1]);
 const imgData = JSON.parse(fs.readFileSync(IMG, "utf8"));
 const img = imgData.images || {};
 
+// 알라딘 판매상태 캐시(ISBN 키) — '절판'은 못 사는 책이라 카탈로그에서 제거(품절은 일시적이라 보존)
+let OOP = {};
+try {
+  const en = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "aladin_enrich.json"), "utf8"));
+  const items = en.items || en;
+  Object.keys(items).forEach((k) => { if (items[k] && items[k].status === "절판") OOP[k] = 1; });
+} catch (e) {}
+
 const yearOf = (m) => +(String(m.pubDate || "").match(/(19|20)\d\d/) || [])[0] || 0;
 const OBSOLETE_AUDIO = /카세트|cassette|테이프\s*\d|테이프로\s*영어|tape\s*\d\s*개|오디오\s*테이프/i;
 const GOODS = /(^|\s)달력|스티커(?!\s*북)|포스터|색칠공부|색칠놀이|\b모형\b|데스크\s*매트|책받침|북마크\s*세트/;
+// 시험용 교재(수능·모의·기출)는 시효성이 생명 — 매년 개정판이 나오고 제도도 바뀜(A/B형 2014 폐지).
+// 6년 지난 판은 제거(롤링 기준 — 2026년 실행 시 2020년 이하). "수능완성 B형(2013)" 노출 사고 방지.
+const EXAM = /수능|모의고사|기출|학력평가|평가원|수능완성|수능특강/i;
+const EXAM_KEEP_YEARS = 6;
 function isJunk(b) {
   if (b.source === "CLASSICS") return false;          // 고전원서 보호
   const t = b.title || "", y = yearOf(b);
@@ -27,6 +39,8 @@ function isJunk(b) {
   if (OBSOLETE_AUDIO.test(t)) return "구식오디오(카세트/테이프)";
   if (GOODS.test(t) && !learn) return "비도서굿즈";
   if (y && y < 2000) return "2000년이전구판(" + y + ")";
+  if (EXAM.test(t) && y && y <= new Date().getFullYear() - EXAM_KEEP_YEARS) return "구판시험서(" + y + ")";
+  if (b.isbn && OOP[String(b.isbn)]) return "절판";
   return false;
 }
 

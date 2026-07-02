@@ -248,7 +248,7 @@ const MASTER_DATA = englishOnly.map((m) => {
     pubDate: m.pubDate || "",
     source: m.source || "",
   };
-});
+}).filter((b) => b.status !== "절판");   // 절판은 살 수 없는 책 — 카탈로그에서 전량 제외(remove_junk가 못 잡는 키 미스매치까지)
 
 // 스킬 탭: 핵심 순서 우선 + 나머지
 const SKILL_ORDER = ["듣기", "말하기", "독해", "쓰기", "문법", "구문", "어휘", "파닉스", "모의/기출", "통합", "전공"];

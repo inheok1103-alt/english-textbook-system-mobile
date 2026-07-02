@@ -370,7 +370,7 @@
 
     <!-- 중앙 집계 설정 (배포 후 /exec URL 입력) -->
     <script>
-        window.GUIDE_ENDPOINT = "https://script.google.com/macros/s/AKfycbw8PQuLvjlRPWVH3caJ3UCZqEwJDala9bcov3tTRIQ7Mji5i1KBsgkDYkVzdo8qUXit0w/exec";  // ← Apps Script 웹앱 /exec URL (신규 배포: 챗봇·활동로그 포함)
+        window.GUIDE_ENDPOINT = "https://script.google.com/macros/s/AKfycbwndM9VDH8-g_vX_GIYuwss7nQV2jy-norM-lxKQeOEGGXSUZgIpfK8OBQC1_8cqbzZ/exec";  // ← Apps Script 웹앱 /exec URL (신규 배포: 챗봇·활동로그 포함)
         window.GUIDE_DASHBOARD_POLL_MS = 30000;
     </script>
 
@@ -1432,6 +1432,9 @@
                 if(p.grade){ if(b.gradeBand===p.grade) s+=28; else if(b.gradeBand==='전체') s+=6; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=4; else s-=14; }
                 if(p.lvHint!=null) s-=Math.abs((b.level||3)-p.lvHint)*6;
                 if(higherGrade && /만화/.test(b.track||'')) s-=40;
+                // 시험용(수능·모의·기출) 교재 시효성: 3년 지난 판은 사실상 배제 — 폐지제도(B형)·구판 노출 방지
+                const ey=+(String(b.pubDate||'').match(/20\d\d/)||[0])[0];
+                if(/수능|모의고사|기출|수능완성|수능특강/.test(b.title||'')&&ey&&ey<new Date().getFullYear()-3) s-=35;
                 // 커뮤니티 평가 학습: 쌓이는 A/B/C 등급이 추천 점수에 반영(매번 더 똑똑해짐)
                 const rg=(window.__ratingMap&&window.__ratingMap[b.id]); if(rg&&rg.count){ if(rg.grade==='A')s+=10; else if(rg.grade==='B')s+=5; else if(rg.grade==='D'||rg.grade==='F')s-=8; }
                 const t=(b.title||'').toLowerCase(); let ov=0; toks.forEach(w=>{ if(t.includes(w)) ov++; }); s+=ov*4;
