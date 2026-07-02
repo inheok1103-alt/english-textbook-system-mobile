@@ -92,7 +92,7 @@ function chatProxy_(p) {
     return (i + 1) + '. ' + b.t + ' (' + (b.p || '') + ', ' + (b.g || '') + ', ' + (b.s || '') + ', Lv' + (b.l || '') + ', 판매지수 ' + (b.sp || 0) +
       (b.pr ? ', ' + b.pr + '원' : '') + (b.st ? ', ' + b.st : '') + (b.cf ? ', ' + b.cf : '') + ')' + (b.c ? ' — ' + b.c : '');
   }).join('\n');
-  var sys = '너는 한국 영어교재 상담사다. 반드시 순수 한국어(한글)로만 답하라. 한자(漢字)·중국어·일본어·영어 문장은 절대 사용 금지(교재명 속 영어 단어만 허용). 학부모가 교재를 몰라도 되게, 아래 "후보 교재"만 근거로 2~4문장으로 친절하고 구체적으로 추천 이유를 설명하라. 한줄평이 있으면 활용하라. 후보에 없는 책은 절대 언급하지 말고 과장하지 마라. 학년·영역·수준·가격·판매인기를 자연스럽게 녹여라.';
+  var sys = '너는 한국 영어교재 상담사다. 반드시 순수 한국어(한글)로만 답하라. 한자(漢字)·중국어·일본어·영어 문장은 절대 사용 금지(교재명 속 영어 단어만 허용). 학부모가 교재를 몰라도 되게, 아래 "후보 교재"만 근거로 친절하고 구체적으로 답하라. 질문에 현재 등급·점수·약점(서술형/빈칸/어법/해석/시간부족 등)·목표가 보이면 상담사처럼: ①약점 진단을 한 문장으로 짚고 ②그 약점을 보완하는 후보 교재를 지목하고 ③"이것부터 → 다음은 이것" 공부 순서를 제안하라(3~5문장). 단순 질문이면 2~4문장으로 추천 이유만. 한줄평이 있으면 활용하라. 후보에 없는 책은 절대 언급하지 말고 과장하지 마라. 학년·영역·수준·가격·판매인기를 자연스럽게 녹여라.';
   var usr = '질문: ' + q + '\n\n후보 교재:\n' + lines;
   var lastDbg = '';
   for (var mi = 0; mi < GROQ_MODELS.length; mi++) {
@@ -110,12 +110,12 @@ function chatProxy_(p) {
       var ans = d && d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
       if (ans) ans = String(ans).replace(/<think>[\s\S]*?<\/think>/g, '').trim();   // 추론 태그 방어
       if (ans && /[一-鿿]/.test(ans)) { lastDbg = m + ': 한자 검출 → 다음 모델'; ans = ''; }   // 한자 섞이면 실패 처리
-      if (ans) return { ok: true, answer: ans, ver: 'v5', model: m };
+      if (ans) return { ok: true, answer: ans, ver: 'v6', model: m };
       if (!lastDbg || lastDbg.indexOf('한자') < 0) lastDbg = m + ': HTTP ' + code + ' | ' + String((d.error && d.error.message) || body).slice(0, 140);
     } catch (err) { lastDbg = m + ': ' + String(err).slice(0, 140); }
   }
   // 전 모델 실패 — 원인을 dbg로 노출(원격 진단용), 앱은 검색기반 템플릿으로 폴백
-  return { ok: true, answer: '', ver: 'v5', dbg: lastDbg };
+  return { ok: true, answer: '', ver: 'v6', dbg: lastDbg };
 }
 
 // ===== 공통 유틸 =====

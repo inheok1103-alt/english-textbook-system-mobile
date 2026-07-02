@@ -1389,11 +1389,20 @@
         const CHAT_GRADE = [[/유아|예비\s*초/,'유아/예비초'],[/초등|초\s*[1-6]|초[1-6]|초등학교/,'초등'],[/중등|중\s*[1-3]|중[1-3]|중학/,'중등'],[/고등|고\s*[1-3]|고[1-3]|고교|수능/,'고등'],[/성인|어른|직장|토익|토플|텝스/,'성인']];
         const CHAT_SKILL = [[/문법|어법|grammar/i,'문법'],[/독해|읽기|리딩|reading/i,'독해'],[/어휘|단어|voca|vocab/i,'어휘'],[/듣기|리스닝|listening/i,'듣기'],[/말하기|회화|스피킹|speaking/i,'말하기'],[/쓰기|영작|서술형|writing/i,'쓰기'],[/파닉스|phonics/i,'파닉스'],[/구문/i,'구문'],[/수능|모의|기출/i,'모의/기출']];
         const CHAT_LEVEL = [[/왕초보|처음|입문|기초/,2],[/기본/,3],[/실력|심화|실전|고난도|어려운/,4.5]];
+        // 약점 신호 → 보완 영역 매핑: "고1 2등급인데 서술형에서 틀려" 같은 실전 상담 대응
+        const CHAT_WEAK = [[/서술형|영작/,'서술형',['쓰기','문법']],[/빈칸/,'빈칸추론',['독해']],[/어법/,'어법',['문법']],[/해석이?\s*(안|어렵)|직독직해/,'구문독해',['구문']],[/시간이?\s*(부족|모자)|다\s*못\s*풀/,'실전 시간관리',['모의/기출']],[/단어를?\s*(몰|모르|부족)|어휘가?\s*(약|부족)/,'어휘력',['어휘']]];
         function parseChat(q){
             const grade=(CHAT_GRADE.find(x=>x[0].test(q))||[])[1]||'';
             const skills=CHAT_SKILL.filter(x=>x[0].test(q)).map(x=>x[1]);
-            const lvHint=(CHAT_LEVEL.find(x=>x[0].test(q))||[])[1];
-            return {grade, skills, lvHint:(lvHint==null?null:lvHint), q};
+            // 약점 매핑: 약점 보완 영역을 후보에 합류(별도 가중치)
+            const weakHit=CHAT_WEAK.filter(x=>x[0].test(q));
+            const weakSkills=[...new Set(weakHit.flatMap(x=>x[2]))];
+            weakSkills.forEach(s=>{ if(!skills.includes(s)) skills.push(s); });
+            // 수준 추정: 키워드(기초/실전) 우선, 없으면 등급으로 — 2등급=상위권→심화 수준
+            let lvHint=(CHAT_LEVEL.find(x=>x[0].test(q))||[])[1];
+            const rk=q.match(/([1-9])\s*등급/);
+            if(lvHint==null&&rk){ const r=+rk[1]; lvHint=r<=2?4.5:r<=3?4:r<=5?3:2.2; }
+            return {grade, skills, lvHint:(lvHint==null?null:lvHint), weak:weakHit.map(x=>x[1]), weakSkills, q};
         }
         function chatRetrieve(p){
             const toks=(p.q.toLowerCase().match(/[a-z0-9가-힣]+/g)||[]).filter(w=>w.length>1);
@@ -1403,6 +1412,7 @@
             const scored=pool.map(b=>{
                 let s=popScore(b)*1.8;                                                 // 판매·인기(비중 낮춤)
                 if(p.skills.includes(b.skill)) s+=25;
+                if(p.weakSkills&&p.weakSkills.includes(b.skill)) s+=14;   // 약점 보완 영역 추가 가중
                 if(p.grade){ if(b.gradeBand===p.grade) s+=28; else if(b.gradeBand==='전체') s+=6; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=4; else s-=14; }   // 정확 학년 우대
                 if(p.lvHint!=null) s-=Math.abs((b.level||3)-p.lvHint)*6;
                 if(higherGrade && /만화/.test(b.track||'')) s-=40;                     // 중등↑ 질문에 어린이 학습만화 배제
@@ -1426,14 +1436,14 @@
             `<button onclick="recFeedback('${b.id}',1)" title="도움됐어요" class="text-[12px] flex-shrink-0 px-0.5">👍</button>`+
             `<button onclick="recFeedback('${b.id}',-1)" title="안 맞아요" class="text-[12px] flex-shrink-0 px-0.5">👎</button></div>`; }
         function chatTemplate(p,books){ if(!books.length) return '조건에 맞는 교재를 못 찾았어요. 학년·영역을 다시 알려주세요. 예) "중2 독해 기본"';
-            const parts=[]; if(p.grade)parts.push(p.grade); if(p.skills.length)parts.push(p.skills.join('·')); if(p.lvHint!=null)parts.push(p.lvHint<=2?'기초':p.lvHint>=4?'실전':'기본');
+            const parts=[]; if(p.grade)parts.push(p.grade); if(p.weak&&p.weak.length)parts.push('약점보완: '+p.weak.join('·')); if(p.skills.length)parts.push(p.skills.join('·')); if(p.lvHint!=null)parts.push(p.lvHint<=2?'기초':p.lvHint>=4?'실전':'기본');
             return `<b>${parts.join(' · ')||'인기'}</b> 기준 <b class="text-orange-400">판매·인기 순</b> 추천이에요 👇`; }
         function chatAppend(who,html){ const log=document.getElementById('chatLog'); if(!log) return null; const d=document.createElement('div');
             d.className=(who==='user'?'text-right':''); d.setAttribute('data-who',who);
             d.innerHTML=`<div class="inline-block max-w-[88%] text-left rounded-2xl px-3 py-2 text-sm ${who==='user'?'bg-brand text-slate-900':'bg-slate-800 text-slate-100'}">${html}</div>`;
             log.appendChild(d); log.scrollTop=log.scrollHeight; if(typeof lucide!=='undefined') lucide.createIcons(); return d; }
         function chatGreet(){ chatAppend('bot','안녕하세요! 어떤 학생인가요? <b>학년·영역·수준</b>을 말로 알려주시면 딱 맞는 교재를 <b>판매·인기 순</b>으로 추천해드려요. 예) <b>"초6 문법 기초"</b>');
-            const ex=['초6 문법 기초','중2 독해','고3 수능 어휘','초등 파닉스','성인 회화'];
+            const ex=['초6 문법 기초','중2 독해','고1 2등급 서술형 보완','고3 수능 어휘','성인 회화'];
             const c=document.getElementById('chatChips'); if(c) c.innerHTML=ex.map(e=>`<button onclick="chatQuick('${e}')" class="px-2 py-1 rounded-full text-[11px] bg-slate-800 border border-slate-600 text-slate-300 hover:border-brand">${e}</button>`).join(''); }
         function chatQuick(e){ const i=document.getElementById('chatInput'); if(i){ i.value=e; chatSend(); } }
         // 모바일 툴바 보조버튼 접기/펼치기 (데스크톱은 항상 표시)
