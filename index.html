@@ -256,7 +256,7 @@
         <div id="chatPanel" class="hidden fixed inset-0 sm:inset-auto sm:bottom-4 sm:right-4 sm:w-[380px] sm:h-[560px] sm:max-h-[85vh] z-[80] bg-panel sm:border sm:border-slate-700 sm:rounded-2xl shadow-2xl flex flex-col">
             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-700 flex-shrink-0">
                 <div class="font-bold text-white flex items-center gap-2">💬 교재 상담 <span id="chatMode" class="text-[10px] font-normal text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded">검색기반</span></div>
-                <button onclick="toggleChat(false)" class="text-slate-400 hover:text-white text-xl px-1">✕</button>
+                <div class="flex items-center gap-1"><button onclick="reportIssue()" title="문제 신고" class="text-slate-500 hover:text-white text-sm px-1">🐞</button><button onclick="toggleChat(false)" class="text-slate-400 hover:text-white text-xl px-1">✕</button></div>
             </div>
             <div id="chatLog" class="flex-1 overflow-y-auto p-3 space-y-3 hide-scrollbar"></div>
             <div class="p-3 border-t border-slate-700 flex-shrink-0">
@@ -1227,6 +1227,13 @@
             const a=JSON.parse(localStorage.getItem('ih_events')||'[]'); a.push(ev); while(a.length>300) a.shift(); localStorage.setItem('ih_events',JSON.stringify(a));
             const ep=(window.GUIDE_ENDPOINT||'').trim(); if(ep) fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({event:'evt',evt:ev})}).catch(()=>{});
         }catch(e){} }
+        // ── 중앙 오류수집: JS 런타임 오류를 익명 보고(중복 억제·세션당 최대 3건) → GAS events 인박스 ──
+        window.__errSent=window.__errSent||{};
+        function reportErr(kind,msg,src){ try{ const k=kind+':'+String(msg||'').slice(0,80); if(window.__errSent[k]||Object.keys(window.__errSent).length>=3) return; window.__errSent[k]=1; logEvent('err',{m:k,src:String(src||'').slice(0,80)}); }catch(_){} }
+        window.addEventListener('error',e=>reportErr('js',e&&e.message,(e&&e.filename?e.filename.split('/').pop():'')+':'+((e&&e.lineno)||0)));
+        window.addEventListener('unhandledrejection',e=>reportErr('promise',(e&&e.reason&&(e.reason.message||e.reason))||''));
+        // 사용자 문제 신고(🐞): 자유 텍스트를 익명으로 중앙 인박스에 접수
+        function reportIssue(){ const t=prompt('어떤 문제가 있었나요? 내용은 익명으로 개발자에게 전달됩니다.\n(예: 챗봇 답이 이상해요 / 버튼이 안 눌러져요)'); if(t&&t.trim()){ logEvent('report',{m:t.trim().slice(0,200)}); if(typeof showToast==='function') showToast('🐞 접수됐습니다. 감사합니다!'); else alert('접수됐습니다. 감사합니다!'); } }
         function recFeedback(id,vote){ logEvent('rec_feedback',{id:id,vote:vote}); showToast(vote>0?'👍 도움됐어요로 기록':'👎 안 맞아요로 기록'); }
         // 내 데이터 삭제권 — 이 기기의 ih_* 일괄 제거(공용PC 안전)
         function clearMyData(){ if(!confirm('이 기기에 저장된 내 정보(학교·학생명·커리·기록·평가)를 모두 지울까요?')) return;
