@@ -1228,17 +1228,17 @@
             const ep=(window.GUIDE_ENDPOINT||'').trim(); if(ep) fetch(ep,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({event:'evt',evt:ev})}).catch(()=>{});
         }catch(e){} }
         // ── 중앙 오류수집: JS 런타임 오류를 익명 보고(중복 억제·세션당 최대 3건) → GAS events 인박스 ──
+        // 우리 코드의 "진짜" 오류만 수집. 타 출처(CDN·브라우저 확장)의 불투명 'Script error.'(파일·줄 없음)는
+        // 진단 불가 노이즈라 인박스에서 제외 — 대신 세션당 발생 여부만 err3p 카운트로 남겨 규모만 파악.
         window.__errSent=window.__errSent||{};
-        function reportErr(kind,msg,src){ try{ const k=kind+':'+String(msg||'').slice(0,80); if(window.__errSent[k]||Object.keys(window.__errSent).length>=3) return; window.__errSent[k]=1; logEvent('err',{m:k,src:String(src||'').slice(0,80)}); }catch(_){} }
-        window.addEventListener('error',e=>reportErr('js',e&&e.message,(e&&e.filename?e.filename.split('/').pop():'')+':'+((e&&e.lineno)||0)));
-        window.addEventListener('unhandledrejection',e=>reportErr('promise',(e&&e.reason&&(e.reason.message||e.reason))||''));
-        // 사용자 문제 신고(🐞): 자유 텍스트를 익명으로 중앙 인박스에 접수
-        function reportIssue(){ const t=prompt('어떤 문제가 있었나요? 내용은 익명으로 개발자에게 전달됩니다.\n(예: 챗봇 답이 이상해요 / 버튼이 안 눌러져요)'); if(t&&t.trim()){ logEvent('report',{m:t.trim().slice(0,200)}); if(typeof showToast==='function') showToast('🐞 접수됐습니다. 감사합니다!'); else alert('접수됐습니다. 감사합니다!'); } }
-        function recFeedback(id,vote){ logEvent('rec_feedback',{id:id,vote:vote}); showToast(vote>0?'👍 도움됐어요로 기록':'👎 안 맞아요로 기록'); }
-        // 내 데이터 삭제권 — 이 기기의 ih_* 일괄 제거(공용PC 안전)
-        function clearMyData(){ if(!confirm('이 기기에 저장된 내 정보(학교·학생명·커리·기록·평가)를 모두 지울까요?')) return;
-            try{ Object.keys(localStorage).filter(k=>k.indexOf('ih_')===0).forEach(k=>localStorage.removeItem(k)); }catch(e){}
-            ['metaSchool','metaClass','metaStudent','nsSchool','nsStudent'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+        function reportErr(kind,msg,src){ try{ const k=kind+':'+String(msg||'').slice(0,80); if(window.__errSent[k]||Object.keys(window.__errSent).length>=3) return; window.__errSent[k]=1; logEvent('err',{m:k,src:String(src||'').slice(0,90)}); }catch(_){} }
+        window.addEventListener('error',e=>{
+            const msg=(e&&e.message)||'', file=(e&&e.filename)||'', line=(e&&e.lineno)||0;
+            if(!file||line===0||/^Script error\.?$/i.test(msg)){ if(!window.__err3pDone){ window.__err3pDone=1; logEvent('err3p',{}); } return; }   // 타 출처 불투명 오류 → 카운트만
+            const st=(e&&e.error&&e.error.stack)?String(e.error.stack).split('\n')[1]||'':'';
+            reportErr('js',msg,file.split('/').pop()+':'+line+(st?' '+st.trim().slice(0,40):''));
+        });
+        window.addEventListener('unhandledrejection',e=>{ const r=e&&e.reason; reportErr('promise',(r&&(r.message||r))||'', (r&&r.stack)?String(r.stack).split('\n')[1]||'':''); });
             state.basket=[]; showToast('내 데이터를 모두 삭제했어요'); if(state.view==='rec') renderRecView(); }
         function collectPlan(){
             const placed=gridPlaced(); const picks=[], partCounts={};
