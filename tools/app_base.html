@@ -1394,6 +1394,14 @@
         const CHAT_WEAK = [[/서술형|영작/,'서술형',['쓰기','문법']],[/빈칸/,'빈칸추론',['독해']],[/어법/,'어법',['문법']],[/해석이?\s*(안|어렵)|직독직해|문장이\s*안\s*읽/,'구문독해',['구문']],[/시간이?\s*(부족|모자)|다\s*못\s*풀/,'실전 시간관리',['모의/기출']],[/단어(를|가)?.{0,6}(몰|모르|부족|약하)|어휘(력|가)?.{0,4}(약|부족|없)/,'어휘력',['어휘']],[/말이\s*안\s*나오|입이\s*안\s*떨어/,'말하기',['말하기']]];
         // 학년별 기본 수준(수준 신호가 전혀 없을 때) — 고1에게 Lv1 교재가 나가는 사고 방지
         const GRADE_BASE_LV = {'유아/예비초':1.5,'초등':2,'중등':3,'고등':3.3,'성인':3};
+        // ⑤ 목표 축 — 값은 교재 goals 태그(빌드 시 전 교재 부여)와 동일 어휘 → 직접 매칭 가중
+        const CHAT_GOAL = [[/내신|중간고사|기말고사|학교\s*시험|수행평가/,'내신 대비'],[/수능|모의고사|모평|학평|평가원/,'수능·모의고사'],[/토익|토플|텝스|아이엘츠|오픽|지텔프/,'시험영어(토익·토플)'],[/첫걸음|알파벳부터|영어\s*처음/,'영어 첫걸음'],[/수업을?\s*못\s*따라|학교\s*(수업|영어).{0,6}(못|어려|따라)/,'학교영어 따라가기']];
+        // 영역→목표 유도(명시 목표가 없을 때): 교재 goals 태그와 연결
+        const SKILL2GOAL = {'독해':'독해 늘리기','구문':'독해 늘리기','문법':'문법 잡기','어휘':'어휘 늘리기','듣기':'듣기','말하기':'말하기·회화','쓰기':'쓰기·서술형','파닉스':'영어 첫걸음','모의/기출':'수능·모의고사'};
+        // ⑥ 시기 축 — 값은 교재 timing 태그와 동일 어휘
+        const CHAT_TIMING = [[/방학|여름\s*특강|겨울\s*특강|단기\s*(집중|완성)|한\s*달\s*완성|두\s*달/,'방학 단기집중'],[/시험\s*(직전|전날|코앞)|벼락치기|디데이|D-?\s*\d+|일주일\s*뒤\s*시험/i,'시험 직전'],[/학기\s*중|꾸준히|매일\s*조금|습관/,'학기중 꾸준히']];
+        // ⑦ 상황 축 — 답변 프레이밍용(LLM 프로필로 전달)
+        const CHAT_MODE = [[/독학|혼자\s*(공부|해|하려|할)|학원\s*없이|인강으로만/,'독학(해설 상세 교재 선호)'],[/엄마표|아빠표|부모가\s*(가르|지도)|집에서\s*가르/,'엄마표(부모 지도)'],[/학원\s*(다니|병행)|과외\s*(받|병행)/,'학원 병행(보조 교재)']];
         function parseChat(q, prev){
             let grade=(CHAT_GRADE.find(x=>x[0].test(q))||[])[1]||'';
             const skills=CHAT_SKILL.filter(x=>x[0].test(q)).map(x=>x[1]);
@@ -1417,7 +1425,18 @@
             if(adj){ lvHint=Math.max(1,Math.min(5,(lvHint!=null?lvHint:3)+adj)); }
             // 수준 신호가 끝내 없으면 학년 기본 수준 적용(고1→Lv3.3: 쉬운 권 배제)
             if(lvHint==null&&grade) lvHint=GRADE_BASE_LV[grade]!=null?GRADE_BASE_LV[grade]:null;
-            return {grade, skills, lvHint:(lvHint==null?null:lvHint), weak:weakHit.map(x=>x[1]), weakSkills, wantForeign, q};
+            // ⑤목표: 명시 패턴 → 영역 유도 → 원서. 교재 goals 태그와 동일 어휘라 검색에서 직접 매칭됨
+            const goals=CHAT_GOAL.filter(x=>x[0].test(q)).map(x=>x[1]);
+            skills.forEach(s2=>{ const g2=SKILL2GOAL[s2]; if(g2&&!goals.includes(g2)) goals.push(g2); });
+            if(wantForeign&&!goals.includes('원서 읽기')) goals.push('원서 읽기');
+            // ⑥시기: 명시 패턴, 없고 기초 수준이면 '기초 입문'
+            let timingKw=(CHAT_TIMING.find(x=>x[0].test(q))||[])[1]||'';
+            if(!timingKw&&lvHint!=null&&lvHint<=2) timingKw='기초 입문';
+            // ⑦상황(독학·엄마표·학원병행)
+            let mode=(CHAT_MODE.find(x=>x[0].test(q))||[])[1]||'';
+            // 후속 질문 승계(목표·시기·상황도 대화 맥락 유지)
+            if(prev){ if(!goals.length&&(prev.goals||[]).length) prev.goals.forEach(g2=>goals.push(g2)); if(!timingKw&&prev.timingKw) timingKw=prev.timingKw; if(!mode&&prev.mode) mode=prev.mode; }
+            return {grade, skills, lvHint:(lvHint==null?null:lvHint), weak:weakHit.map(x=>x[1]), weakSkills, wantForeign, goals, timingKw, mode, q};
         }
         function chatRetrieve(p){
             const toks=(p.q.toLowerCase().match(/[a-z0-9가-힣]+/g)||[]).filter(w=>w.length>1);
@@ -1435,6 +1454,9 @@
                 if(p.weakSkills&&p.weakSkills.includes(b.skill)) s+=14;   // 약점 보완 영역 추가 가중
                 // 원서 요청: foreign 플래그 또는 영문 제목 교재 대폭 가중(플래그 비일관 대비 제목 휴리스틱 병행)
                 if(p.wantForeign){ const engT=/^[A-Za-z0-9][A-Za-z0-9 :,'&.!?()\-]*$/.test(b.title||''); if(b.foreign||engT) s+=30; else s-=12; }
+                // ⑤⑥ 목표·시기 축: 교재에 구워진 goals/timing 태그와 직접 매칭(키워드 조합 → 태그 조합)
+                if(p.goals&&p.goals.length&&(b.goals||[]).some(g2=>p.goals.includes(g2))) s+=16;
+                if(p.timingKw&&(b.timing||[]).includes(p.timingKw)) s+=12;
                 if(p.grade){ if(b.gradeBand===p.grade) s+=28; else if(b.gradeBand==='전체') s+=6; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=4; else s-=14; }
                 if(p.lvHint!=null) s-=Math.abs((b.level||3)-p.lvHint)*6;
                 if(higherGrade && /만화/.test(b.track||'')) s-=40;
@@ -1512,7 +1534,10 @@
                 const thinking=chatAppend('bot','<span class="text-slate-500">🤖 생각 중…</span>');
                 // 교재정보 확장: 한줄평(c)·가격(pr)·판매상태(st)·CEFR(cf)까지 LLM에 전달 → 더 구체적 상담
                 const c=encodeURIComponent(JSON.stringify(books.slice(0,6).map(b=>({t:b.title,p:b.pub,g:b.gradeBand,s:b.skill,l:b.level,sp:b.salesPoint||0,c:String(b.comment||'').slice(0,24),pr:b.price||0,st:(b.status&&b.status!=='정상')?b.status:'',cf:b.cefr||''}))));
-                const url=ep+(ep.indexOf('?')>=0?'&':'?')+'chat=1&q='+encodeURIComponent(q.slice(0,300))+'&cands='+c+'&hist='+encodeURIComponent(JSON.stringify(hist));   // 'c'는 GAS가 가로채 400 유발 → 'cands'
+                // 키워드 조합 프로필을 LLM에 구조화 전달 — 7축(학년·영역·수준·약점·목표·시기·상황) 조합에 맞춘 답변 유도
+                const prof=[]; if(p.grade)prof.push('학년='+p.grade); if(p.goals&&p.goals.length)prof.push('목표='+p.goals.slice(0,2).join('/')); if(p.weak&&p.weak.length)prof.push('약점='+p.weak.join('/')); if(p.lvHint!=null)prof.push('수준=Lv'+p.lvHint); if(p.timingKw)prof.push('시기='+p.timingKw); if(p.mode)prof.push('상황='+p.mode); if(p.wantForeign)prof.push('원서 희망');
+                const qFull=(q.slice(0,200)+(prof.length?' [파악된 정보: '+prof.join(', ')+']':'')).slice(0,380);
+                const url=ep+(ep.indexOf('?')>=0?'&':'?')+'chat=1&q='+encodeURIComponent(qFull)+'&cands='+c+'&hist='+encodeURIComponent(JSON.stringify(hist));   // 'c'는 GAS가 가로채 400 유발 → 'cands'
                 jsonp(url).then(d=>{ if(thinking&&thinking.parentNode) thinking.parentNode.removeChild(thinking);
                     // 한자 방어선: LLM이 한자·중국어를 섞으면 검색기반 템플릿으로 폴백
                     const ai=d&&d.ok&&d.answer&&!/[一-鿿]/.test(d.answer);
