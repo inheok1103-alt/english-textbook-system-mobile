@@ -1239,6 +1239,13 @@
             reportErr('js',msg,file.split('/').pop()+':'+line+(st?' '+st.trim().slice(0,40):''));
         });
         window.addEventListener('unhandledrejection',e=>{ const r=e&&e.reason; reportErr('promise',(r&&(r.message||r))||'', (r&&r.stack)?String(r.stack).split('\n')[1]||'':''); });
+        // 사용자 문제 신고(🐞): 자유 텍스트를 익명으로 중앙 인박스에 접수
+        function reportIssue(){ const t=prompt('어떤 문제가 있었나요? 내용은 익명으로 개발자에게 전달됩니다.\n(예: 챗봇 답이 이상해요 / 버튼이 안 눌러져요)'); if(t&&t.trim()){ logEvent('report',{m:t.trim().slice(0,200)}); if(typeof showToast==='function') showToast('🐞 접수됐습니다. 감사합니다!'); else alert('접수됐습니다. 감사합니다!'); } }
+        function recFeedback(id,vote){ logEvent('rec_feedback',{id:id,vote:vote}); showToast(vote>0?'👍 도움됐어요로 기록':'👎 안 맞아요로 기록'); }
+        // 내 데이터 삭제권 — 이 기기의 ih_* 일괄 제거(공용PC 안전)
+        function clearMyData(){ if(!confirm('이 기기에 저장된 내 정보(학교·학생명·커리·기록·평가)를 모두 지울까요?')) return;
+            try{ Object.keys(localStorage).filter(k=>k.indexOf('ih_')===0).forEach(k=>localStorage.removeItem(k)); }catch(e){}
+            ['metaSchool','metaClass','metaStudent','nsSchool','nsStudent'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
             state.basket=[]; showToast('내 데이터를 모두 삭제했어요'); if(state.view==='rec') renderRecView(); }
         function collectPlan(){
             const placed=gridPlaced(); const picks=[], partCounts={};
