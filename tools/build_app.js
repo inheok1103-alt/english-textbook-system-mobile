@@ -193,9 +193,15 @@ const MASTER_DATA = englishOnly.map((m) => {
   const uid = m.materialUid;
   const info = images[uid] || {};
   const hasCover = !!info.localPath;
-  const skill = normSkill(m.skill);
+  let skill = normSkill(m.skill);
   const level = toLevel(m.tftNums);
-  const band = gradeBandAdj(m);
+  let band = gradeBandAdj(m);
+  // 시리즈 라벨 교정 — 원천(KOBIC) 분류 오류가 학년·영역 가드를 무력화하는 것 방지
+  // 실사례: '리딩튜터 주니어'(중등 독해서)가 고등·문법으로 등록돼 고1 문법 추천 1순위 노출
+  if (/리딩\s*튜터|reading\s*tutor/i.test(m.title || "")) {
+    skill = "독해";
+    band = /주니어|junior/i.test(m.title || "") ? "중등" : "고등";
+  }
   skillSet.add(skill);
   (m.situations || []).forEach((s) => { sitCount[s] = (sitCount[s] || 0) + 1; });
   (m.weaknesses || []).forEach((s) => { weakCount[s] = (weakCount[s] || 0) + 1; });
@@ -237,7 +243,7 @@ const MASTER_DATA = englishOnly.map((m) => {
     fullComment: m.pickComment || "",
     part: m.part || "",
     track: m.category || m.kobicCategory || "",   // 특목고 해외 부교재 / 고난도·시험 어휘 / KOBIC 분류
-    gradeBand: gradeBandAdj(m),
+    gradeBand: band,
     cefr: extractCefr(m.pickComment || ""),
     lexile: extractLexile(m.pickComment || ""),
     ageBand: ageBandAdj(m),                          // 세분 나이대

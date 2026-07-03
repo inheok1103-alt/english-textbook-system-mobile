@@ -50,7 +50,12 @@ function doGet(e) {
   if (p.rankings)  return output_(buildRankings_(p), p.callback);
   if (p.newbooks)  return output_(buildNewbooks_(p), p.callback);
   if (p.summary || p.admin) return output_(buildSummary_(p), p.callback);
-  if (p.events)    return output_(buildEvents_(p), p.callback);      // 활동로그 조회(관리자)
+  if (p.events) {                                                    // 활동로그 조회(관리자)
+    // Script Property 'ADMIN_KEY'를 설정하면 ?key= 일치 시에만 열람(미설정이면 기존대로 공개)
+    var ak = PropertiesService.getScriptProperties().getProperty('ADMIN_KEY');
+    if (ak && String(p.key || '') !== ak) return output_({ ok: false, error: 'unauthorized' }, p.callback);
+    return output_(buildEvents_(p), p.callback);
+  }
   if (p.chat)      return output_(chatProxy_(p), p.callback);        // 교재 상담 LLM 프록시
   return output_({ ok: true, message: '교재 시스템 백엔드 작동 중',
     usage: 'POST 제출 / ?summary=1 / ?material=UID / ?rankings=1&source=&gradeBand=&englishArea= / ?newbooks=1 / ?events=1 / ?chat=1&q=&c=' }, p.callback);

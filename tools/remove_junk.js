@@ -39,7 +39,13 @@ function isJunk(b) {
   if (OBSOLETE_AUDIO.test(t)) return "구식오디오(카세트/테이프)";
   if (GOODS.test(t) && !learn) return "비도서굿즈";
   if (y && y < 2000) return "2000년이전구판(" + y + ")";
-  if (EXAM.test(t) && y && y <= new Date().getFullYear() - EXAM_KEEP_YEARS) return "구판시험서(" + y + ")";
+  if (EXAM.test(t)) {
+    const cutoff = new Date().getFullYear() - EXAM_KEEP_YEARS;
+    if (y && y <= cutoff) return "구판시험서(" + y + ")";
+    // 제목의 'YYYY학년도' — 재출간(pubDate 최신)돼도 내용이 그 해 시험이면 구판(학년도 표기는 +1 앞서감)
+    const ty = +(t.match(/((?:19|20)\d{2})\s*학년도/) || [])[1] || 0;
+    if (ty && ty <= cutoff + 1) return "구판시험서(제목 " + ty + "학년도)";
+  }
   if (b.isbn && OOP[String(b.isbn)]) return "절판";
   return false;
 }
