@@ -1489,6 +1489,21 @@
             chatAppend('user', escHtml(q));
             // 대화 맥락: 직전 상담(학년·영역·수준) 승계 → "그럼 더 쉬운 걸로" 같은 후속 질문 대응
             const p=parseChat(q, window.__chatCtx); window.__chatCtx=p;
+            // ── 슬롯필링: 추천에 필요한 핵심 정보가 없으면 되묻기(각 질문은 대화당 1번만 — 안 채워져도 다음 턴엔 그냥 추천) ──
+            window.__chatAsked=window.__chatAsked||{};
+            const askChips=(msg,opts)=>{ window.__chatHist=(window.__chatHist||[]); window.__chatHist.push({w:'u',t:q.slice(0,100)},{w:'a',t:msg.slice(0,100)});
+                chatAppend('bot',msg);
+                const cc=document.getElementById('chatChips'); if(cc) cc.innerHTML=opts.map(e=>`<button onclick="chatQuick('${e}')" class="px-2 py-1 rounded-full text-[11px] bg-brand/20 border border-brand text-brand font-bold hover:bg-brand/40">${e}</button>`).join(''); };
+            if(!p.grade&&!window.__chatAsked.grade){
+                window.__chatAsked.grade=true;
+                askChips('누가 공부할 교재인가요? 학년대를 알려주시면 딱 맞게 골라드려요 🙂',['유아/예비초','초등','중등','고등','성인']);
+                return;
+            }
+            if(!p.skills.length&&!p.wantForeign&&!window.__chatAsked.skill){
+                window.__chatAsked.skill=true;
+                askChips('어떤 부분을 채우고 싶으세요? 고민(예: "서술형에서 자꾸 틀려요")을 그대로 적으셔도 돼요.',['문법','독해','어휘','듣기','회화','기출·모의고사','원서']);
+                return;
+            }
             const books=chatRetrieve(p), ep=(window.CHAT_ENDPOINT||'').trim();
             const hist=(window.__chatHist||[]).slice(-3);   // 직전 3턴을 LLM에 전달(맥락 유지)
             window.__chatHist=(window.__chatHist||[]); window.__chatHist.push({w:'u',t:q.slice(0,100)});
