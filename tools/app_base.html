@@ -1460,10 +1460,10 @@
             const toks=(p.q.toLowerCase().match(/[a-z0-9가-힣]+/g)||[]).filter(w=>w.length>1);
             let pool=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판' && (!p.skills.length || p.skills.includes(b.skill)));
             if(!pool.length) pool=MASTER_DATA.filter(b=>audienceOk(b) && b.status!=='절판');
-            // 학년 하드필터: 학년이 명시되면 그 학년/전체용만(감점만으론 초인기 타학년 시리즈가 뚫음 — 고1에 중등 리딩튜터 사고 방지)
+            // 학년 하드필터(정밀 gradeGap): 학년 명시 시 정확 학년 우선, 부족하면 인접까지 — 2단계+ 벗어난 초등/성인은 배제
             if(p.grade){
-                const exact=pool.filter(b=>!b.gradeBand||b.gradeBand===p.grade||b.gradeBand==='전체');
-                pool = exact.length>=25 ? exact : pool.filter(b=>!b.gradeBand||b.gradeBand==='전체'||gradeAdj(b.gradeBand,p.grade)<=1);
+                const exact=pool.filter(b=>gradeGap(b,p.grade)===0);
+                pool = exact.length>=25 ? exact : pool.filter(b=>gradeAllowed(b,p.grade));
             }
             const higherGrade = p.grade==='중등'||p.grade==='고등'||p.grade==='성인';
             const scored=pool.map(b=>{
@@ -1475,7 +1475,7 @@
                 // ⑤⑥ 목표·시기 축: 교재에 구워진 goals/timing 태그와 직접 매칭(키워드 조합 → 태그 조합)
                 if(p.goals&&p.goals.length&&(b.goals||[]).some(g2=>p.goals.includes(g2))) s+=16;
                 if(p.timingKw&&(b.timing||[]).includes(p.timingKw)) s+=12;
-                if(p.grade){ if(b.gradeBand===p.grade) s+=28; else if(b.gradeBand==='전체') s+=6; else if(gradeAdj(b.gradeBand,p.grade)<=1) s+=4; else s-=14; }
+                if(p.grade){ const gp=gradeGap(b,p.grade); if(gp===0) s+=(b.gradeBand===p.grade?28:16); else if(gp===1) s+=4; else s-=40; }
                 if(p.lvHint!=null) s-=Math.abs((b.level||3)-p.lvHint)*6;
                 if(higherGrade && /만화/.test(b.track||'')) s-=40;
                 // 시험용(수능·모의·기출) 교재 시효성: 3년 지난 판은 사실상 배제 — 폐지제도(B형)·구판 노출 방지

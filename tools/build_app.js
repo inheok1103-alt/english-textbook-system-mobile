@@ -16,7 +16,7 @@ const master = JSON.parse(html.match(/<script id="master-data" type="application
 const images = (JSON.parse(fs.readFileSync(IMG_JSON, "utf8")).images) || {};
 
 // 무료 API enrich 캐시(있으면 머지) — 알라딘(인기·가격·표지·절판) > 카카오(가격·표지 폴백) > 원서(OpenLibrary/GoogleBooks 표지·메타)
-function loadEnrich(name) { try { return JSON.parse(fs.readFileSync(path.join(DATA, name), "utf8")) || {}; } catch (e) { return {}; } }
+function loadEnrich(name) { try { const j = JSON.parse(fs.readFileSync(path.join(DATA, name), "utf8")) || {}; return (j.items && typeof j.items === "object") ? j.items : j; } catch (e) { return {}; } }   // {items:{}} 래퍼도 관용
 const ENRICH_ALADIN = loadEnrich("aladin_enrich.json");
 const ENRICH_KAKAO = loadEnrich("kakao_enrich.json");
 const ENRICH_FOREIGN = loadEnrich("foreign_enrich.json");
@@ -195,7 +195,8 @@ const MASTER_DATA = englishOnly.map((m) => {
   const hasCover = !!info.localPath;
   let skill = normSkill(m.skill);
   const level = toLevel(m.tftNums);
-  let band = gradeBandAdj(m);
+  // 정밀 분류(classify_books.js) 결과 우선 — "전체" 뭉뚱그림 해소(성인일반/초등 등 정확)
+  let band = m.gradeForced || gradeBandAdj(m);
   // 시리즈 라벨 교정 — 원천(KOBIC) 분류 오류가 학년·영역 가드를 무력화하는 것 방지
   // 실사례: '리딩튜터 주니어'(중등 독해서)가 고등·문법으로 등록돼 고1 문법 추천 1순위 노출
   if (/리딩\s*튜터|reading\s*tutor/i.test(m.title || "")) {
@@ -244,6 +245,10 @@ const MASTER_DATA = englishOnly.map((m) => {
     part: m.part || "",
     track: m.category || m.kobicCategory || "",   // 특목고 해외 부교재 / 고난도·시험 어휘 / KOBIC 분류
     gradeBand: band,
+    gradeMin: m.gradeMin != null ? m.gradeMin : null,   // 학년 서수범위(0유아~4성인) — 추천 하드제약용
+    gradeMax: m.gradeMax != null ? m.gradeMax : null,
+    schoolType: m.schoolType || "",                     // 수능·내신·특목·성인시험
+    adultGeneral: m.adultGeneral || 0,                  // 성인 일반(회화·여행·작문 등) — 학생 추천서 제외
     cefr: extractCefr(m.pickComment || ""),
     lexile: extractLexile(m.pickComment || ""),
     ageBand: ageBandAdj(m),                          // 세분 나이대

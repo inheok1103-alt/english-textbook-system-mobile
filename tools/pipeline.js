@@ -38,9 +38,13 @@ const STAGES = [
   { key: "harvest-foreign",group: "harvest", label: "원서 발굴(수입 ELT 시리즈)", cmd: "node tools/harvest_kobic.js", env: { KOBIC_NOPUBFILTER: "1", KOBIC_MAXPAGES: "6", KOBIC_TERMS: FOREIGN_TERMS } },
   { key: "merge-foreign",  group: "harvest", label: "원서 병합(foreign 태깅)", cmd: "node tools/harvest_kobic_merge.js" },
 
+  { key: "harvest-aladin", group: "harvest", label: "🛒 알라딘 영어교재 전수 수확(참고서·시험서·시리즈 — KOBIC 누락 보완)", cmd: "node tools/harvest_aladin.js", env: { }, optional: true },
+  { key: "merge-aladin",   group: "harvest", label: "알라딘 수확 병합·정리(영역·학년·레벨 자동부여, 기존 ISBN 건너뜀)", cmd: "node tools/merge_aladin_catalog.js", optional: true },
+
   { key: "clean-noneng",   group: "clean",   label: "비영어 교재 제거", cmd: "node tools/remove_noneng.js", optional: true },
   { key: "clean-junk",     group: "clean",   label: "불필요 컨텐츠 제거(구식오디오·2000이전·굿즈)", cmd: "node tools/remove_junk.js", optional: true },
   { key: "clean-dedup",    group: "clean",   label: "중복·구버전 정리(최신판만 보존)", cmd: "node tools/dedup_latest.js --apply", optional: true },
+  { key: "classify",       group: "clean",   label: "🧩 학년×학교×수준×과목 정밀 분류(gradeForced·성인일반 분리)", cmd: "node tools/classify_books.js", optional: true },
 
   { key: "enrich-foreign", group: "enrich",  label: "원서 표지·메타 보강(OpenLibrary/GoogleBooks·키 불필요)", cmd: "node tools/enrich_foreign.js", env: { ENRICH_LIMIT: val("enrich-limit", "150") }, optional: true },
   { key: "enrich-aladin",  group: "enrich",  label: "알라딘 보강(인기·가격·표지·절판)", cmd: "node tools/enrich_aladin.js", env: { ENRICH_LIMIT: val("aladin-limit", "1500") }, optional: true },
