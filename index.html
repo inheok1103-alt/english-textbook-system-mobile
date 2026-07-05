@@ -518,8 +518,18 @@
             if(state.track==='parent') return !!b.parentBook;
             if(state.track==='exam')   return !!b.examPrep;
             if(state.track==='adult')  return !b.examPrep && !b.parentBook && !b.teacherRef && (b.gradeBand==='성인'||b.gradeBand==='대학/전공'||b.gradeBand==='전체');   // 성인 본인 학습
-            return !b.examPrep && !b.parentBook && !b.teacherRef;   // student
+            return !b.examPrep && !b.parentBook && !b.teacherRef && !b.adultGeneral;   // student — 성인일반(회화·여행·작문 등) 제외
         }
+        // 정밀 학년거리(0=범위 안, 1=인접, 2+=멀다) — classify_books의 gradeMin/Max 우선, 없으면 gradeBand로.
+        const _GORD={'유아/예비초':0,'초등':1,'중등':2,'고등':3,'성인':4,'대학/전공':4};
+        function gradeGap(b, grade){
+            if(!grade) return 0; const g=_GORD[grade]; if(g==null) return 0;
+            let mn=b.gradeMin, mx=b.gradeMax;
+            if(mn==null||mx==null){ const o=_GORD[b.gradeBand]; if(o==null) return 0; mn=mx=o; }
+            if(g>=mn && g<=mx) return 0; return g<mn ? (mn-g) : (g-mx);
+        }
+        // 학생 추천 하드제약: 목표 학년에서 2단계 이상 벗어난 교재는 절대 추천 안 함(고등에 초등/성인 차단)
+        function gradeAllowed(b, grade){ return gradeGap(b, grade) <= 1; }
         // HTML 이스케이프 — 인쇄/공유 출력물의 학교명·학생명·제목 주입(저장형 XSS·마크업깨짐) 차단
         function escHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
         // 목표 → 핵심 영역(skill) 매핑 — '독해 늘리기' 골랐는데 문법책이 1등 나오는 문제 차단
@@ -1039,7 +1049,7 @@
             const wantLv = planMidLv(m.phase);   // 계획기간·학생수준 반영(1달=점프금지)
             const rs=gridRowSeq(skill).filter(x=>x.col<col); const prev=rs.length?rs[rs.length-1].book:null;
             const cands=MASTER_DATA.filter(b=>b.skill===skill && audienceOk(b) && !gridIsPlaced(b.id) && b.status!=='절판'
-                    && (b.gradeBand===state.curGrade || gradeAdj(b.gradeBand,state.curGrade)<=1)
+                    && gradeAllowed(b,state.curGrade)
                     && Math.abs((b.level||3)-wantLv)<=2).map(b=>{                     // 수준 ±2 이내만(적정 후보로 한정)
                 let s = popScore(b)*3.4;                                              // ★ 알라딘 판매량·인기 = 주(主) 기준
                 s -= Math.abs((b.level||3)-wantLv)*5;                                 // 수준 적합(부차)
@@ -1092,7 +1102,7 @@
             const lv=GRADE_LV[grade]||2; const conf=GOALS[g]; let n=0;
             conf.skills.forEach(skill=>{ const row=rowOf(skill), col=0; if(state.grid[row][col]) return;
                 let cands=MASTER_DATA.filter(b=>b.skill===skill && audienceOk(b) && !gridIsPlaced(b.id) && b.status!=='절판' && Math.abs((b.level||3)-lv)<=1);
-                if(grade){ const gf=cands.filter(b=>b.gradeBand===grade||b.gradeBand==='전체'); if(gf.length) cands=gf; }
+                if(grade){ let gf=cands.filter(b=>gradeGap(b,grade)===0); if(!gf.length) gf=cands.filter(b=>gradeAllowed(b,grade)); if(gf.length) cands=gf; }   // 정확 학년 우선, 없으면 인접까지(초등/성인 배제)
                 cands.sort((a,b)=>(Math.abs((a.level||3)-lv)-Math.abs((b.level||3)-lv)) || ((b.q!=null?b.q:50)-(a.q!=null?a.q:50)));
                 if(cands.length){ state.grid[row][col]=cands[0].id; n++; } });
             renderPipeline(); renderDB();
@@ -1313,7 +1323,20 @@
             }
             jsonp(ep+(ep.indexOf('?')>=0?'&':'?')+'summary=1&bucket='+encodeURIComponent(window.__dashBucket||'all')).then(d=>{ body.innerHTML=renderSummary(d); }).catch(()=>{ body.innerHTML='<div class="text-danger">불러오기 실패(네트워크/CORS)</div>'; });
         }
-        function barRows(list){ if(!list||!list.length) return '<div class="text-slate-400">데이터 없음</div>'; const max=list[0].count||1; return list.map((it,i)=>`<div class="flex items-center gap-2 mb-1 text-xs"><div class="w-40 truncate">${i+1}. ${titleOf(it.uid)}</div><div class="flex-1 bg-slate-800 rounded h-3 overflow-hidden"><div class="h-full bg-gradient-to-r from-accent to-brand" style="width:${Math.round(it.count/max*100)}%"></div></div><div class="w-16 text-right">${it.count}${it.pct!=null?` (${it.pct}%)`:''}</div></div>`).join(''); }
+        function rankBadge(i){ return ['🥇','🥈','🥉'][i] || `<span class="text-slate-500 text-[11px] font-black tabular-nums">${i+1}</span>`; }
+    function barRows(list){ if(!list||!list.length) return '<div class="text-slate-500 text-xs py-2">아직 데이터가 모이는 중이에요</div>';
+            return list.map((it,i)=>{ const b=byId(it.uid);
+                const cov=(b&&b.cover)?`<img src="${b.cover}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'">`:'<span class="text-[8px] text-slate-600">BOOK</span>';
+                return `<div class="flex items-center gap-2 py-1.5 border-b border-slate-800/50 last:border-0">
+                    <div class="w-6 text-center text-base leading-none">${rankBadge(i)}</div>
+                    <div class="w-8 h-11 rounded overflow-hidden bg-slate-800 shrink-0 flex items-center justify-center ring-1 ring-slate-700">${cov}</div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-xs font-bold text-white truncate">${titleOf(it.uid)}</div>
+                        ${b?`<div class="text-[10px] text-slate-500 truncate">${escHtml(b.pub||'')} · ${b.skill} · Lv${b.level}${b.gradeBand?(' · '+b.gradeBand):''}</div>`:''}
+                    </div>
+                    <div class="text-[11px] font-black text-brand tabular-nums shrink-0">${it.count}<span class="text-slate-500 font-normal">${it.pct!=null?(' '+it.pct+'%'):'명'}</span></div>
+                    ${b?`<button onclick="showBookDetail('${it.uid}')" class="text-[10px] text-slate-400 hover:text-brand shrink-0 px-0.5">보기</button>`:''}
+                </div>`; }).join(''); }
         function renderSummary(d){ if(!d||!d.ok) return '<div class="text-danger">데이터 형식 오류</div>'; let h=`<div class="text-xs text-slate-400 mb-2">총 제출 ${d.total||0}건 / 누적 ${d.totalAll||0}건 · ${d.bucket}</div>`; h+='<div class="font-bold text-white mb-1">인기 교재 Top</div>'+barRows(d.popularMaterials||[]);
             if(d.popularPairs&&d.popularPairs.length){ h+='<div class="font-bold text-white mt-3 mb-1">인기 조합(연속 교재)</div>'+d.popularPairs.slice(0,10).map((p,i)=>`<div class="text-xs mb-1">${i+1}. ${titleOf(p.from)} <span class="text-brand">→</span> ${titleOf(p.to)} <span class="text-slate-500">(${p.count})</span></div>`).join(''); }
             return h; }
@@ -1389,7 +1412,7 @@
         // 학년·목표·시기 적합도(추천 공통 가중치). 목표가 가장 강함 → 가나다 동점 제거의 핵심
         function ctxScore(b, ctx){
             let s=0; const why=[];
-            if(ctx.grade){ if(b.gradeBand===ctx.grade){ s+=34; } else { const d=gradeAdj(b.gradeBand,ctx.grade); if(d===1) s+=6; else if(d>=2) s-=40; } }
+            if(ctx.grade){ const gp=gradeGap(b,ctx.grade); if(gp===0){ s+=(b.gradeBand===ctx.grade?34:20); } else if(gp===1){ s+=4; } else { s-=100; } }   // 정밀 학년거리(2단계+ 사실상 배제)
             if(ctx.goal){ if((b.goals||[]).includes(ctx.goal)){ s+=44; why.push('🎯 '+ctx.goal); } else { s-=6; } }
             if(ctx.goal && GOAL_SKILL[ctx.goal]){ if(GOAL_SKILL[ctx.goal].includes(b.skill)){ s+=20; } else { s-=22; } }   // 목표=영역 정렬
             if(ctx.timing){ if((b.timing||[]).includes(ctx.timing)){ s+=22; why.push('🗓 '+ctx.timing); } }
@@ -1667,7 +1690,7 @@
             const wantLv = startLvFor(ctx.grade, ctx.goal);
             const scored = MASTER_DATA.map(b=>{
                 if(!audienceOk(b)) return null;                                   // 트랙(학생/학부모/임용) 오디언스 필터
-                if(ctx.grade && b.gradeBand!==ctx.grade && gradeAdj(b.gradeBand,ctx.grade)>=2) return null;  // 학년 크게 벗어나면 제외
+                if(ctx.grade && !gradeAllowed(b,ctx.grade)) return null;           // 정밀 학년 하드제약(2단계+ 벗어나면 제외 — 고등에 초등 차단)
                 const cs=ctxScore(b,ctx); let s=cs.s;
                 const ld=Math.abs((b.level||3)-wantLv); s+=(ld===0?24:ld===1?13:ld===2?-2:-16);   // 난이도 적합 강하게
                 s+=((b.q!=null?b.q:50)-50)*0.45;                                  // 내재 품질(최신성+상품성) → 가나다 동점 해소
