@@ -94,6 +94,10 @@
         /* 💬 챗봇 런처 — 눈에 띄는 물결 애니메이션 */
         @keyframes chatPulse { 0%,100%{ box-shadow:0 0 0 0 rgba(45,212,191,.5);} 50%{ box-shadow:0 0 0 14px rgba(45,212,191,0);} }
         .chat-pulse { animation: chatPulse 2.2s ease-out infinite; }
+        .card-grid { display:grid; gap:.6rem; grid-template-columns:repeat(auto-fit, minmax(min(270px,100%),1fr)); }
+        .frame-cover { aspect-ratio:3/4; overflow:clip; display:block; }
+        .frame-cover > img { width:100%; height:100%; object-fit:cover; display:block; }
+        #view-2d > * { min-width:0; }
     </style>
 </head>
 <body class="flex flex-col h-screen">
@@ -1703,7 +1707,7 @@
                 let chips='';
                 if(state.track==='exam'){ const types=(TABS.examType||['전체']); chips=`<div class="flex flex-wrap gap-1.5 mb-2">`+types.map(t=>{ const v=(t==='전체'?'':t); const on=(state.examFilter||'')===v; return `<button onclick="state.examFilter='${v}';renderRecView()" class="px-2.5 py-1 rounded-full text-[11px] font-bold ${on?'bg-brand text-slate-900':'bg-slate-800 text-slate-300 border border-slate-700 hover:text-white'}">${t}</button>`; }).join('')+`</div>`; }
                 wrap.innerHTML=bb+`<div class="mb-2"><div class="text-sm font-bold text-white">${head.t} <span class="text-[11px] text-brand font-normal">${recs.length}종</span></div><div class="text-[11px] text-slate-400">${head.d}</div></div>`+chips+
-                    `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">${recs.map(x=>recCard(x.b,x.why)).join('')||'<div class="text-xs text-slate-500 col-span-full">해당 트랙 교재가 아직 없습니다.</div>'}</div>`;
+                    `<div class="card-grid">${recs.map(x=>recCard(x.b,x.why)).join('')||'<div class="text-xs text-slate-500 col-span-full">해당 트랙 교재가 아직 없습니다.</div>'}</div>`;
                 if(typeof lucide!=='undefined') lucide.createIcons();
                 return;
             }
@@ -1714,7 +1718,7 @@
             if(cur){
                 if(curCard) curCard.innerHTML=`<div class="flex gap-2 items-center bg-slate-900 border border-brand/40 rounded-lg p-2"><img src="${cur.cover||''}" class="w-8 h-11 object-cover rounded" onerror="this.style.display='none'"><div class="min-w-0 flex-1"><div class="text-sm font-bold text-white truncate">${cur.title}</div><div class="text-[11px] text-slate-400">${cur.pub} · ${cur.skill} · Lv${cur.level}${cur.cefr?(' · '+cur.cefr):''}</div></div><button onclick="state.recCurrent=null;renderRecView()" class="text-[10px] text-slate-400 hover:text-white flex-shrink-0">✕ 해제</button></div>`;
                 const ctxLabel=[ctx.grade,ctx.goal&&('🎯'+ctx.goal),ctx.timing&&('🗓'+ctx.timing)].filter(Boolean).join(' · ');
-                wrap.innerHTML=bb+(ctxLabel?`<div class="text-[11px] text-slate-400 mb-2">맞춤 조건 반영: <b class="text-brand">${ctxLabel}</b></div>`:'')+`<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                wrap.innerHTML=bb+(ctxLabel?`<div class="text-[11px] text-slate-400 mb-2">맞춤 조건 반영: <b class="text-brand">${ctxLabel}</b></div>`:'')+`<div class="card-grid">
                     ${recCol('📈 80%+ · 도전','거의 다 맞혀요 → 한 단계 위 책으로 도전','#10b981',cur,'high',ctx)}
                     ${recCol('➡️ 60~79% · 굳히기','이해는 됐지만 아직 안 익었어요 → 같은 수준 한 번 더(시리즈 다음 권)','#0ea5e9',cur,'mid',ctx)}
                     ${recCol('🔁 40%↓ · 다지기','많이 틀려요 → 한 단계 쉬운 책으로 약한 부분 다지기','#f59e0b',cur,'low',ctx)}
@@ -1726,7 +1730,7 @@
                 const recs=starterRec(ctx);
                 const ctxLabel=[ctx.grade,ctx.goal&&('🎯'+ctx.goal),ctx.timing&&('🗓'+ctx.timing)].filter(Boolean).join(' · ');
                 wrap.innerHTML=bb+`<div class="mb-2 text-sm font-bold text-white">🚀 시작 추천 <span class="text-[11px] text-brand font-normal">— ${ctxLabel}</span></div>`+
-                    `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">${recs.map(x=>recCard(x.b,x.why)).join('')||'<div class="text-xs text-slate-500 col-span-full">조건에 맞는 시작 교재가 없습니다. 조건을 완화해보세요.</div>'}</div>`;
+                    `<div class="card-grid">${recs.map(x=>recCard(x.b,x.why)).join('')||'<div class="text-xs text-slate-500 col-span-full">조건에 맞는 시작 교재가 없습니다. 조건을 완화해보세요.</div>'}</div>`;
             }
             if(typeof lucide!=='undefined') lucide.createIcons();
         }
