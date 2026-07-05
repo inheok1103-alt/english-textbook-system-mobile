@@ -1593,22 +1593,42 @@
             if(goal==='수능·모의고사'||goal==='시험영어(토익·토플)') lv=Math.max(lv,3);
             return lv;
         }
-        function recCard(b, why){ return `
-            <div class="bg-slate-800/60 border border-slate-700 rounded-lg p-2 mb-2">
-              <div class="flex gap-2">
-                <img src="${b.cover||'https://placehold.co/60x80/1e293b/64748b?text=BOOK'}" class="w-9 h-12 object-cover rounded flex-shrink-0" onerror="this.src='https://placehold.co/60x80/1e293b/64748b?text=BOOK'">
-                <div class="min-w-0 flex-1">
-                  <div class="text-[11px] font-bold text-white truncate" title="${b.title}">${b.title}</div>
-                  <div class="text-[10px] text-slate-400 truncate">${b.pub} · ${b.skill} · Lv${b.level}${b.gradeBand?(' · '+b.gradeBand):''}${b.cefr?(' · '+b.cefr):''}${b.foreign?' · 📖원서':''}${b.price?(' · <b class="text-slate-300">'+priceStr(b)+'</b>'):''}${isNew(b)?' · <span class="text-brand">🆕</span>':''}${b.status==='절판'?' · <span class="text-danger">절판</span>':''}</div>
-                  <div class="text-[10px] text-brand mt-0.5 truncate">${(why||[]).slice(0,3).join(' · ')||'적합'}</div>
-                </div>
+        // 다듬은 콤팩트 카드(StyleGallery media-object + frame-cover + cluster) — 비교·결정에 최적, 정보밀도 유지
+        function recCard(b, why){
+            const pk = popKey(b);
+            const ph = 'https://placehold.co/90x120/1e293b/64748b?text=BOOK';
+            const corner = pk>0 ? `<span class="absolute -top-1.5 -right-1.5 z-[2] px-1 py-0.5 rounded-full text-[9px] font-black bg-orange-500 text-slate-900 shadow">🔥${pk>9999?Math.round(pk/1000)+'k':pk}</span>`
+                : (isNew(b) ? `<span class="absolute -top-1.5 -right-1.5 z-[2] px-1 py-0.5 rounded-full text-[9px] font-black bg-sky-400 text-slate-900 shadow">🆕</span>` : '');
+            const canGrid = GRID_ROWS.includes(b.skill)&&(state.track==='student'||state.track==='adult');
+            return `
+            <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-2.5 hover:border-brand/50 hover:bg-slate-800 transition flex gap-2.5">
+              <div class="relative w-14 shrink-0">
+                <div class="frame-cover rounded-lg ring-1 ring-slate-700 bg-slate-900">
+                  <img src="${b.cover||ph}" loading="lazy" onerror="this.src='${ph}'">
+                </div>${corner}
               </div>
-              ${b.comment?`<div class="text-[10px] text-slate-400 mt-1 leading-snug line-clamp-2">${b.comment}</div>`:''}
-              <div class="flex gap-1 mt-1.5">
-                <button onclick="addToBasket('${b.id}')" class="flex-1 ${inBasket(b.id)?'bg-brand text-slate-900':'bg-slate-700 hover:bg-slate-600 text-white'} text-[10px] font-bold py-1.5 rounded">${inBasket(b.id)?'✓ 담음':'＋ 내 목록에 담기'}</button>
-                ${(GRID_ROWS.includes(b.skill)&&(state.track==='student'||state.track==='adult'))?`<button onclick="placeRecToGrid('${b.id}')" title="계획표(그리드)에 바로 배치" class="px-2 ${gridIsPlaced(b.id)?'bg-brand/30 text-brand':'bg-slate-800 hover:bg-slate-700 text-slate-200'} text-[10px] font-bold rounded">${gridIsPlaced(b.id)?'✓ 계획표':'📋 펼치기'}</button>`:''}
-                <button onclick="recFeedback('${b.id}',1)" title="도움됐어요" class="px-2 bg-slate-800 hover:bg-slate-700 text-[11px] rounded">👍</button>
-                <button onclick="recFeedback('${b.id}',-1)" title="안 맞아요" class="px-2 bg-slate-800 hover:bg-slate-700 text-[11px] rounded">👎</button>
+              <div class="min-w-0 flex-1 flex flex-col gap-1">
+                <div class="flex items-start gap-1">
+                  <h4 class="text-[13px] font-bold text-white leading-snug line-clamp-2 flex-1" title="${escHtml(b.title)}">${escHtml(b.title)}</h4>
+                  <button onclick="event.stopPropagation();showBookDetail('${b.id}')" title="상세·평가" class="shrink-0 w-5 h-5 -mt-0.5 rounded-full bg-slate-700/70 hover:bg-brand hover:text-slate-900 text-slate-300 text-[11px] flex items-center justify-center">ⓘ</button>
+                </div>
+                <div class="flex flex-wrap gap-1 items-center">
+                  <span class="text-[10px] text-slate-400">${escHtml(b.pub||'')}</span>
+                  ${b.gradeBand?`<span class="text-[10px] bg-slate-700/60 text-slate-300 px-1.5 py-0.5 rounded">${b.gradeBand}</span>`:''}
+                  <span class="text-[10px] bg-brand/15 text-brand font-bold px-1.5 py-0.5 rounded">${b.skill}</span>
+                  <span class="text-[10px] bg-slate-700/60 text-slate-300 px-1.5 py-0.5 rounded">Lv${b.level}</span>
+                  ${b.foreign?`<span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded">📖</span>`:''}
+                  ${b.status==='절판'?`<span class="text-[10px] bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded">절판</span>`:''}
+                </div>
+                <div class="text-[10.5px] text-brand line-clamp-1">${(why||[]).slice(0,3).join(' · ')||'적합'}</div>
+                <div class="mt-auto flex items-center gap-1 pt-1">
+                  <span class="text-[12px] font-black text-slate-200 tabular-nums">${b.price?priceStr(b):''}</span>
+                  <div class="ml-auto flex items-center gap-1">
+                    ${canGrid?`<button onclick="placeRecToGrid('${b.id}')" title="계획표에 배치" class="px-1.5 py-1 ${gridIsPlaced(b.id)?'bg-brand/30 text-brand':'bg-slate-700/70 hover:bg-slate-600 text-slate-200'} text-[10px] font-bold rounded">${gridIsPlaced(b.id)?'✓계획표':'📋펼치기'}</button>`:''}
+                    <button onclick="recFeedback('${b.id}',1)" title="도움됐어요" class="w-6 h-6 bg-slate-700/70 hover:bg-slate-600 text-[11px] rounded flex items-center justify-center">👍</button>
+                    <button onclick="addToBasket('${b.id}')" class="${inBasket(b.id)?'bg-brand text-slate-900':'bg-brand/90 hover:bg-brand text-slate-900'} text-[11px] font-black px-2.5 py-1 rounded">${inBasket(b.id)?'✓담음':'＋담기'}</button>
+                  </div>
+                </div>
               </div>
             </div>`; }
         // 다음 단계(정답률 구간별) — 현재 교재 기준 + 상황·학년 가중치
