@@ -1337,6 +1337,21 @@
                     <div class="text-[11px] font-black text-brand tabular-nums shrink-0">${it.count}<span class="text-slate-500 font-normal">${it.pct!=null?(' '+it.pct+'%'):'명'}</span></div>
                     ${b?`<button onclick="showBookDetail('${it.uid}')" class="text-[10px] text-slate-400 hover:text-brand shrink-0 px-0.5">보기</button>`:''}
                 </div>`; }).join(''); }
+        function weeklyRows(list){ if(!list||!list.length) return '<div class="text-slate-500 text-xs py-2">이 학년대 주간 데이터가 아직 없어요</div>';
+            return list.map(it=>{
+                const cov=it.cover?`<img src="${it.cover}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.display='none'">`:'<span class="text-[8px] text-slate-600">BOOK</span>';
+                const sp=it.salesPoint?`<span class="text-[10px] text-slate-500 tabular-nums">판매 ${Number(it.salesPoint).toLocaleString()}</span>`:'';
+                const pr=it.price?`<span class="text-[10px] text-accent tabular-nums">₩${Number(it.price).toLocaleString()}</span>`:'';
+                const act=it.matchedUid?`<button onclick="showBookDetail('${it.matchedUid}')" class="text-[10px] text-slate-400 hover:text-brand shrink-0 px-0.5">보기</button>`:(it.inCatalog===false?'<span class="text-[9px] text-warn shrink-0">신간</span>':'');
+                return `<div class="flex items-center gap-2 py-1.5 border-b border-slate-800/50 last:border-0">
+                    <div class="w-6 text-center text-base leading-none">${rankBadge(it.rank-1)}</div>
+                    <div class="w-8 h-11 rounded overflow-hidden bg-slate-800 shrink-0 flex items-center justify-center ring-1 ring-slate-700">${cov}</div>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-xs font-bold text-white truncate" title="${escHtml(it.title||'')}">${escHtml(it.title||'')}</div>
+                        <div class="flex items-center gap-2 mt-0.5">${sp}${pr}<span class="text-[10px] text-slate-600 truncate">${escHtml((it.publisher||'').slice(0,12))}</span></div>
+                    </div>
+                    ${act}
+                </div>`; }).join(''); }
         function renderSummary(d){ if(!d||!d.ok) return '<div class="text-danger">데이터 형식 오류</div>'; let h=`<div class="text-xs text-slate-400 mb-2">총 제출 ${d.total||0}건 / 누적 ${d.totalAll||0}건 · ${d.bucket}</div>`; h+='<div class="font-bold text-white mb-1">인기 교재 Top</div>'+barRows(d.popularMaterials||[]);
             if(d.popularPairs&&d.popularPairs.length){ h+='<div class="font-bold text-white mt-3 mb-1">인기 조합(연속 교재)</div>'+d.popularPairs.slice(0,10).map((p,i)=>`<div class="text-xs mb-1">${i+1}. ${titleOf(p.from)} <span class="text-brand">→</span> ${titleOf(p.to)} <span class="text-slate-500">(${p.count})</span></div>`).join(''); }
             return h; }
@@ -1799,7 +1814,7 @@
             if(typeof lucide!=='undefined') lucide.createIcons();
         }
         // ===== 랭킹 대시보드 =====
-        window.__rankState = { bucket:'all', grade:'', area:'', source:'app' };
+        window.__rankState = { bucket:'all', grade:'', area:'', source:'app', mkt:'weekly' };
         function renderRankView(){
             const buckets={all:'전체',day:'일간',week:'주간',month:'월간',year:'연간'};
             const bw=document.getElementById('rankBucket');
@@ -1861,19 +1876,33 @@
                     mine.innerHTML+=`<div class="font-bold text-white mt-3 mb-1 text-sm">커뮤니티 등급 Top</div>`+top.map((x,i)=>`<div class="text-xs mb-1 flex items-center gap-2"><span class="font-black" style="color:${gradeColor(x.grade)}">${x.grade}</span><span class="truncate flex-1">${titleOf(x.uid)}</span><span class="text-slate-500">${x.avg}·${x.count}명</span></div>`).join('');
                 }
             }).catch(()=>{});
-            // ② 외부 랭킹
-            // ② 판매 인기 랭킹 — 정적 rankings.json(GitHub 크론이 매일 자동 갱신, PC·GAS 불필요). 상단 학년칩(st.grade)으로 필터.
+            // ② 판매 랭킹 — 정적 rankings.json(GitHub 크론 자동 갱신). 두 소스 토글:
+            //   🔥 주간 베스트 = 알라딘 베스트셀러 API 실주간 판매순위(weekly.byBucket) · 📊 누적 인기 = 누적 판매지수(items)
             const gbSel = st.grade||'전체';
+            const mkt = st.mkt||'weekly';
             fetch('rankings.json?v='+Math.floor(Date.now()/3600000)).then(r=>r.ok?r.json():null).then(rk=>{
-                let its=((rk&&rk.items)||[]).filter(it=>String(it.gradeBand)===gbSel);
-                if(st.area) its=its.filter(it=>it.englishArea===st.area);
-                if(its.length){
-                    ext.style.display='';
-                    let h=_rankCard(`② 판매 인기 랭킹 <span class="text-[10px] text-slate-500 font-normal">알라딘 판매지수 · ${(rk.generatedAt||'').slice(0,10)} 자동갱신</span>`, '');
-                    h+=its.slice(0,20).map(it=>`<div class="text-xs mb-1 flex items-center gap-2"><span class="w-5 text-right text-slate-500">${it.rank}</span><span class="truncate flex-1" title="${escHtml(it.title)}">${escHtml(it.title)}</span><span class="text-[10px] text-slate-500 flex-shrink-0">${escHtml((it.publisher||'').slice(0,10))}</span>${it.matchedUid?`<button onclick="showBookDetail('${it.matchedUid}')" class="text-[10px] text-brand flex-shrink-0 hover:underline">보기</button>`:''}</div>`).join('');
-                    h+=`<div class="text-[10px] text-slate-600 mt-1">${gbSel} 기준 · 위 학년 필터로 전환 · 매일 클라우드 자동 갱신</div>`;
-                    ext.innerHTML=h;
-                } else { ext.innerHTML=''; ext.style.display='none'; }
+                if(!rk){ ext.innerHTML=''; ext.style.display='none'; return; }
+                const hasWeekly = rk.weekly && rk.weekly.byBucket;
+                const useWeekly = mkt==='weekly' && hasWeekly;
+                const tog = `<div class="flex gap-1 mb-2">`+
+                    `<button onclick="setRank('mkt','weekly')" class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${useWeekly?'bg-brand text-slate-900 border-brand':'bg-slate-800 text-slate-300 border-slate-600'}"${hasWeekly?'':' disabled title="주간 데이터 준비 중"'}>🔥 주간 베스트</button>`+
+                    `<button onclick="setRank('mkt','cumulative')" class="px-2.5 py-1 rounded-full text-[11px] font-bold border ${!useWeekly?'bg-brand text-slate-900 border-brand':'bg-slate-800 text-slate-300 border-slate-600'}">📊 누적 인기</button>`+
+                    `</div>`;
+                let h;
+                if(useWeekly){
+                    let list=(rk.weekly.byBucket[gbSel]||[]);
+                    if(st.area) list=list.filter(it=>it.englishArea===st.area);
+                    h=_rankCard(`② 판매 베스트셀러 <span class="text-[10px] text-slate-500 font-normal">알라딘 주간 · ${escHtml(rk.weekly.weekLabel||'')} · ${escHtml(gbSel)}</span>`, tog);
+                    h+=weeklyRows(list.slice(0,20));
+                    h+=`<div class="text-[10px] text-slate-600 mt-1">알라딘 실제 주간 판매순위 · 매주 자동 갱신 · 위 학년칩으로 전환</div>`;
+                } else {
+                    let its=((rk.items)||[]).filter(it=>String(it.gradeBand)===gbSel);
+                    if(st.area) its=its.filter(it=>it.englishArea===st.area);
+                    h=_rankCard(`② 누적 인기 랭킹 <span class="text-[10px] text-slate-500 font-normal">알라딘 판매지수 · ${(rk.generatedAt||'').slice(0,10)} 자동갱신</span>`, tog);
+                    h+= its.length ? its.slice(0,20).map(it=>`<div class="text-xs mb-1 flex items-center gap-2"><span class="w-5 text-right text-slate-500">${it.rank}</span><span class="truncate flex-1" title="${escHtml(it.title)}">${escHtml(it.title)}</span><span class="text-[10px] text-slate-500 flex-shrink-0">${escHtml((it.publisher||'').slice(0,10))}</span>${it.matchedUid?`<button onclick="showBookDetail('${it.matchedUid}')" class="text-[10px] text-brand flex-shrink-0 hover:underline">보기</button>`:''}</div>`).join('') : '<div class="text-slate-500 text-xs py-2">이 학년대 데이터가 없어요</div>';
+                    h+=`<div class="text-[10px] text-slate-600 mt-1">${escHtml(gbSel)} 기준 · 누적 판매지수 · 매일 자동 갱신</div>`;
+                }
+                ext.style.display=''; ext.innerHTML=h;
             }).catch(()=>{ ext.innerHTML=''; ext.style.display='none'; });
         }
         function init3D() {
