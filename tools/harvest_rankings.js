@@ -108,7 +108,10 @@ async function buildWeekly() {
         isbn: x.isbn, salesPoint: x.salesPoint, price: +x.it.priceSales || null,
         aladinRank: +x.it.bestRank || null, publisher: x.it.publisher || "",
         matchedUid: cb ? cb.id : null, inCatalog: !!cb,
-        cover: cb ? cb.cover : (x.it.cover || ""),           // 매칭=로컬표지 / 미매칭=알라딘표지
+        // 알라딘 원격표지(CDN) 우선 — PC·모바일 라이브 모두에서 로드됨. 로컬 covers/IH-ALADIN-*.jpg는
+        // 모바일 리포에 동기 안 돼(용량 제외) 404 나므로 원격을 primary로. 원격 없으면 로컬 폴백.
+        cover: x.it.cover || (cb ? cb.cover : ""),
+        coverLocal: cb ? cb.cover : "",                      // onerror 2차 폴백용(로컬 존재 시)
         englishArea: cb ? (cb.skill || "통합") : "",
       };
     });

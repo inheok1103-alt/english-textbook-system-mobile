@@ -521,7 +521,7 @@
             return !b.examPrep && !b.parentBook && !b.teacherRef && !b.adultGeneral;   // student — 성인일반(회화·여행·작문 등) 제외
         }
         // 정밀 학년거리(0=범위 안, 1=인접, 2+=멀다) — classify_books의 gradeMin/Max 우선, 없으면 gradeBand로.
-        const _GORD={'유아/예비초':0,'초등':1,'중등':2,'고등':3,'성인':4,'대학/전공':4};
+        const _GORD={'유아/예비초':0,'유아':0,'예비초':0,'초등':1,'중등':2,'고등':3,'성인':4,'대학/전공':4};
         function gradeGap(b, grade){
             if(!grade) return 0; const g=_GORD[grade]; if(g==null) return 0;
             let mn=b.gradeMin, mx=b.gradeMax;
@@ -1339,7 +1339,7 @@
                 </div>`; }).join(''); }
         function weeklyRows(list){ if(!list||!list.length) return '<div class="text-slate-500 text-xs py-2">이 학년대 주간 데이터가 아직 없어요</div>';
             return list.map(it=>{
-                const cov=it.cover?`<img src="${it.cover}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.display='none'">`:'<span class="text-[8px] text-slate-600">BOOK</span>';
+                const cov=it.cover?`<img src="${it.cover}" data-l="${it.coverLocal||''}" loading="lazy" class="w-full h-full object-cover" onerror="if(!this._f&&this.dataset.l){this._f=1;this.src=this.dataset.l;}else{this.onerror=null;this.style.display='none';}">`:'<span class="text-[8px] text-slate-600">BOOK</span>';
                 const sp=it.salesPoint?`<span class="text-[10px] text-slate-500 tabular-nums">판매 ${Number(it.salesPoint).toLocaleString()}</span>`:'';
                 const pr=it.price?`<span class="text-[10px] text-accent tabular-nums">₩${Number(it.price).toLocaleString()}</span>`:'';
                 const act=it.matchedUid?`<button onclick="showBookDetail('${it.matchedUid}')" class="text-[10px] text-slate-400 hover:text-brand shrink-0 px-0.5">보기</button>`:(it.inCatalog===false?'<span class="text-[9px] text-warn shrink-0">신간</span>':'');
