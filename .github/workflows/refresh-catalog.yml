@@ -42,22 +42,7 @@ jobs:
             git commit -m "chore: KOBIC 신간·표지 자동 갱신 ($(date -u +%Y-%m-%d))"
             git push
           fi
-
-  # GitHub Pages 배포 (index.html을 https로 공유)
-  deploy-pages:
-    needs: refresh
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'        # repo 루트(index.html + covers/)를 그대로 배포
-      - id: deployment
-        uses: actions/deploy-pages@v4
+        # ↑ 이 push가 legacy(branch) Pages를 자동 배포한다. 별도 deploy-pages 잡은
+        #   깃허브 내장 pages-build-deployment와 같은 github-pages 환경을 두고 경쟁 →
+        #   "in progress deployment" 400 실패 → 소유자 이메일 알림 스팸. 그래서 제거함.
+        #   (모바일 Pages build_type=legacy이므로 배포는 push만으로 충분.)
