@@ -236,6 +236,7 @@
                     <button onclick="shareCurriculum()" class="flex-1 min-w-[100px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="upload-cloud" class="w-4 h-4"></i> 커리 공유</button>
                     <button onclick="exportCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="save" class="w-4 h-4"></i> 저장</button>
                     <button onclick="importCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="folder-open" class="w-4 h-4"></i> 불러오기</button>
+                    <button onclick="curriculumRationale()" class="flex-1 min-w-[110px] bg-brand/20 border border-brand text-brand font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="help-circle" class="w-4 h-4"></i> 왜 이 커리큘럼?</button>
                     <button onclick="printCurriculum()" class="flex-1 min-w-[80px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="printer" class="w-4 h-4"></i> 출력</button>
                     <button onclick="openDashboard()" class="flex-1 min-w-[100px] bg-slate-800 border border-slate-600 text-white font-bold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> 실시간 대시보드</button>
                     </div>
@@ -1110,6 +1111,40 @@
         }
 
         // 커리큘럼 예쁘게 출력/PDF
+        function curriculumRationale(){
+            const placed=gridPlaced();
+            if(!placed.length){ showToast("먼저 교재를 배치하세요 — '목표 시작'이나 '균형 채우기'를 눌러보세요", true); return; }
+            try{ logEvent('curri_why',{n:placed.length}); }catch(e){}
+            const rows=GRID_ROWS.map(sk=>({sk,seq:gridRowSeq(sk)})).filter(r=>r.seq.length);
+            const total=placed.length;
+            const top=rows.slice().sort((a,b)=>b.seq.length-a.seq.length)[0];
+            const unit=(TIME_UNITS[TIME_UNIT]||{}).ko||'';
+            const grade=state.curGrade||'';
+            const covered=GRID_CORE.filter(s=>rows.some(r=>r.sk===s));
+            const missing=GRID_CORE.filter(s=>!covered.includes(s));
+            const arrow=' <span class="text-brand font-black">→</span> ';
+            const skillHtml=rows.map(r=>{
+                const lvs=r.seq.map(x=>x.book.level||3);
+                const nondec=lvs.every((v,i)=>i===0||v>=lvs[i-1]);
+                const bigJump=lvs.length>1 && Math.max(...lvs.map((v,i)=>i?v-lvs[i-1]:0))>=2;
+                const chain=r.seq.map(x=>`<b class="text-white">${escHtml(x.book.title)}</b> <span class="text-slate-500 text-[10px]">Lv${x.book.level||'?'}</span>`).join(arrow);
+                let why, tone='text-slate-400';
+                if(r.seq.length===1){ why="시작 교재 1권입니다 — 옆 칸을 누르면 이어질 다음 단계가 추천돼요."; }
+                else if(nondec && bigJump){ why=`난이도가 한 번에 2단계 이상 뛰는 구간이 있어요. 사이 단계 교재를 넣으면 더 매끄럽습니다.`; tone='text-amber-400'; }
+                else if(nondec){ why=`쉬운 <b>Lv${Math.min(...lvs)}</b>에서 시작해 <b>Lv${Math.max(...lvs)}</b>까지 <b class="text-accent">한 단계씩 올라가</b> 아이가 무리 없이 따라갑니다.`; }
+                else { why="뒤 교재가 앞 교재보다 쉬운 구간이 있어요 — 순서를 바꾸면 난이도가 자연스러워집니다."; tone='text-amber-400'; }
+                return `<div class="mb-2.5 p-3 bg-slate-900 rounded-lg border border-slate-700">
+                    <div class="text-sm font-bold text-brand mb-1.5">${escHtml(r.sk)} <span class="text-[11px] text-slate-500 font-normal">· ${r.seq.length}단계</span></div>
+                    <div class="text-xs leading-relaxed mb-1.5">${chain}</div>
+                    <div class="text-[11px] ${tone} leading-snug">↳ ${why}</div></div>`;
+            }).join('');
+            const head=`<div class="mb-3 p-3 bg-brand/10 border border-brand/40 rounded-lg text-sm leading-relaxed">
+                ${grade?`<b class="text-white">${escHtml(grade)}</b> 학생 · `:''}<b class="text-brand">${escHtml(top.sk)}</b> 중심 <b>${escHtml(unit)}</b> 계획 · 총 <b class="text-white">${total}권</b>.<br>
+                ${missing.length?`<span class="text-amber-400">아직 빈 핵심영역: <b>${missing.join('·')}</b> — '균형 채우기'로 채우면 4대영역이 완성돼요.</span>`:`<span class="text-accent font-bold">✓ 읽기·듣기·말하기·쓰기 4대영역이 고루 갖춰졌습니다.</span>`}</div>`;
+            const foot=`<div class="mt-1 text-[11px] text-slate-500 leading-snug">이 설명은 배치된 교재의 <b>레벨·순서·영역</b>을 자동 분석한 것입니다. 교재를 바꾸면 다시 눌러 확인하세요. 확신이 서면 <b>'출력'</b>으로 인쇄해 상담·서점에 들고 가세요.</div>`;
+            openModal('📋 왜 이 커리큘럼인가요?', head+skillHtml+foot);
+        }
+
         function printCurriculum(){
             const placed=gridPlaced(); if(!placed.length){ showToast('먼저 교재를 배치하세요', true); return; }
             accumulateUsage('pdf');
