@@ -68,7 +68,9 @@ async function buildWeekly() {
   // 신선도 가드: 기존 weekly가 20시간 내면 재사용(알라딘 주1회 갱신이라 하루 1회로 충분)
   try {
     const prev = JSON.parse(fs.readFileSync(OUT, "utf8"));
-    if (prev.weekly && prev.weekly.fetchedAt && (Date.now() - new Date(prev.weekly.fetchedAt).getTime()) < 20 * 3600 * 1000) {
+    const prevHas = prev.weekly && prev.weekly.byBucket && Object.values(prev.weekly.byBucket).some((a) => Array.isArray(a) && a.length);
+    // ⚠️ 비어있는 weekly는 재사용 금지(빈 채로 20h 고정되는 사고 방지). 내용 있을 때만 신선도 재사용.
+    if (prevHas && prev.weekly.fetchedAt && (Date.now() - new Date(prev.weekly.fetchedAt).getTime()) < 20 * 3600 * 1000) {
       console.log("주간 베스트: 기존본 신선(20h내) — 재사용");
       return prev.weekly;
     }
@@ -80,11 +82,11 @@ async function buildWeekly() {
   for (const { cid, bucket } of WEEKLY_CIDS) {
     const url = `https://www.aladin.co.kr/ttb/api/ItemList.aspx?ttbkey=${KEY}&QueryType=Bestseller&SearchTarget=Book&CategoryId=${cid}&MaxResults=30&start=1&output=js&Version=20131101&Cover=Big`;
     let j = await apiGet(url); calls++;
-    if (!j || !j.item) { await sleep(400); j = await apiGet(url); calls++; }   // 1회 재시도
-    if (j && j.item) { byCid[cid] = { bucket, items: j.item }; ok++; }
+    if (!j || !j.item || !j.item.length) { await sleep(400); j = await apiGet(url); calls++; }   // 빈 응답도 1회 재시도
+    if (j && j.item && j.item.length) { byCid[cid] = { bucket, items: j.item }; ok++; }          // 빈 배열은 성공 아님
     await sleep(300);                                       // 예의상 간격
   }
-  if (!ok) { console.log("주간 베스트: 응답 0 — 건너뜀"); return null; }
+  if (!ok) { console.log("주간 베스트: 응답 0 — 건너뜀(기존 weekly 유지)"); return null; }
 
   // 버킷별 병합·중복제거(ISBN)·시리즈완화·상위 20
   const byBucket = {};
@@ -124,6 +126,9 @@ async function buildWeekly() {
   byBucket["전체"] = Object.values(dedupA).sort((a, b) => b.salesPoint - a.salesPoint).filter((x) => {
     const sk = seriesKey(x.title); if (sk) { if ((seenA[sk] = (seenA[sk] || 0) + 1) > 2) return false; } return true;
   }).slice(0, 25).map((x, i) => ({ ...x, bucket: "전체", rank: i + 1 }));
+
+  // 최종 빈-가드: 4버킷 전부 비면 weekly 자체를 쓰지 않음(빈 채로 라이브 노출 방지) → 기존본 유지.
+  if (!all.length) { console.log("주간 베스트: 병합결과 0 — weekly 미기록(기존 유지)"); return null; }
 
   const now = new Date();
   console.log(`주간 베스트: 호출 ${calls} · 카테고리 ${ok}/${WEEKLY_CIDS.length} · 초${byBucket["초"].length}·중${byBucket["중"].length}·고${byBucket["고"].length}·성인${byBucket["성인"].length}`);

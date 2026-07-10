@@ -292,8 +292,11 @@ MASTER_DATA.sort((a, b) => {
 const out = fs.readFileSync(BASE, "utf8");
 fs.writeFileSync(path.join(ROOT, "books.js"), `window.__BOOKS__=${JSON.stringify(MASTER_DATA)};\nwindow.__TABS__=${JSON.stringify(TABS)};\n`, "utf8");
 // 목차(toc)는 용량 절반 이상 → 별도 toc.js(지연 로딩)로 분리해 첫 로딩 가속
+// ⚠️ 참조 무결성: toc 키는 최종 MASTER_DATA(books.js)의 id 부분집합이어야 함 —
+//    englishOnly 기준으로 만들면 이후 필터(절판 등)로 빠진 책의 고아 toc가 남는다.
+const liveIds = new Set(MASTER_DATA.map((b) => b.id));
 const tocMap = {};
-englishOnly.forEach((m) => { if (m.toc) tocMap[m.materialUid] = m.toc; });
+englishOnly.forEach((m) => { if (m.toc && liveIds.has(m.materialUid)) tocMap[m.materialUid] = m.toc; });
 fs.writeFileSync(path.join(ROOT, "toc.js"), `window.__TOC__=${JSON.stringify(tocMap)};\n`, "utf8");
 fs.writeFileSync(OUT, out, "utf8");
 
